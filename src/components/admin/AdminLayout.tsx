@@ -62,6 +62,39 @@ export default function AdminLayout() {
           <Outlet />
         )}
       </main>
+      <nav className="admin-bottom-nav">
+        <NavLink
+          to="/admin/dashboard"
+          className={({ isActive }) =>
+            isActive ? 'bottom-nav-item bottom-nav-item--active' : 'bottom-nav-item'
+          }
+        >
+          <span className="bottom-nav-icon">🏠</span>
+          <span className="bottom-nav-label">Dashboard</span>
+        </NavLink>
+        <NavLink
+          to="/admin/slots"
+          className={({ isActive }) =>
+            isActive ? 'bottom-nav-item bottom-nav-item--active' : 'bottom-nav-item'
+          }
+        >
+          <span className="bottom-nav-icon">🗓</span>
+          <span className="bottom-nav-label">Lezioni</span>
+        </NavLink>
+        <NavLink
+          to="/admin/students"
+          className={({ isActive }) =>
+            isActive ? 'bottom-nav-item bottom-nav-item--active' : 'bottom-nav-item'
+          }
+        >
+          <span className="bottom-nav-icon">👥</span>
+          <span className="bottom-nav-label">Studenti</span>
+        </NavLink>
+        <button className="bottom-nav-item" onClick={handleLogout}>
+          <span className="bottom-nav-icon">↩</span>
+          <span className="bottom-nav-label">Esci</span>
+        </button>
+      </nav>
     </div>
   )
 }

@@ -67,6 +67,11 @@
 }
 
 @media (max-width: 540px) {
+  .confirmed-page {
+    padding: 24px 20px;
+    align-items: flex-start;
+  }
+
   .confirmed-card {
     padding: 40px 24px;
   }

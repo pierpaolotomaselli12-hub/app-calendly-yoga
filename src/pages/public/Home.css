@@ -198,7 +198,7 @@
 
 @media (max-width: 640px) {
   .home-header {
-    padding: 20px 24px;
+    padding: 16px 20px;
   }
 
   .home-logo {
@@ -211,5 +211,19 @@
 
   .home-main {
     padding: 28px 16px;
+  }
+
+  .slot-card {
+    padding: 20px;
+  }
+
+  .slot-card__btn,
+  .btn-waitlist {
+    min-height: 48px;
+  }
+
+  .pill {
+    min-height: 40px;
+    padding: 8px 18px;
   }
 }

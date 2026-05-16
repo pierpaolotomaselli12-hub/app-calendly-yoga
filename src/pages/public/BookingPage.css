@@ -199,4 +199,21 @@
   .booking-form {
     padding: 20px;
   }
+
+  .booking-form__submit {
+    min-height: 52px;
+    font-size: 17px;
+  }
+
+  .booking-back {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 48px;
+  }
 }

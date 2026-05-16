@@ -45,6 +45,10 @@
   color: var(--color-text-light);
 }
 
+.dashboard-section {
+  margin-bottom: 52px;
+}
+
 .section-title {
   font-size: 17px;
   font-weight: 400;
@@ -69,10 +73,16 @@
 
 .upcoming-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   padding: 16px 20px;
   background: var(--color-white);
+}
+
+.upcoming-item-top {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .upcoming-info {
@@ -123,8 +133,66 @@
   letter-spacing: 0.04em;
 }
 
-@media (max-width: 640px) {
+.fill-bar-wrap {
+  height: 3px;
+  background: var(--color-border);
+  width: 100%;
+  margin-top: 8px;
+  border-radius: 2px;
+}
+
+.fill-bar {
+  height: 3px;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.type-card {
+  background: var(--color-white);
+  padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.type-card__name {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-light);
+}
+
+.type-card__bookings {
+  font-size: 24px;
+  color: var(--color-green);
+  font-family: 'Goudy Bookletter 1911', serif;
+}
+
+.type-card__lessons {
+  font-size: 12px;
+  color: var(--color-text-light);
+}
+
+@media (max-width: 760px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
   .dashboard-stats {
     grid-template-columns: 1fr;
+  }
+
+  .type-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
