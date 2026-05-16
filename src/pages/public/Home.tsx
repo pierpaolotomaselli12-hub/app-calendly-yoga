@@ -83,6 +83,7 @@ export default function Home() {
             <div className="home-credits-badge">
               <span className="home-credits-icon">◉</span>
               <span className="home-credits-count">{currentStudent.lessonCredits}</span>
+              <span className="home-credits-label">lezioni rimanenti nel pacchetto</span>
             </div>
             <span className="home-student-name">Ciao, {currentStudent.firstName}</span>
             <button className="home-auth-link" onClick={studentLogout}>Esci</button>
