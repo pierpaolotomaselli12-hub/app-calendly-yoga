@@ -5,13 +5,13 @@ const TEACHER_EMAIL = 'laura.pagnossin152@gmail.com'
 const FROM = 'Laura Pagnossin <onboarding@resend.dev>'
 
 interface EmailPayload {
-  type: 'booking' | 'waitlist' | 'cancellation'
+  type: 'booking' | 'waitlist' | 'cancellation' | 'welcome'
   studentEmail: string
   studentName: string
-  slotTitle: string
-  slotDate: string
-  slotTime: string
-  slotDuration: number
+  slotTitle?: string
+  slotDate?: string
+  slotTime?: string
+  slotDuration?: number
 }
 
 async function sendEmail(to: string, subject: string, html: string) {
@@ -43,7 +43,23 @@ serve(async (req) => {
     const payload: EmailPayload = await req.json()
     const { type, studentEmail, studentName, slotTitle, slotDate, slotTime, slotDuration } = payload
 
-    if (type === 'booking') {
+    if (type === 'welcome') {
+      await sendEmail(
+        TEACHER_EMAIL,
+        `Nuovo studente registrato – ${studentName}`,
+        `
+          <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2c2c2c;">
+            <h2 style="color:#818569;">Nuovo studente</h2>
+            <p>È stato creato un account per <strong>${studentName}</strong>.</p>
+            <div style="background:#f5f2ee;padding:20px;margin:24px 0;">
+              <strong>${studentName}</strong><br/>
+              Email: ${studentEmail}
+            </div>
+            <p style="color:#6b6b6b;font-size:14px;">Puoi assegnarle un pacchetto dalla sezione Studenti.</p>
+          </div>
+        `
+      )
+    } else if (type === 'booking') {
       await sendEmail(
         TEACHER_EMAIL,
         `Nuova prenotazione – ${slotTitle}`,

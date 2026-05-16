@@ -3,6 +3,13 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import './Home.css'
 
+function formatEventDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return new Date(year, month - 1, day).toLocaleDateString('it-IT', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  })
+}
+
 function formatDateLong(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number)
   const date = new Date(year, month - 1, day)
@@ -36,7 +43,7 @@ function SpotsDisplay({ spotsLeft, maxParticipants }: { spotsLeft: number; maxPa
 }
 
 export default function Home() {
-  const { slots, loading, currentStudent, studentLogout } = useApp()
+  const { slots, events, loading, currentStudent, studentLogout } = useApp()
   const navigate = useNavigate()
   const [activeType, setActiveType] = useState<string>('Tutte')
 
@@ -47,8 +54,7 @@ export default function Home() {
     return slots
       .filter(slot => {
         const [y, m, d] = slot.date.split('-').map(Number)
-        const slotDate = new Date(y, m - 1, d)
-        return slotDate >= today
+        return new Date(y, m - 1, d) >= today
       })
       .sort((a, b) => {
         if (a.date !== b.date) return a.date.localeCompare(b.date)
@@ -65,6 +71,30 @@ export default function Home() {
     if (activeType === 'Tutte') return upcomingSlots
     return upcomingSlots.filter(s => s.type === activeType)
   }, [upcomingSlots, activeType])
+
+  const upcomingEvents = useMemo(() => {
+    return events
+      .filter(ev => {
+        const [y, m, d] = ev.date.split('-').map(Number)
+        return new Date(y, m - 1, d) >= today
+      })
+      .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+  }, [events])
+
+  const gamification = useMemo(() => {
+    if (!currentStudent) return null
+    const completedSlots = slots.filter(s => {
+      const [y, m, d] = s.date.split('-').map(Number)
+      const slotDate = new Date(y, m - 1, d)
+      return slotDate < today && s.bookings.some(b => b.email.toLowerCase() === currentStudent.email.toLowerCase())
+    })
+    if (completedSlots.length === 0) return null
+    const earliest = completedSlots.reduce((min, s) => s.date < min ? s.date : min, completedSlots[0].date)
+    const [ey, em, ed] = earliest.split('-').map(Number)
+    const firstDate = new Date(ey, em - 1, ed)
+    const daysPracticing = Math.floor((today.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24))
+    return { lessonsCompleted: completedSlots.length, daysPracticing }
+  }, [slots, currentStudent])
 
   return (
     <div className="home">
@@ -196,6 +226,42 @@ export default function Home() {
           </>
         )}
       </main>
+
+      {gamification && (
+        <section className="home-gamification">
+          <div className="gamification-inner">
+            <div className="gamification-stat">
+              <span className="gamification-number">{gamification.lessonsCompleted}</span>
+              <span className="gamification-label">lezioni completate</span>
+            </div>
+            <div className="gamification-divider" />
+            <div className="gamification-stat">
+              <span className="gamification-number">{gamification.daysPracticing}</span>
+              <span className="gamification-label">giorni che pratichi con Laura</span>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {upcomingEvents.length > 0 && (
+        <section className="home-events">
+          <div className="home-events-inner">
+            <h2 className="home-events-title">Eventi in programma</h2>
+            <div className="events-grid">
+              {upcomingEvents.map(ev => (
+                <div key={ev.id} className="event-public-card">
+                  {ev.price && <span className="event-public-price">{ev.price}</span>}
+                  <h3 className="event-public-title">{ev.title}</h3>
+                  <p className="event-public-date">{formatEventDate(ev.date)} · {ev.time}</p>
+                  {ev.location && <p className="event-public-location">📍 {ev.location}</p>}
+                  {ev.description && <p className="event-public-desc">{ev.description}</p>}
+                  {ev.notes && <p className="event-public-notes">{ev.notes}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <footer className="home-footer">
         <p>Sei l&apos;insegnante? <Link to="/admin/login">Accedi</Link></p>

@@ -1,11 +1,12 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
-import type { Slot, Booking, WaitlistEntry, Student } from '../types'
+import type { Slot, Booking, WaitlistEntry, Student, YogaEvent } from '../types'
 import { supabase } from '../lib/supabase'
 
 interface AppContextType {
   slots: Slot[]
   waitlist: WaitlistEntry[]
   students: Student[]
+  events: YogaEvent[]
   loading: boolean
   addSlot: (data: Omit<Slot, 'id' | 'bookings'>) => Promise<void>
   updateSlot: (id: string, data: Omit<Slot, 'id' | 'bookings'>) => Promise<void>
@@ -22,9 +23,14 @@ interface AppContextType {
   studentRegister: (data: { firstName: string; lastName: string; email: string; phone: string }) => Promise<'ok' | 'email_taken'>
   studentLogin: (email: string) => Promise<Student | null>
   studentLogout: () => void
+  createStudent: (data: { firstName: string; lastName: string; email: string; phone: string }) => Promise<'ok' | 'email_taken'>
+  updateStudent: (id: string, data: { firstName: string; lastName: string; email: string; phone: string }) => Promise<void>
   updateStudentCredits: (studentId: string, credits: number) => Promise<void>
   decrementStudentCredits: (studentId: string) => Promise<void>
   incrementStudentCredits: (studentId: string) => Promise<void>
+  addEvent: (data: Omit<YogaEvent, 'id' | 'createdAt'>) => Promise<void>
+  updateEvent: (id: string, data: Omit<YogaEvent, 'id' | 'createdAt'>) => Promise<void>
+  deleteEvent: (id: string) => Promise<void>
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -93,10 +99,25 @@ function loadCurrentStudent(): Student | null {
   }
 }
 
+function mapEvent(raw: Record<string, unknown>): YogaEvent {
+  return {
+    id: raw.id as string,
+    title: raw.title as string,
+    description: (raw.description as string) || '',
+    date: raw.date as string,
+    time: (raw.time as string).slice(0, 5),
+    location: (raw.location as string) || '',
+    price: (raw.price as string) || '',
+    notes: (raw.notes as string) || '',
+    createdAt: raw.created_at as string,
+  }
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [slots, setSlots] = useState<Slot[]>([])
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([])
   const [students, setStudents] = useState<Student[]>([])
+  const [events, setEvents] = useState<YogaEvent[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(loadAdminStatus)
   const [currentStudent, setCurrentStudent] = useState<Student | null>(loadCurrentStudent)
@@ -123,10 +144,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .select('*')
       .order('created_at', { ascending: true })
 
+    const { data: eventsData } = await supabase
+      .from('events')
+      .select('*')
+      .order('date', { ascending: true })
+
     setSlots((slotsData ?? []).map(s => mapSlot(s as Record<string, unknown>)))
     setWaitlist((waitlistData ?? []).map(w => mapWaitlistEntry(w as Record<string, unknown>)))
     const freshStudents = (studentsData ?? []).map(s => mapStudent(s as Record<string, unknown>))
     setStudents(freshStudents)
+    setEvents((eventsData ?? []).map(e => mapEvent(e as Record<string, unknown>)))
     setLoading(false)
     return freshStudents
   }
@@ -156,6 +183,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
         })
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => { void fetchAll() })
       .subscribe()
 
     return () => { void supabase.removeChannel(channel) }
@@ -314,12 +342,68 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
   }
 
+  async function createStudent(data: { firstName: string; lastName: string; email: string; phone: string }): Promise<'ok' | 'email_taken'> {
+    const existing = students.find(s => s.email.toLowerCase() === data.email.toLowerCase())
+    if (existing) return 'email_taken'
+    await supabase.from('students').insert({
+      first_name: data.firstName,
+      last_name: data.lastName,
+      email: data.email,
+      phone: data.phone,
+    })
+    await fetchAll()
+    return 'ok'
+  }
+
+  async function updateStudent(id: string, data: { firstName: string; lastName: string; email: string; phone: string }) {
+    await supabase.from('students').update({
+      first_name: data.firstName,
+      last_name: data.lastName,
+      email: data.email,
+      phone: data.phone,
+    }).eq('id', id)
+    const fresh = await fetchAll()
+    setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
+  }
+
+  async function addEvent(data: Omit<YogaEvent, 'id' | 'createdAt'>) {
+    await supabase.from('events').insert({
+      title: data.title,
+      description: data.description,
+      date: data.date,
+      time: data.time,
+      location: data.location,
+      price: data.price,
+      notes: data.notes,
+    })
+    await fetchAll()
+  }
+
+  async function updateEvent(id: string, data: Omit<YogaEvent, 'id' | 'createdAt'>) {
+    await supabase.from('events').update({
+      title: data.title,
+      description: data.description,
+      date: data.date,
+      time: data.time,
+      location: data.location,
+      price: data.price,
+      notes: data.notes,
+    }).eq('id', id)
+    await fetchAll()
+  }
+
+  async function deleteEvent(id: string) {
+    await supabase.from('events').delete().eq('id', id)
+    await fetchAll()
+  }
+
   return (
     <AppContext.Provider
       value={{
         slots,
         waitlist,
         students,
+        events,
         loading,
         addSlot,
         updateSlot,
@@ -336,9 +420,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         studentRegister,
         studentLogin,
         studentLogout,
+        createStudent,
+        updateStudent,
         updateStudentCredits,
         decrementStudentCredits,
         incrementStudentCredits,
+        addEvent,
+        updateEvent,
+        deleteEvent,
       }}
     >
       {children}

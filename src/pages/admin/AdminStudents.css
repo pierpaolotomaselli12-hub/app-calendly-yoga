@@ -11,6 +11,13 @@
   flex-wrap: wrap;
 }
 
+.students-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .students-title {
   font-size: 30px;
   font-weight: 400;
@@ -161,8 +168,158 @@
   cursor: default;
 }
 
+.btn-new-student {
+  padding: 9px 18px;
+  font-size: 13px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  letter-spacing: 0.04em;
+  background: var(--color-green);
+  color: var(--color-white);
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.btn-new-student:hover {
+  background: var(--color-green-dark);
+}
+
+.student-form-panel {
+  background: var(--color-white);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+}
+
+.student-form-title {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--color-text);
+  margin-bottom: 20px;
+  letter-spacing: 0.02em;
+}
+
+.student-form-error {
+  font-size: 13px;
+  color: #b94a48;
+  margin-bottom: 12px;
+}
+
+.student-form-grid,
+.student-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.student-form-actions,
+.student-edit-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn-save-student {
+  padding: 9px 20px;
+  font-size: 13px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  letter-spacing: 0.04em;
+  background: var(--color-green);
+  color: var(--color-white);
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-save-student:hover:not(:disabled) {
+  background: var(--color-green-dark);
+}
+
+.btn-save-student:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn-welcome {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  letter-spacing: 0.03em;
+  background: none;
+  border: 1px solid var(--color-green);
+  color: var(--color-green);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-welcome:hover {
+  background: var(--color-green);
+  color: var(--color-white);
+}
+
+.btn-cancel-edit {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  background: none;
+  border: none;
+  color: var(--color-text-light);
+  cursor: pointer;
+}
+
+.btn-cancel-edit:hover {
+  color: var(--color-text);
+}
+
+.btn-edit-student {
+  font-size: 13px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  letter-spacing: 0.03em;
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-light);
+  padding: 4px 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-edit-student:hover {
+  border-color: var(--color-green);
+  color: var(--color-green);
+}
+
+.student-row-editing {
+  background: #fafaf8;
+}
+
+.student-row-editing > td {
+  padding: 20px 24px;
+  border-bottom: 2px solid var(--color-green);
+}
+
+.student-edit-form {
+  width: 100%;
+}
+
+.bk-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
 @media (max-width: 768px) {
   .students-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .students-header-actions {
     flex-direction: column;
     align-items: stretch;
   }
@@ -170,6 +327,16 @@
   .students-search {
     min-width: 0;
     width: 100%;
+  }
+
+  .btn-new-student {
+    width: 100%;
+    text-align: center;
+  }
+
+  .student-form-grid,
+  .student-edit-grid {
+    grid-template-columns: 1fr;
   }
 
   .col-phone,

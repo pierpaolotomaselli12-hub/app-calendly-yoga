@@ -39,3 +39,15 @@ export interface Slot {
   notes: string
   bookings: Booking[]
 }
+
+export interface YogaEvent {
+  id: string
+  title: string
+  description: string
+  date: string
+  time: string
+  location: string
+  price: string
+  notes: string
+  createdAt: string
+}

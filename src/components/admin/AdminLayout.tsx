@@ -57,6 +57,14 @@ export default function AdminLayout() {
             >
               Studenti
             </NavLink>
+            <NavLink
+              to="/admin/events"
+              className={({ isActive }) =>
+                isActive ? 'sidebar-link sidebar-link--active' : 'sidebar-link'
+              }
+            >
+              Eventi
+            </NavLink>
           </nav>
         </div>
         <button className="sidebar-logout" onClick={handleLogout}>
@@ -106,6 +114,15 @@ export default function AdminLayout() {
         >
           <span className="bottom-nav-icon">👥</span>
           <span className="bottom-nav-label">Studenti</span>
+        </NavLink>
+        <NavLink
+          to="/admin/events"
+          className={({ isActive }) =>
+            isActive ? 'bottom-nav-item bottom-nav-item--active' : 'bottom-nav-item'
+          }
+        >
+          <span className="bottom-nav-icon">🎪</span>
+          <span className="bottom-nav-label">Eventi</span>
         </NavLink>
         <button className="bottom-nav-item" onClick={handleLogout}>
           <span className="bottom-nav-icon">↩</span>

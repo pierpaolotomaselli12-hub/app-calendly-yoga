@@ -269,6 +269,124 @@
   text-align: center;
 }
 
+.home-gamification {
+  background: var(--color-green);
+  padding: 32px 40px;
+}
+
+.gamification-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.gamification-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.gamification-number {
+  font-size: 48px;
+  color: #fff;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  line-height: 1;
+}
+
+.gamification-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  letter-spacing: 0.03em;
+  text-align: center;
+}
+
+.gamification-divider {
+  width: 1px;
+  height: 56px;
+  background: rgba(255,255,255,0.3);
+}
+
+.home-events {
+  background: var(--color-bg);
+  padding: 48px 40px;
+}
+
+.home-events-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.home-events-title {
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--color-text);
+  margin-bottom: 28px;
+  letter-spacing: 0.02em;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.event-public-card {
+  background: var(--color-white);
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+}
+
+.event-public-price {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-green);
+  border: 1px solid var(--color-green);
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-bottom: 10px;
+}
+
+.event-public-title {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--color-text);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.event-public-date {
+  font-size: 14px;
+  color: var(--color-text-light);
+  margin-bottom: 4px;
+}
+
+.event-public-location {
+  font-size: 13px;
+  color: var(--color-text-light);
+  margin-bottom: 8px;
+}
+
+.event-public-desc {
+  font-size: 14px;
+  color: var(--color-text);
+  line-height: 1.6;
+  margin-top: 8px;
+}
+
+.event-public-notes {
+  font-size: 13px;
+  color: var(--color-text-light);
+  margin-top: 6px;
+  font-style: italic;
+}
+
 .home-footer {
   text-align: center;
   padding: 24px;
@@ -357,5 +475,25 @@
   .pill {
     min-height: 40px;
     padding: 8px 18px;
+  }
+
+  .home-gamification {
+    padding: 28px 20px;
+  }
+
+  .gamification-inner {
+    gap: 24px;
+  }
+
+  .gamification-number {
+    font-size: 36px;
+  }
+
+  .home-events {
+    padding: 36px 20px;
+  }
+
+  .events-grid {
+    grid-template-columns: 1fr;
   }
 }
