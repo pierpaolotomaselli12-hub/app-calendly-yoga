@@ -36,7 +36,7 @@ function SpotsDisplay({ spotsLeft, maxParticipants }: { spotsLeft: number; maxPa
 }
 
 export default function Home() {
-  const { slots, loading } = useApp()
+  const { slots, loading, currentStudent, studentLogout } = useApp()
   const navigate = useNavigate()
   const [activeType, setActiveType] = useState<string>('Tutte')
 
@@ -69,8 +69,25 @@ export default function Home() {
   return (
     <div className="home">
       <header className="home-header">
-        <h1 className="home-logo">Laura Pagnossin</h1>
-        <p className="home-subtitle">Prenota la tua lezione</p>
+        <div className="home-header-left">
+          <h1 className="home-logo">Laura Pagnossin</h1>
+          <p className="home-subtitle">Prenota la tua lezione</p>
+        </div>
+        {currentStudent === null ? (
+          <div className="home-header-auth">
+            <Link to="/accedi" className="home-auth-link">Accedi</Link>
+            <Link to="/registrati" className="home-auth-link home-auth-link--primary">Registrati</Link>
+          </div>
+        ) : (
+          <div className="home-header-auth">
+            <div className="home-credits-badge">
+              <span className="home-credits-icon">◉</span>
+              <span className="home-credits-count">{currentStudent.lessonCredits}</span>
+            </div>
+            <span className="home-student-name">Ciao, {currentStudent.firstName}</span>
+            <button className="home-auth-link" onClick={studentLogout}>Esci</button>
+          </div>
+        )}
       </header>
 
       <main className="home-main">
@@ -107,6 +124,43 @@ export default function Home() {
                 {filtered.map(slot => {
                   const spotsLeft = slot.maxParticipants - slot.bookings.length
                   const isFull = spotsLeft === 0
+
+                  let bookBtn: React.ReactNode
+                  if (isFull) {
+                    bookBtn = (
+                      <button
+                        className="btn-waitlist slot-card__btn"
+                        onClick={() => navigate(`/book/${slot.id}`)}
+                      >
+                        Lista d&apos;attesa
+                      </button>
+                    )
+                  } else if (currentStudent === null) {
+                    bookBtn = (
+                      <button
+                        className="btn-primary slot-card__btn"
+                        onClick={() => navigate('/accedi')}
+                      >
+                        Prenota
+                      </button>
+                    )
+                  } else if (currentStudent.lessonCredits === 0) {
+                    bookBtn = (
+                      <button className="btn-no-credits slot-card__btn" disabled>
+                        Nessun credito
+                      </button>
+                    )
+                  } else {
+                    bookBtn = (
+                      <button
+                        className="btn-primary slot-card__btn"
+                        onClick={() => navigate(`/book/${slot.id}`)}
+                      >
+                        Prenota
+                      </button>
+                    )
+                  }
+
                   return (
                     <div key={slot.id} className="slot-card">
                       <div className="slot-card__badges">
@@ -123,12 +177,7 @@ export default function Home() {
                       {slot.notes && (
                         <p className="slot-card__notes">{slot.notes}</p>
                       )}
-                      <button
-                        className={isFull ? 'btn-waitlist slot-card__btn' : 'btn-primary slot-card__btn'}
-                        onClick={() => navigate(`/book/${slot.id}`)}
-                      >
-                        {isFull ? "Lista d'attesa" : 'Prenota'}
-                      </button>
+                      {bookBtn}
                     </div>
                   )
                 })}
@@ -139,7 +188,7 @@ export default function Home() {
       </main>
 
       <footer className="home-footer">
-        <p>Sei l'insegnante? <Link to="/admin/login">Accedi</Link></p>
+        <p>Sei l&apos;insegnante? <Link to="/admin/login">Accedi</Link></p>
       </footer>
     </div>
   )

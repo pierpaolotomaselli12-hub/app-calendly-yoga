@@ -1,3 +1,13 @@
+export interface Student {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  lessonCredits: number
+  createdAt: string
+}
+
 export interface Booking {
   id: string
   slotId: string

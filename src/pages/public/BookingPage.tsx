@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate, Link, Navigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import { supabase } from '../../lib/supabase'
 import type { Slot } from '../../types'
+import type { Student } from '../../types'
 import './BookingPage.css'
 
 function formatDateLong(dateStr: string): string {
@@ -45,14 +46,14 @@ interface FormErrors {
   general?: string
 }
 
-function BookingForm({ slot }: { slot: Slot }) {
+function BookingForm({ slot, currentStudent, decrementStudentCredits }: { slot: Slot; currentStudent: Student; decrementStudentCredits: (id: string) => Promise<void> }) {
   const { addBooking } = useApp()
   const navigate = useNavigate()
 
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
+  const [firstName, setFirstName] = useState(currentStudent.firstName)
+  const [lastName, setLastName] = useState(currentStudent.lastName)
+  const [email] = useState(currentStudent.email)
+  const [phone, setPhone] = useState(currentStudent.phone)
   const [errors, setErrors] = useState<FormErrors>({})
 
   const spotsLeft = slot.maxParticipants - slot.bookings.length
@@ -61,11 +62,6 @@ function BookingForm({ slot }: { slot: Slot }) {
     const errs: FormErrors = {}
     if (!firstName.trim()) errs.firstName = 'Il nome è obbligatorio.'
     if (!lastName.trim()) errs.lastName = 'Il cognome è obbligatorio.'
-    if (!email.trim()) {
-      errs.email = "L'email è obbligatoria."
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      errs.email = "Inserisci un'email valida."
-    }
     if (!phone.trim()) {
       errs.phone = 'Il telefono è obbligatorio.'
     } else if (!/^[\d\s+\-().]+$/.test(phone.trim())) {
@@ -83,7 +79,7 @@ function BookingForm({ slot }: { slot: Slot }) {
     }
 
     const duplicate = slot.bookings.find(
-      b => b.email.toLowerCase() === email.trim().toLowerCase()
+      b => b.email.toLowerCase() === email.toLowerCase()
     )
     if (duplicate) {
       setErrors({ general: 'Hai già una prenotazione per questa lezione.' })
@@ -97,6 +93,8 @@ function BookingForm({ slot }: { slot: Slot }) {
       email: email.trim(),
       phone: phone.trim(),
     })
+
+    await decrementStudentCredits(currentStudent.id)
 
     supabase.functions.invoke('send-email', {
       body: {
@@ -178,10 +176,9 @@ function BookingForm({ slot }: { slot: Slot }) {
               id="email"
               type="email"
               value={email}
-              onChange={e => { setEmail(e.target.value); setErrors(prev => ({ ...prev, email: undefined })) }}
+              readOnly
               placeholder="mario.rossi@email.com"
             />
-            {errors.email && <span className="form-error">{errors.email}</span>}
           </div>
 
           <div className="form-field">
@@ -246,7 +243,7 @@ function WaitlistForm({ slot }: { slot: Slot }) {
       w => w.slotId === slot.id && w.email.toLowerCase() === email.trim().toLowerCase()
     )
     if (duplicate) {
-      setErrors({ general: 'Sei già in lista d\'attesa per questa lezione.' })
+      setErrors({ general: "Sei già in lista d'attesa per questa lezione." })
       return
     }
 
@@ -301,7 +298,7 @@ function WaitlistForm({ slot }: { slot: Slot }) {
         </div>
 
         <form className="booking-form" onSubmit={handleSubmit} noValidate>
-          <h2 className="booking-form__title">Iscriviti alla lista d'attesa</h2>
+          <h2 className="booking-form__title">Iscriviti alla lista d&apos;attesa</h2>
           <p className="waitlist-notice">La lezione è al completo. Lascia i tuoi dati: ti contatteremo se si libera un posto.</p>
 
           {errors.general && (
@@ -359,7 +356,7 @@ function WaitlistForm({ slot }: { slot: Slot }) {
           </div>
 
           <button type="submit" className="btn-primary booking-form__submit">
-            Iscriviti alla lista d'attesa
+            Iscriviti alla lista d&apos;attesa
           </button>
         </form>
       </div>
@@ -369,10 +366,14 @@ function WaitlistForm({ slot }: { slot: Slot }) {
 
 export default function BookingPage() {
   const { slotId } = useParams<{ slotId: string }>()
-  const { slots, loading } = useApp()
+  const { slots, loading, currentStudent, decrementStudentCredits } = useApp()
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
+
+  if (!currentStudent) {
+    return <Navigate to="/accedi" replace />
+  }
 
   if (loading) {
     return (
@@ -407,9 +408,19 @@ export default function BookingPage() {
     )
   }
 
+  if (currentStudent.lessonCredits === 0) {
+    return (
+      <div className="booking-unavailable">
+        <p>Non hai lezioni disponibili nel tuo pacchetto.</p>
+        <p style={{ fontSize: '14px', color: 'var(--color-text-light)' }}>Contatta l&apos;insegnante per acquistare un nuovo pacchetto.</p>
+        <Link to="/">← Torna alle lezioni</Link>
+      </div>
+    )
+  }
+
   if (isFull) {
     return <WaitlistForm slot={slot} />
   }
 
-  return <BookingForm slot={slot} />
+  return <BookingForm slot={slot} currentStudent={currentStudent} decrementStudentCredits={decrementStudentCredits} />
 }

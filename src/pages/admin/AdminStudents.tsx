@@ -17,9 +17,14 @@ function formatBookingDate(iso: string): string {
 }
 
 export default function AdminStudents() {
-  const { slots, deleteBooking, waitlist, removeFromWaitlist } = useApp()
+  const { slots, deleteBooking, waitlist, removeFromWaitlist, students, updateStudentCredits } = useApp()
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [creditInputs, setCreditInputs] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {}
+    students.forEach(s => { initial[s.id] = String(s.lessonCredits) })
+    return initial
+  })
 
   const slotsWithBookings = [...slots]
     .sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time))
@@ -46,6 +51,17 @@ export default function AdminStudents() {
     }
   }
 
+  function handleCreditChange(studentId: string, value: string) {
+    setCreditInputs(prev => ({ ...prev, [studentId]: value }))
+  }
+
+  async function handleCreditSave(studentId: string) {
+    const raw = creditInputs[studentId]
+    const parsed = parseInt(raw, 10)
+    if (isNaN(parsed) || parsed < 0) return
+    await updateStudentCredits(studentId, parsed)
+  }
+
   const totalBookings = slots.reduce((sum, s) => sum + s.bookings.length, 0)
 
   return (
@@ -53,6 +69,48 @@ export default function AdminStudents() {
       <div className="students-header">
         <h1 className="students-title">Studenti</h1>
         <span className="students-total">{totalBookings} prenotazioni totali</span>
+      </div>
+
+      <div className="students-registered-section">
+        <h2 className="students-registered-title">Studenti Registrati</h2>
+        {students.length === 0 ? (
+          <p className="students-empty">Nessuno studente registrato.</p>
+        ) : (
+          <table className="students-registered-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Telefono</th>
+                <th>Crediti</th>
+              </tr>
+            </thead>
+            <tbody>
+              {students.map(student => (
+                <tr key={student.id} className="student-row">
+                  <td className="student-name">{student.firstName} {student.lastName}</td>
+                  <td className="student-email">{student.email}</td>
+                  <td className="student-phone">{student.phone}</td>
+                  <td className="student-credits-cell">
+                    <input
+                      className="credits-input"
+                      type="number"
+                      min={0}
+                      value={creditInputs[student.id] ?? String(student.lessonCredits)}
+                      onChange={e => handleCreditChange(student.id, e.target.value)}
+                    />
+                    <button
+                      className="credits-save-btn"
+                      onClick={() => { void handleCreditSave(student.id) }}
+                    >
+                      Salva
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {slotsWithBookings.length === 0 ? (
@@ -117,7 +175,7 @@ export default function AdminStudents() {
                                     <>
                                       <button
                                         className="btn-confirm-delete-sm"
-                                        onClick={() => handleDelete(slot.id, booking.id)}
+                                        onClick={() => { void handleDelete(slot.id, booking.id) }}
                                       >
                                         Conferma
                                       </button>
@@ -131,7 +189,7 @@ export default function AdminStudents() {
                                   ) : (
                                     <button
                                       className="btn-danger"
-                                      onClick={() => handleDelete(slot.id, booking.id)}
+                                      onClick={() => { void handleDelete(slot.id, booking.id) }}
                                     >
                                       Rimuovi
                                     </button>
@@ -146,7 +204,7 @@ export default function AdminStudents() {
 
                     {slotWaitlist.length > 0 && (
                       <div className="waitlist-section">
-                        <h3 className="waitlist-section__title">Lista d'attesa ({slotWaitlist.length})</h3>
+                        <h3 className="waitlist-section__title">Lista d&apos;attesa ({slotWaitlist.length})</h3>
                         <table className="students-table">
                           <thead>
                             <tr>

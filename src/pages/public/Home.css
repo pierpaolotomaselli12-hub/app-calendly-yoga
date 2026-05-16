@@ -12,6 +12,16 @@
   background: var(--color-white);
   padding: 24px 40px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.home-header-left {
+  display: flex;
+  flex-direction: column;
 }
 
 .home-logo {
@@ -24,6 +34,78 @@
   color: var(--color-text-light);
   font-size: 15px;
   margin-top: 4px;
+}
+
+.home-header-auth {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.home-auth-link {
+  font-size: 14px;
+  color: var(--color-green);
+  text-decoration: none;
+  padding: 6px 0;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  letter-spacing: 0.02em;
+}
+
+.home-auth-link--primary {
+  padding: 8px 20px;
+  background: var(--color-green);
+  color: var(--color-white);
+  border-radius: 2px;
+}
+
+.home-auth-link--primary:hover {
+  background: var(--color-green-dark);
+}
+
+.home-student-name {
+  font-size: 14px;
+  color: var(--color-text-light);
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+}
+
+.home-credits-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(129, 133, 105, 0.12);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.home-credits-icon {
+  color: var(--color-green);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.home-credits-count {
+  font-size: 14px;
+  color: var(--color-green);
+  font-weight: normal;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+}
+
+.btn-no-credits {
+  display: inline-block;
+  background: #bbb;
+  color: var(--color-white);
+  border: none;
+  padding: 10px 24px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  cursor: not-allowed;
+  border-radius: 2px;
+  opacity: 0.7;
 }
 
 .home-main {
@@ -199,6 +281,7 @@
 @media (max-width: 640px) {
   .home-header {
     padding: 16px 20px;
+    gap: 12px;
   }
 
   .home-logo {

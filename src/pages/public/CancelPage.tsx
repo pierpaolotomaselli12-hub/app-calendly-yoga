@@ -18,7 +18,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default function CancelPage() {
-  const { slots, deleteBooking } = useApp()
+  const { slots, deleteBooking, students, incrementStudentCredits } = useApp()
   const [searchEmail, setSearchEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [found, setFound] = useState<BookingItem[]>([])
@@ -61,6 +61,10 @@ export default function CancelPage() {
         slotDuration: item.slot.duration,
       },
     })
+    const student = students.find(s => s.email.toLowerCase() === item.booking.email.toLowerCase())
+    if (student) {
+      await incrementStudentCredits(student.id)
+    }
     setRowState(item.booking.id, 'done')
   }
 

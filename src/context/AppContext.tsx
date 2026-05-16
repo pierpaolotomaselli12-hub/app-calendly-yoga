@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
-import type { Slot, Booking, WaitlistEntry } from '../types'
+import type { Slot, Booking, WaitlistEntry, Student } from '../types'
 import { supabase } from '../lib/supabase'
 
 interface AppContextType {
   slots: Slot[]
   waitlist: WaitlistEntry[]
+  students: Student[]
   loading: boolean
   addSlot: (data: Omit<Slot, 'id' | 'bookings'>) => Promise<void>
   updateSlot: (id: string, data: Omit<Slot, 'id' | 'bookings'>) => Promise<void>
@@ -17,6 +18,13 @@ interface AppContextType {
   isAdminLoggedIn: boolean
   adminLogin: (password: string) => boolean
   adminLogout: () => void
+  currentStudent: Student | null
+  studentRegister: (data: { firstName: string; lastName: string; email: string; phone: string }) => Promise<'ok' | 'email_taken'>
+  studentLogin: (email: string) => Promise<Student | null>
+  studentLogout: () => void
+  updateStudentCredits: (studentId: string, credits: number) => Promise<void>
+  decrementStudentCredits: (studentId: string) => Promise<void>
+  incrementStudentCredits: (studentId: string) => Promise<void>
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -59,21 +67,45 @@ function mapSlot(raw: Record<string, unknown>): Slot {
   }
 }
 
+function mapStudent(raw: Record<string, unknown>): Student {
+  return {
+    id: raw.id as string,
+    firstName: raw.first_name as string,
+    lastName: raw.last_name as string,
+    email: raw.email as string,
+    phone: raw.phone as string,
+    lessonCredits: raw.lesson_credits as number,
+    createdAt: raw.created_at as string,
+  }
+}
+
 function loadAdminStatus(): boolean {
   return localStorage.getItem('yoga_admin') === 'true'
+}
+
+function loadCurrentStudent(): Student | null {
+  try {
+    const raw = localStorage.getItem('yoga_student_session')
+    if (!raw) return null
+    return JSON.parse(raw) as Student
+  } catch {
+    return null
+  }
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [slots, setSlots] = useState<Slot[]>([])
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([])
+  const [students, setStudents] = useState<Student[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(loadAdminStatus)
+  const [currentStudent, setCurrentStudent] = useState<Student | null>(loadCurrentStudent)
 
   useEffect(() => {
     localStorage.setItem('yoga_admin', String(isAdminLoggedIn))
   }, [isAdminLoggedIn])
 
-  async function fetchAll() {
+  async function fetchAll(): Promise<Student[]> {
     setLoading(true)
 
     const { data: slotsData } = await supabase
@@ -86,13 +118,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .select('*')
       .order('created_at', { ascending: true })
 
+    const { data: studentsData } = await supabase
+      .from('students')
+      .select('*')
+      .order('created_at', { ascending: true })
+
     setSlots((slotsData ?? []).map(s => mapSlot(s as Record<string, unknown>)))
     setWaitlist((waitlistData ?? []).map(w => mapWaitlistEntry(w as Record<string, unknown>)))
+    const freshStudents = (studentsData ?? []).map(s => mapStudent(s as Record<string, unknown>))
+    setStudents(freshStudents)
     setLoading(false)
+    return freshStudents
+  }
+
+  function applySyncCurrentStudent(freshStudents: Student[], prev: Student | null): Student | null {
+    if (!prev) return null
+    const updated = freshStudents.find(s => s.id === prev.id)
+    if (!updated) return prev
+    localStorage.setItem('yoga_student_session', JSON.stringify(updated))
+    return updated
   }
 
   useEffect(() => {
-    fetchAll()
+    void fetchAll().then(fresh => {
+      setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
+    })
   }, [])
 
   useEffect(() => {
@@ -101,6 +151,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'slots' }, () => { void fetchAll() })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => { void fetchAll() })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'waitlist' }, () => { void fetchAll() })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, () => {
+        void fetchAll().then(fresh => {
+          setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
+        })
+      })
       .subscribe()
 
     return () => { void supabase.removeChannel(channel) }
@@ -196,11 +251,75 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setIsAdminLoggedIn(false)
   }
 
+  async function studentRegister(data: { firstName: string; lastName: string; email: string; phone: string }): Promise<'ok' | 'email_taken'> {
+    const existing = students.find(s => s.email.toLowerCase() === data.email.toLowerCase())
+    if (existing) return 'email_taken'
+    await supabase.from('students').insert({
+      first_name: data.firstName,
+      last_name: data.lastName,
+      email: data.email,
+      phone: data.phone,
+    })
+    await fetchAll()
+    return 'ok'
+  }
+
+  async function studentLogin(email: string): Promise<Student | null> {
+    const { data } = await supabase
+      .from('students')
+      .select('*')
+      .ilike('email', email)
+      .maybeSingle()
+
+    if (!data) return null
+    const student = mapStudent(data as Record<string, unknown>)
+    setCurrentStudent(student)
+    localStorage.setItem('yoga_student_session', JSON.stringify(student))
+    return student
+  }
+
+  function studentLogout() {
+    localStorage.removeItem('yoga_student_session')
+    setCurrentStudent(null)
+  }
+
+  async function updateStudentCredits(studentId: string, credits: number) {
+    await supabase
+      .from('students')
+      .update({ lesson_credits: credits })
+      .eq('id', studentId)
+    const fresh = await fetchAll()
+    setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
+  }
+
+  async function decrementStudentCredits(studentId: string) {
+    const target = students.find(s => s.id === studentId)
+    if (!target || target.lessonCredits <= 0) return
+    await supabase
+      .from('students')
+      .update({ lesson_credits: target.lessonCredits - 1 })
+      .eq('id', studentId)
+    const fresh = await fetchAll()
+    setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
+  }
+
+  async function incrementStudentCredits(studentId: string) {
+    const target = students.find(s => s.id === studentId)
+    if (!target) return
+    await supabase
+      .from('students')
+      .update({ lesson_credits: target.lessonCredits + 1 })
+      .eq('id', studentId)
+    const fresh = await fetchAll()
+    setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
+  }
+
   return (
     <AppContext.Provider
       value={{
         slots,
         waitlist,
+        students,
         loading,
         addSlot,
         updateSlot,
@@ -213,6 +332,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isAdminLoggedIn,
         adminLogin,
         adminLogout,
+        currentStudent,
+        studentRegister,
+        studentLogin,
+        studentLogout,
+        updateStudentCredits,
+        decrementStudentCredits,
+        incrementStudentCredits,
       }}
     >
       {children}
