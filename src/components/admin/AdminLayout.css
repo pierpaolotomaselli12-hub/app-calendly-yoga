@@ -1,0 +1,112 @@
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 32px 0 24px;
+  box-shadow: 1px 0 0 var(--color-border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 28px;
+}
+
+.sidebar-leaf {
+  font-size: 18px;
+  color: var(--color-green);
+}
+
+.sidebar-name {
+  font-size: 17px;
+  font-family: 'Goudy Bookletter 1911', serif;
+  color: var(--color-text);
+  letter-spacing: 0.03em;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 16px;
+}
+
+.sidebar-link {
+  display: block;
+  padding: 10px 14px;
+  font-size: 15px;
+  color: var(--color-text-light);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.sidebar-link:hover {
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.sidebar-link--active {
+  color: var(--color-green);
+  background: rgba(129, 133, 105, 0.1);
+  font-weight: 500;
+}
+
+.sidebar-link--active:hover {
+  background: rgba(129, 133, 105, 0.14);
+}
+
+.sidebar-logout {
+  margin: 0 16px;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Goudy Bookletter 1911', serif;
+  font-size: 14px;
+  color: var(--color-text-light);
+  text-align: left;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+
+.sidebar-logout:hover {
+  color: #b94a48;
+}
+
+.admin-main {
+  flex: 1;
+  padding: 48px 52px;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .admin-sidebar {
+    display: none;
+  }
+  .admin-main {
+    padding: 24px 20px;
+  }
+}

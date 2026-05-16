@@ -1,0 +1,211 @@
+.slots-page {
+  max-width: 800px;
+}
+
+.slots-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.slots-title {
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+}
+
+.slot-form {
+  background: var(--color-white);
+  padding: 32px;
+  margin-bottom: 36px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.form-row--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group--half {
+  max-width: 200px;
+}
+
+.form-label {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 4px;
+}
+
+.btn-cancel {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Goudy Bookletter 1911', serif;
+  font-size: 14px;
+  color: var(--color-text-light);
+  padding: 0;
+  letter-spacing: 0.04em;
+  transition: color 0.15s;
+}
+
+.btn-cancel:hover {
+  color: var(--color-text);
+}
+
+.slots-empty {
+  text-align: center;
+  padding: 64px 24px;
+  color: var(--color-text-light);
+}
+
+.slots-empty p {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.slots-empty-sub {
+  font-size: 14px;
+}
+
+.slots-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--color-border);
+}
+
+.slot-card {
+  background: var(--color-white);
+}
+
+.slot-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  gap: 20px;
+}
+
+.slot-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.slot-name {
+  font-size: 17px;
+  color: var(--color-text);
+}
+
+.slot-date {
+  font-size: 13px;
+  color: var(--color-text-light);
+  letter-spacing: 0.02em;
+}
+
+.slot-notes {
+  font-size: 13px;
+  color: var(--color-text-light);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.slot-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.slot-capacity {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  font-family: 'Goudy Bookletter 1911', serif;
+}
+
+.capacity-booked {
+  font-size: 22px;
+  color: var(--color-green);
+}
+
+.capacity-sep {
+  font-size: 16px;
+  color: var(--color-border);
+}
+
+.capacity-max {
+  font-size: 16px;
+  color: var(--color-text-light);
+}
+
+.slot-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-confirm-delete {
+  background: none;
+  border: 1px solid #b94a48;
+  color: #b94a48;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-family: 'Goudy Bookletter 1911', serif;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+
+.btn-confirm-delete:hover {
+  background: #b94a48;
+  color: white;
+}
+
+.btn-cancel-small {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Goudy Bookletter 1911', serif;
+  font-size: 13px;
+  color: var(--color-text-light);
+  padding: 6px 10px;
+}
+
+.btn-cancel-small:hover {
+  color: var(--color-text);
+}
+
+@media (max-width: 600px) {
+  .form-row--3 {
+    grid-template-columns: 1fr;
+  }
+  .slot-main {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

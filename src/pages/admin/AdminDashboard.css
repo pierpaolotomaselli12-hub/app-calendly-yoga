@@ -1,0 +1,130 @@
+.dashboard {
+  max-width: 760px;
+}
+
+.dashboard-greeting {
+  font-size: 30px;
+  font-weight: 400;
+  color: var(--color-text);
+  margin-bottom: 36px;
+  letter-spacing: 0.02em;
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 52px;
+}
+
+.stat-card {
+  background: var(--color-white);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.stat-label {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+
+.stat-value {
+  font-size: 40px;
+  color: var(--color-green);
+  line-height: 1;
+  font-family: 'Goudy Bookletter 1911', serif;
+}
+
+.stat-sub {
+  font-size: 12px;
+  color: var(--color-text-light);
+}
+
+.section-title {
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--color-text);
+  margin-bottom: 16px;
+  letter-spacing: 0.03em;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.empty-msg {
+  color: var(--color-text-light);
+  font-size: 15px;
+}
+
+.upcoming-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--color-border);
+}
+
+.upcoming-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--color-white);
+}
+
+.upcoming-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.upcoming-title {
+  font-size: 16px;
+  color: var(--color-text);
+}
+
+.upcoming-meta {
+  font-size: 13px;
+  color: var(--color-text-light);
+  letter-spacing: 0.02em;
+}
+
+.upcoming-count {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  color: var(--color-text-light);
+  font-size: 14px;
+}
+
+.count-num {
+  font-size: 20px;
+  color: var(--color-green);
+  font-family: 'Goudy Bookletter 1911', serif;
+}
+
+.count-sep {
+  color: var(--color-border);
+  font-size: 16px;
+}
+
+.count-max {
+  font-size: 15px;
+  color: var(--color-text);
+}
+
+.count-label {
+  font-size: 12px;
+  color: var(--color-text-light);
+  margin-left: 4px;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 640px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+}
