@@ -5,10 +5,13 @@
   background: var(--color-bg);
 }
 
-.home-header {
+.home-sticky-top {
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.home-header {
   background: var(--color-white);
   padding: 24px 40px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
@@ -17,6 +20,36 @@
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 16px;
+}
+
+.home-credits-bar {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-green);
+  padding: 10px 20px;
+}
+
+.home-credits-bar__icon {
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.home-credits-bar__count {
+  color: #fff;
+  font-size: 16px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  font-weight: normal;
+}
+
+.home-credits-bar__label {
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
 }
 
 .home-header-left {
@@ -287,6 +320,14 @@
 }
 
 @media (max-width: 640px) {
+  .home-credits-bar {
+    display: flex;
+  }
+
+  .home-credits-badge {
+    display: none;
+  }
+
   .home-header {
     padding: 16px 20px;
     gap: 12px;

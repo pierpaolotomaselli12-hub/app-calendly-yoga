@@ -68,28 +68,37 @@ export default function Home() {
 
   return (
     <div className="home">
-      <header className="home-header">
-        <div className="home-header-left">
-          <h1 className="home-logo">Laura Pagnossin</h1>
-          <p className="home-subtitle">Prenota la tua lezione</p>
-        </div>
-        {currentStudent === null ? (
-          <div className="home-header-auth">
-            <Link to="/accedi" className="home-auth-link">Accedi</Link>
-            <Link to="/registrati" className="home-auth-link home-auth-link--primary">Registrati</Link>
+      <div className="home-sticky-top">
+        <header className="home-header">
+          <div className="home-header-left">
+            <h1 className="home-logo">Laura Pagnossin</h1>
+            <p className="home-subtitle">Prenota la tua lezione</p>
           </div>
-        ) : (
-          <div className="home-header-auth">
-            <div className="home-credits-badge">
-              <span className="home-credits-icon">◉</span>
-              <span className="home-credits-count">{currentStudent.lessonCredits}</span>
-              <span className="home-credits-label">lezioni rimanenti nel pacchetto</span>
+          {currentStudent === null ? (
+            <div className="home-header-auth">
+              <Link to="/accedi" className="home-auth-link">Accedi</Link>
+              <Link to="/registrati" className="home-auth-link home-auth-link--primary">Registrati</Link>
             </div>
-            <span className="home-student-name">Ciao, {currentStudent.firstName}</span>
-            <button className="home-auth-link" onClick={studentLogout}>Esci</button>
+          ) : (
+            <div className="home-header-auth">
+              <div className="home-credits-badge">
+                <span className="home-credits-icon">◉</span>
+                <span className="home-credits-count">{currentStudent.lessonCredits}</span>
+                <span className="home-credits-label">lezioni rimanenti nel pacchetto</span>
+              </div>
+              <span className="home-student-name">Ciao, {currentStudent.firstName}</span>
+              <button className="home-auth-link" onClick={studentLogout}>Esci</button>
+            </div>
+          )}
+        </header>
+        {currentStudent !== null && (
+          <div className="home-credits-bar">
+            <span className="home-credits-bar__icon">◉</span>
+            <span className="home-credits-bar__count">{currentStudent.lessonCredits}</span>
+            <span className="home-credits-bar__label">lezioni rimanenti nel pacchetto</span>
           </div>
         )}
-      </header>
+      </div>
 
       <main className="home-main">
         {loading ? (
