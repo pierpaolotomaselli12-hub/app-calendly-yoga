@@ -32,6 +32,10 @@
   gap: 20px;
 }
 
+.form-row--2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
 .form-row--3 {
   grid-template-columns: repeat(3, 1fr);
 }
@@ -76,6 +80,36 @@
   color: var(--color-text);
 }
 
+.slot-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 24px;
+}
+
+.slot-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-family: 'Goudy Bookletter 1911', serif;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  color: var(--color-text-light);
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.slot-tab:hover {
+  color: var(--color-text);
+}
+
+.slot-tab--active {
+  color: var(--color-green);
+  border-bottom-color: var(--color-green);
+}
+
 .slots-empty {
   text-align: center;
   padding: 64px 24px;
@@ -104,7 +138,7 @@
 
 .slot-main {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   padding: 20px 24px;
   gap: 20px;
@@ -117,9 +151,47 @@
   flex: 1;
 }
 
+.slot-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .slot-name {
   font-size: 17px;
   color: var(--color-text);
+}
+
+.slot-type-badge {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  background: rgba(129, 133, 105, 0.15);
+  color: #818569;
+}
+
+.slot-status-badge {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+}
+
+.badge--available {
+  background: rgba(129, 133, 105, 0.1);
+  color: #818569;
+}
+
+.badge--full {
+  background: rgba(139, 74, 72, 0.1);
+  color: #8b4a48;
+}
+
+.badge--past {
+  background: rgba(153, 153, 153, 0.12);
+  color: #999;
 }
 
 .slot-date {
@@ -133,6 +205,32 @@
   color: var(--color-text-light);
   font-style: italic;
   margin-top: 2px;
+}
+
+.slot-secondary-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: 'Goudy Bookletter 1911', serif;
+  font-size: 13px;
+  color: var(--color-green);
+  letter-spacing: 0.02em;
+  transition: text-decoration 0.1s;
+}
+
+.btn-text:hover {
+  text-decoration: underline;
+}
+
+.btn-text--danger {
+  color: #8b4a48;
 }
 
 .slot-right {
@@ -200,12 +298,98 @@
   color: var(--color-text);
 }
 
+.slot-students-panel {
+  background: #f5f2ee;
+  padding: 16px 24px;
+  border-top: 1px solid var(--color-border);
+}
+
+.students-empty {
+  font-size: 14px;
+  color: var(--color-text-light);
+  font-style: italic;
+}
+
+.students-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.student-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.student-row:last-child {
+  border-bottom: none;
+}
+
+.student-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.student-name {
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.student-contact {
+  font-size: 12px;
+  color: var(--color-text-light);
+}
+
+.slot-duplicate-panel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px;
+  background: #f5f2ee;
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.duplicate-label {
+  font-size: 13px;
+  color: var(--color-text-light);
+  letter-spacing: 0.02em;
+}
+
+.slot-duplicate-panel input[type='date'] {
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  font-family: 'Goudy Bookletter 1911', serif;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.btn-sm {
+  padding: 6px 16px;
+  font-size: 13px;
+}
+
 @media (max-width: 600px) {
+  .form-row--2,
   .form-row--3 {
     grid-template-columns: 1fr;
   }
+
   .slot-main {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .slot-right {
+    width: 100%;
+    justify-content: space-between;
   }
 }

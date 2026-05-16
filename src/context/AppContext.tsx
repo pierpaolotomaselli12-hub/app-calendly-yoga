@@ -5,6 +5,8 @@ interface AppContextType {
   slots: Slot[]
   addSlot: (slot: Omit<Slot, 'id' | 'bookings'>) => void
   deleteSlot: (id: string) => void
+  updateSlot: (id: string, data: Omit<Slot, 'id' | 'bookings'>) => void
+  duplicateSlot: (id: string, newDate: string) => void
   addBooking: (booking: Omit<Booking, 'id' | 'createdAt'>) => void
   deleteBooking: (slotId: string, bookingId: string) => void
   isAdminLoggedIn: boolean
@@ -14,10 +16,18 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | null>(null)
 
+function migrateSlot(raw: Slot): Slot {
+  return {
+    ...raw,
+    type: raw.type ?? '',
+  }
+}
+
 function loadSlots(): Slot[] {
   try {
     const raw = localStorage.getItem('yoga_slots')
-    return raw ? JSON.parse(raw) : []
+    const parsed: Slot[] = raw ? JSON.parse(raw) : []
+    return parsed.map(migrateSlot)
   } catch {
     return []
   }
@@ -50,6 +60,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   function deleteSlot(id: string) {
     setSlots(prev => prev.filter(s => s.id !== id))
+  }
+
+  function updateSlot(id: string, data: Omit<Slot, 'id' | 'bookings'>) {
+    setSlots(prev =>
+      prev.map(s =>
+        s.id === id ? { ...s, ...data } : s
+      )
+    )
+  }
+
+  function duplicateSlot(id: string, newDate: string) {
+    const original = slots.find(s => s.id === id)
+    if (!original) return
+    const copy: Slot = {
+      ...original,
+      id: crypto.randomUUID(),
+      date: newDate,
+      bookings: [],
+    }
+    setSlots(prev => [...prev, copy])
   }
 
   function addBooking(bookingData: Omit<Booking, 'id' | 'createdAt'>) {
@@ -95,6 +125,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         slots,
         addSlot,
         deleteSlot,
+        updateSlot,
+        duplicateSlot,
         addBooking,
         deleteBooking,
         isAdminLoggedIn,

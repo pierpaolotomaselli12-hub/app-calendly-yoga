@@ -11,6 +11,7 @@ export interface Booking {
 export interface Slot {
   id: string
   title: string
+  type: string
   date: string
   time: string
   duration: number
