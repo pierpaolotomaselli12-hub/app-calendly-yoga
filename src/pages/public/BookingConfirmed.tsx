@@ -48,7 +48,7 @@ export default function BookingConfirmed() {
           className="btn-primary confirmed-btn"
           onClick={() => navigate('/')}
         >
-          Prenota un'altra lezione
+          Torna alle lezioni
         </button>
       </div>
     </div>
