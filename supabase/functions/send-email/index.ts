@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
 const TEACHER_EMAIL = 'laura.pagnossin152@gmail.com'
-const FROM = 'Yoga Studio <onboarding@resend.dev>'
+const FROM = 'Laura Pagnossin <onboarding@resend.dev>'
 
 interface EmailPayload {
   type: 'booking' | 'waitlist'
