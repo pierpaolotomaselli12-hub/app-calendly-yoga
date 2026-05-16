@@ -22,7 +22,7 @@ export default function AdminLayout() {
         <div className="sidebar-top">
           <div className="sidebar-brand">
             <span className="sidebar-leaf">✿</span>
-            <span className="sidebar-name">Yoga Studio</span>
+            <span className="sidebar-name">Laura Pagnossin</span>
           </div>
           <nav className="sidebar-nav">
             <NavLink

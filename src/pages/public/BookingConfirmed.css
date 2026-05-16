@@ -60,6 +60,17 @@
   font-style: italic;
 }
 
+.confirmed-cancel-hint {
+  font-size: 13px;
+  color: var(--color-text-light);
+  margin-top: 8px;
+}
+
+.confirmed-cancel-link {
+  color: var(--color-text-light);
+  text-decoration: underline;
+}
+
 .confirmed-btn {
   padding: 12px 32px;
   font-size: 15px;

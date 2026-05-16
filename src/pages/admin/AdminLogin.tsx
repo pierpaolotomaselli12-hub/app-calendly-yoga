@@ -26,7 +26,7 @@ export default function AdminLogin() {
         <div className="login-logo">
           <span className="login-leaf">✿</span>
         </div>
-        <h1 className="login-title">Yoga Studio</h1>
+        <h1 className="login-title">Laura Pagnossin</h1>
         <p className="login-subtitle">Area Riservata</p>
         <form onSubmit={handleSubmit} className="login-form">
           <input

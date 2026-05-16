@@ -69,7 +69,7 @@ export default function Home() {
   return (
     <div className="home">
       <header className="home-header">
-        <h1 className="home-logo">Yoga Studio</h1>
+        <h1 className="home-logo">Laura Pagnossin</h1>
         <p className="home-subtitle">Prenota la tua lezione</p>
       </header>
 

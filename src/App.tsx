@@ -8,6 +8,7 @@ import AdminLayout from './components/admin/AdminLayout'
 import Home from './pages/public/Home'
 import BookingPage from './pages/public/BookingPage'
 import BookingConfirmed from './pages/public/BookingConfirmed'
+import CancelPage from './pages/public/CancelPage'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/book/:slotId" element={<BookingPage />} />
           <Route path="/booking-confirmed" element={<BookingConfirmed />} />
+          <Route path="/cancella" element={<CancelPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />

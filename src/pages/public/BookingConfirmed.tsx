@@ -1,4 +1,4 @@
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import './BookingConfirmed.css'
 
 export default function BookingConfirmed() {
@@ -40,6 +40,10 @@ export default function BookingConfirmed() {
           Ciao {name}, sei iscritto/a a <strong>{title}</strong> il {date} alle {time}.
         </p>
         <p className="confirmed-tip">Ricordati di portare il tuo tappetino!</p>
+        <p className="confirmed-cancel-hint">
+          Hai bisogno di disdire?{' '}
+          <Link to="/cancella" className="confirmed-cancel-link">Clicca qui</Link>
+        </p>
         <button
           className="btn-primary confirmed-btn"
           onClick={() => navigate('/')}

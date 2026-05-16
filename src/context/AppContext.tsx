@@ -95,6 +95,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     fetchAll()
   }, [])
 
+  useEffect(() => {
+    const channel = supabase
+      .channel('db-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'slots' }, () => { void fetchAll() })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => { void fetchAll() })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'waitlist' }, () => { void fetchAll() })
+      .subscribe()
+
+    return () => { void supabase.removeChannel(channel) }
+  }, [])
+
   async function addSlot(data: Omit<Slot, 'id' | 'bookings'>) {
     await supabase.from('slots').insert({
       title: data.title,
