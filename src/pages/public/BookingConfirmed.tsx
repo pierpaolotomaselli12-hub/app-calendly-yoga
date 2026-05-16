@@ -9,6 +9,27 @@ export default function BookingConfirmed() {
   const title = searchParams.get('title') ?? ''
   const date = searchParams.get('date') ?? ''
   const time = searchParams.get('time') ?? ''
+  const isWaitlist = searchParams.get('waitlist') === 'true'
+
+  if (isWaitlist) {
+    return (
+      <div className="confirmed-page">
+        <div className="confirmed-card">
+          <div className="confirmed-checkmark confirmed-checkmark--waitlist">✉</div>
+          <h1 className="confirmed-title">Sei in lista d'attesa!</h1>
+          <p className="confirmed-message">
+            Ciao {name}, sei in lista d'attesa per <strong>{title}</strong> il {date} alle {time}. Ti contatteremo se si libera un posto.
+          </p>
+          <button
+            className="btn-primary confirmed-btn"
+            onClick={() => navigate('/')}
+          >
+            Torna alle lezioni
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="confirmed-page">

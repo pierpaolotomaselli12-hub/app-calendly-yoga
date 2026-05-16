@@ -163,6 +163,29 @@
   text-decoration: underline;
 }
 
+.waitlist-notice {
+  font-size: 14px;
+  color: var(--color-text-light);
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+.spots-display {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.spots-count {
+  font-size: 15px;
+  font-weight: normal;
+}
+
+.spots-total {
+  font-size: 13px;
+  color: var(--color-text-light);
+}
+
 @media (max-width: 540px) {
   .booking-form__grid {
     grid-template-columns: 1fr;

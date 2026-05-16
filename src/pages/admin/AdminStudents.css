@@ -184,6 +184,18 @@
   color: var(--color-text);
 }
 
+.waitlist-section {
+  margin-top: 20px;
+}
+
+.waitlist-section__title {
+  font-size: 14px;
+  font-weight: 400;
+  color: #c17f3b;
+  letter-spacing: 0.03em;
+  margin-bottom: 10px;
+}
+
 @media (max-width: 640px) {
   .students-table th:nth-child(3),
   .students-table td:nth-child(3),

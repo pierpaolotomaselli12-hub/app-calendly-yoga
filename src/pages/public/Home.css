@@ -162,6 +162,40 @@
   text-decoration: underline;
 }
 
+.spots-display {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.spots-count {
+  font-size: 15px;
+  font-weight: normal;
+}
+
+.spots-total {
+  font-size: 13px;
+  color: var(--color-text-light);
+}
+
+.btn-waitlist {
+  display: inline-block;
+  background: #8b4a48;
+  color: var(--color-white);
+  border: none;
+  padding: 10px 24px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+
+.btn-waitlist:hover {
+  background: #7a3e3c;
+}
+
 @media (max-width: 640px) {
   .home-header {
     padding: 20px 24px;

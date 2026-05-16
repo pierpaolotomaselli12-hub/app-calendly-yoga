@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
-import type { Slot, Booking } from '../types'
+import type { Slot, Booking, WaitlistEntry } from '../types'
 
 interface AppContextType {
   slots: Slot[]
@@ -9,6 +9,9 @@ interface AppContextType {
   duplicateSlot: (id: string, newDate: string) => void
   addBooking: (booking: Omit<Booking, 'id' | 'createdAt'>) => void
   deleteBooking: (slotId: string, bookingId: string) => void
+  waitlist: WaitlistEntry[]
+  addToWaitlist: (entry: Omit<WaitlistEntry, 'id' | 'createdAt'>) => void
+  removeFromWaitlist: (slotId: string, entryId: string) => void
   isAdminLoggedIn: boolean
   adminLogin: (password: string) => boolean
   adminLogout: () => void
@@ -33,17 +36,31 @@ function loadSlots(): Slot[] {
   }
 }
 
+function loadWaitlist(): WaitlistEntry[] {
+  try {
+    const raw = localStorage.getItem('yoga_waitlist')
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
 function loadAdminStatus(): boolean {
   return localStorage.getItem('yoga_admin') === 'true'
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [slots, setSlots] = useState<Slot[]>(loadSlots)
+  const [waitlist, setWaitlist] = useState<WaitlistEntry[]>(loadWaitlist)
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(loadAdminStatus)
 
   useEffect(() => {
     localStorage.setItem('yoga_slots', JSON.stringify(slots))
   }, [slots])
+
+  useEffect(() => {
+    localStorage.setItem('yoga_waitlist', JSON.stringify(waitlist))
+  }, [waitlist])
 
   useEffect(() => {
     localStorage.setItem('yoga_admin', String(isAdminLoggedIn))
@@ -107,6 +124,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     )
   }
 
+  function addToWaitlist(entryData: Omit<WaitlistEntry, 'id' | 'createdAt'>) {
+    const newEntry: WaitlistEntry = {
+      ...entryData,
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+    }
+    setWaitlist(prev => [...prev, newEntry])
+  }
+
+  function removeFromWaitlist(slotId: string, entryId: string) {
+    setWaitlist(prev =>
+      prev.filter(e => !(e.slotId === slotId && e.id === entryId))
+    )
+  }
+
   function adminLogin(password: string): boolean {
     if (password === 'yoga2024') {
       setIsAdminLoggedIn(true)
@@ -129,6 +161,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         duplicateSlot,
         addBooking,
         deleteBooking,
+        waitlist,
+        addToWaitlist,
+        removeFromWaitlist,
         isAdminLoggedIn,
         adminLogin,
         adminLogout,

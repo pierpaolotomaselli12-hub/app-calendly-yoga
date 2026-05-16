@@ -8,6 +8,16 @@ export interface Booking {
   createdAt: string
 }
 
+export interface WaitlistEntry {
+  id: string
+  slotId: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  createdAt: string
+}
+
 export interface Slot {
   id: string
   title: string

@@ -34,6 +34,10 @@
   line-height: 1;
 }
 
+.confirmed-checkmark--waitlist {
+  background: #c17f3b;
+}
+
 .confirmed-title {
   font-size: 30px;
   color: var(--color-text);

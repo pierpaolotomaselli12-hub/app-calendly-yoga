@@ -14,6 +14,27 @@ function formatDateLong(dateStr: string): string {
   })
 }
 
+function getSpotsColor(spotsLeft: number, maxParticipants: number): string {
+  if (spotsLeft === 0) return '#999'
+  const pct = spotsLeft / maxParticipants
+  if (pct > 0.5) return '#818569'
+  if (pct > 0.2) return '#c17f3b'
+  return '#8b4a48'
+}
+
+function SpotsDisplay({ spotsLeft, maxParticipants }: { spotsLeft: number; maxParticipants: number }) {
+  if (spotsLeft === 0) {
+    return <span className="spots-count" style={{ color: '#999' }}>Al completo</span>
+  }
+  const color = getSpotsColor(spotsLeft, maxParticipants)
+  return (
+    <span className="spots-display">
+      <span className="spots-count" style={{ color }}>{spotsLeft}</span>
+      <span className="spots-total">/ {maxParticipants} posti disponibili</span>
+    </span>
+  )
+}
+
 export default function Home() {
   const { slots } = useApp()
   const navigate = useNavigate()
@@ -22,12 +43,12 @@ export default function Home() {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
-  const availableSlots = useMemo(() => {
+  const upcomingSlots = useMemo(() => {
     return slots
       .filter(slot => {
         const [y, m, d] = slot.date.split('-').map(Number)
         const slotDate = new Date(y, m - 1, d)
-        return slotDate >= today && slot.bookings.length < slot.maxParticipants
+        return slotDate >= today
       })
       .sort((a, b) => {
         if (a.date !== b.date) return a.date.localeCompare(b.date)
@@ -36,14 +57,14 @@ export default function Home() {
   }, [slots])
 
   const types = useMemo(() => {
-    const set = new Set(availableSlots.map(s => s.type).filter(t => t.trim() !== ''))
+    const set = new Set(upcomingSlots.map(s => s.type).filter(t => t.trim() !== ''))
     return Array.from(set)
-  }, [availableSlots])
+  }, [upcomingSlots])
 
   const filtered = useMemo(() => {
-    if (activeType === 'Tutte') return availableSlots
-    return availableSlots.filter(s => s.type === activeType)
-  }, [availableSlots, activeType])
+    if (activeType === 'Tutte') return upcomingSlots
+    return upcomingSlots.filter(s => s.type === activeType)
+  }, [upcomingSlots, activeType])
 
   return (
     <div className="home">
@@ -81,6 +102,7 @@ export default function Home() {
           <div className="home-grid">
             {filtered.map(slot => {
               const spotsLeft = slot.maxParticipants - slot.bookings.length
+              const isFull = spotsLeft === 0
               return (
                 <div key={slot.id} className="slot-card">
                   <div className="slot-card__badges">
@@ -88,7 +110,7 @@ export default function Home() {
                       <span className="badge badge--type">{slot.type}</span>
                     )}
                     <span className="badge badge--spots">
-                      {spotsLeft === 1 ? '1 posto rimasto' : `${spotsLeft} posti rimasti`}
+                      <SpotsDisplay spotsLeft={spotsLeft} maxParticipants={slot.maxParticipants} />
                     </span>
                   </div>
                   <h2 className="slot-card__title">{slot.title}</h2>
@@ -98,10 +120,10 @@ export default function Home() {
                     <p className="slot-card__notes">{slot.notes}</p>
                   )}
                   <button
-                    className="btn-primary slot-card__btn"
+                    className={isFull ? 'btn-waitlist slot-card__btn' : 'btn-primary slot-card__btn'}
                     onClick={() => navigate(`/book/${slot.id}`)}
                   >
-                    Prenota
+                    {isFull ? "Lista d'attesa" : 'Prenota'}
                   </button>
                 </div>
               )

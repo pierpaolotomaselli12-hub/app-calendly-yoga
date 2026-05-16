@@ -17,7 +17,7 @@ function formatBookingDate(iso: string): string {
 }
 
 export default function AdminStudents() {
-  const { slots, deleteBooking } = useApp()
+  const { slots, deleteBooking, waitlist, removeFromWaitlist } = useApp()
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
@@ -61,6 +61,7 @@ export default function AdminStudents() {
         <div className="students-list">
           {slotsWithBookings.map(slot => {
             const isOpen = expanded.has(slot.id)
+            const slotWaitlist = waitlist.filter(w => w.slotId === slot.id)
             return (
               <div key={slot.id} className="students-slot">
                 <button
@@ -141,6 +142,45 @@ export default function AdminStudents() {
                           })}
                         </tbody>
                       </table>
+                    )}
+
+                    {slotWaitlist.length > 0 && (
+                      <div className="waitlist-section">
+                        <h3 className="waitlist-section__title">Lista d'attesa ({slotWaitlist.length})</h3>
+                        <table className="students-table">
+                          <thead>
+                            <tr>
+                              <th>Nome</th>
+                              <th>Email</th>
+                              <th>Telefono</th>
+                              <th>Iscritto il</th>
+                              <th></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {slotWaitlist.map(entry => (
+                              <tr key={entry.id}>
+                                <td className="student-name">
+                                  {entry.firstName} {entry.lastName}
+                                </td>
+                                <td className="student-email">{entry.email}</td>
+                                <td className="student-phone">{entry.phone}</td>
+                                <td className="student-date">
+                                  {formatBookingDate(entry.createdAt)}
+                                </td>
+                                <td className="student-actions">
+                                  <button
+                                    className="btn-danger"
+                                    onClick={() => removeFromWaitlist(slot.id, entry.id)}
+                                  >
+                                    Rimuovi
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     )}
                   </div>
                 )}

@@ -56,7 +56,7 @@ const STATUS_LABELS: Record<StatusBadge, string> = {
 type Tab = 'upcoming' | 'past'
 
 export default function AdminSlots() {
-  const { slots, addSlot, deleteSlot, updateSlot, duplicateSlot, deleteBooking } = useApp()
+  const { slots, addSlot, deleteSlot, updateSlot, duplicateSlot, deleteBooking, waitlist } = useApp()
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<SlotForm>(emptyForm)
   const [editingSlot, setEditingSlot] = useState<Slot | null>(null)
@@ -337,6 +337,11 @@ export default function AdminSlots() {
                       <span className="capacity-booked">{slot.bookings.length}</span>
                       <span className="capacity-sep">/</span>
                       <span className="capacity-max">{slot.maxParticipants}</span>
+                      {waitlist.filter(w => w.slotId === slot.id).length > 0 && (
+                        <span className="capacity-waitlist">
+                          &middot; {waitlist.filter(w => w.slotId === slot.id).length} in attesa
+                        </span>
+                      )}
                     </div>
                     <div className="slot-actions">
                       {deleteConfirm === slot.id ? (
