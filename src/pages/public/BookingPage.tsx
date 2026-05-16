@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
+import { supabase } from '../../lib/supabase'
 import type { Slot } from '../../types'
 import './BookingPage.css'
 
@@ -95,6 +96,18 @@ function BookingForm({ slot }: { slot: Slot }) {
       lastName: lastName.trim(),
       email: email.trim(),
       phone: phone.trim(),
+    })
+
+    supabase.functions.invoke('send-email', {
+      body: {
+        type: 'booking',
+        studentEmail: email.trim(),
+        studentName: firstName.trim(),
+        slotTitle: slot.title,
+        slotDate: formatDateLong(slot.date),
+        slotTime: slot.time,
+        slotDuration: slot.duration,
+      },
     })
 
     const params = new URLSearchParams({
@@ -243,6 +256,18 @@ function WaitlistForm({ slot }: { slot: Slot }) {
       lastName: lastName.trim(),
       email: email.trim(),
       phone: phone.trim(),
+    })
+
+    supabase.functions.invoke('send-email', {
+      body: {
+        type: 'waitlist',
+        studentEmail: email.trim(),
+        studentName: firstName.trim(),
+        slotTitle: slot.title,
+        slotDate: formatDateLong(slot.date),
+        slotTime: slot.time,
+        slotDuration: slot.duration,
+      },
     })
 
     const params = new URLSearchParams({
