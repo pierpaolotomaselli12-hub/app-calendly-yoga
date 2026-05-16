@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
+import { supabase } from '../../lib/supabase'
 import type { Slot, Booking } from '../../types'
 import './CancelPage.css'
 
@@ -49,6 +50,17 @@ export default function CancelPage() {
   async function handleConfirm(item: BookingItem) {
     setRowState(item.booking.id, 'cancelling')
     await deleteBooking(item.slot.id, item.booking.id)
+    supabase.functions.invoke('send-email', {
+      body: {
+        type: 'cancellation',
+        studentEmail: item.booking.email,
+        studentName: `${item.booking.firstName} ${item.booking.lastName}`,
+        slotTitle: item.slot.title,
+        slotDate: formatDate(item.slot.date),
+        slotTime: item.slot.time,
+        slotDuration: item.slot.duration,
+      },
+    })
     setRowState(item.booking.id, 'done')
   }
 
