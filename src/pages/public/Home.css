@@ -1,0 +1,181 @@
+.home {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.home-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--color-white);
+  padding: 24px 40px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.home-logo {
+  font-size: 36px;
+  color: var(--color-green);
+  line-height: 1.1;
+}
+
+.home-subtitle {
+  color: var(--color-text-light);
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+.home-main {
+  flex: 1;
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.home-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.pill {
+  background: transparent;
+  border: 1px solid var(--color-green);
+  color: var(--color-green);
+  padding: 6px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  transition: background 0.15s, color 0.15s;
+}
+
+.pill:hover {
+  background: var(--color-green);
+  color: var(--color-white);
+}
+
+.pill--active {
+  background: var(--color-green);
+  color: var(--color-white);
+}
+
+.home-empty {
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--color-text-light);
+  font-size: 17px;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.slot-card {
+  background: var(--color-white);
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.slot-card__badges {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+}
+
+.badge--type {
+  background: var(--color-bg);
+  color: var(--color-green);
+  border: 1px solid var(--color-border);
+}
+
+.badge--spots {
+  background: transparent;
+  color: var(--color-text-light);
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.slot-card__title {
+  font-size: 20px;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.slot-card__date {
+  font-size: 15px;
+  color: var(--color-text);
+  text-transform: capitalize;
+}
+
+.slot-card__time {
+  font-size: 14px;
+  color: var(--color-text-light);
+}
+
+.slot-card__notes {
+  font-size: 14px;
+  color: var(--color-text-light);
+  font-style: italic;
+}
+
+.slot-card__btn {
+  margin-top: auto;
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  text-align: center;
+}
+
+.home-footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 13px;
+  color: var(--color-text-light);
+}
+
+.home-footer a {
+  color: var(--color-green);
+  text-decoration: none;
+}
+
+.home-footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .home-header {
+    padding: 20px 24px;
+  }
+
+  .home-logo {
+    font-size: 28px;
+  }
+
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-main {
+    padding: 28px 16px;
+  }
+}
