@@ -109,7 +109,7 @@ export default function AdminSlots() {
     setEditingSlot(null)
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     const data = {
       title: form.title.trim(),
@@ -121,16 +121,16 @@ export default function AdminSlots() {
       notes: form.notes.trim(),
     }
     if (editingSlot) {
-      updateSlot(editingSlot.id, data)
+      await updateSlot(editingSlot.id, data)
     } else {
-      addSlot(data)
+      await addSlot(data)
     }
     closeForm()
   }
 
-  function handleDelete(slot: Slot) {
+  async function handleDelete(slot: Slot) {
     if (deleteConfirm === slot.id) {
-      deleteSlot(slot.id)
+      await deleteSlot(slot.id)
       setDeleteConfirm(null)
       if (expandedSlot === slot.id) setExpandedSlot(null)
     } else {
@@ -148,9 +148,9 @@ export default function AdminSlots() {
     setDeleteConfirm(null)
   }
 
-  function confirmDuplicate(id: string) {
+  async function confirmDuplicate(id: string) {
     if (!duplicateDate) return
-    duplicateSlot(id, duplicateDate)
+    await duplicateSlot(id, duplicateDate)
     setDuplicatingSlot(null)
     setDuplicateDate('')
   }
@@ -406,7 +406,7 @@ export default function AdminSlots() {
                             </div>
                             <button
                               className="btn-text btn-text--danger"
-                              onClick={() => deleteBooking(slot.id, b.id)}
+                              onClick={() => { void deleteBooking(slot.id, b.id) }}
                             >
                               Rimuovi
                             </button>

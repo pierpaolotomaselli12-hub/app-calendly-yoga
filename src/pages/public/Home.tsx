@@ -36,7 +36,7 @@ function SpotsDisplay({ spotsLeft, maxParticipants }: { spotsLeft: number; maxPa
 }
 
 export default function Home() {
-  const { slots } = useApp()
+  const { slots, loading } = useApp()
   const navigate = useNavigate()
   const [activeType, setActiveType] = useState<string>('Tutte')
 
@@ -74,61 +74,67 @@ export default function Home() {
       </header>
 
       <main className="home-main">
-        {types.length > 0 && (
-          <div className="home-filters">
-            <button
-              className={`pill${activeType === 'Tutte' ? ' pill--active' : ''}`}
-              onClick={() => setActiveType('Tutte')}
-            >
-              Tutte
-            </button>
-            {types.map(type => (
-              <button
-                key={type}
-                className={`pill${activeType === type ? ' pill--active' : ''}`}
-                onClick={() => setActiveType(type)}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {filtered.length === 0 ? (
-          <div className="home-empty">
-            <p>Nessuna lezione disponibile al momento. Torna presto!</p>
-          </div>
+        {loading ? (
+          <div className="home-loading">Caricamento lezioni...</div>
         ) : (
-          <div className="home-grid">
-            {filtered.map(slot => {
-              const spotsLeft = slot.maxParticipants - slot.bookings.length
-              const isFull = spotsLeft === 0
-              return (
-                <div key={slot.id} className="slot-card">
-                  <div className="slot-card__badges">
-                    {slot.type && (
-                      <span className="badge badge--type">{slot.type}</span>
-                    )}
-                    <span className="badge badge--spots">
-                      <SpotsDisplay spotsLeft={spotsLeft} maxParticipants={slot.maxParticipants} />
-                    </span>
-                  </div>
-                  <h2 className="slot-card__title">{slot.title}</h2>
-                  <p className="slot-card__date">{formatDateLong(slot.date)}</p>
-                  <p className="slot-card__time">{slot.time} · {slot.duration} min</p>
-                  {slot.notes && (
-                    <p className="slot-card__notes">{slot.notes}</p>
-                  )}
+          <>
+            {types.length > 0 && (
+              <div className="home-filters">
+                <button
+                  className={`pill${activeType === 'Tutte' ? ' pill--active' : ''}`}
+                  onClick={() => setActiveType('Tutte')}
+                >
+                  Tutte
+                </button>
+                {types.map(type => (
                   <button
-                    className={isFull ? 'btn-waitlist slot-card__btn' : 'btn-primary slot-card__btn'}
-                    onClick={() => navigate(`/book/${slot.id}`)}
+                    key={type}
+                    className={`pill${activeType === type ? ' pill--active' : ''}`}
+                    onClick={() => setActiveType(type)}
                   >
-                    {isFull ? "Lista d'attesa" : 'Prenota'}
+                    {type}
                   </button>
-                </div>
-              )
-            })}
-          </div>
+                ))}
+              </div>
+            )}
+
+            {filtered.length === 0 ? (
+              <div className="home-empty">
+                <p>Nessuna lezione disponibile al momento. Torna presto!</p>
+              </div>
+            ) : (
+              <div className="home-grid">
+                {filtered.map(slot => {
+                  const spotsLeft = slot.maxParticipants - slot.bookings.length
+                  const isFull = spotsLeft === 0
+                  return (
+                    <div key={slot.id} className="slot-card">
+                      <div className="slot-card__badges">
+                        {slot.type && (
+                          <span className="badge badge--type">{slot.type}</span>
+                        )}
+                        <span className="badge badge--spots">
+                          <SpotsDisplay spotsLeft={spotsLeft} maxParticipants={slot.maxParticipants} />
+                        </span>
+                      </div>
+                      <h2 className="slot-card__title">{slot.title}</h2>
+                      <p className="slot-card__date">{formatDateLong(slot.date)}</p>
+                      <p className="slot-card__time">{slot.time} · {slot.duration} min</p>
+                      {slot.notes && (
+                        <p className="slot-card__notes">{slot.notes}</p>
+                      )}
+                      <button
+                        className={isFull ? 'btn-waitlist slot-card__btn' : 'btn-primary slot-card__btn'}
+                        onClick={() => navigate(`/book/${slot.id}`)}
+                      >
+                        {isFull ? "Lista d'attesa" : 'Prenota'}
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </>
         )}
       </main>
 

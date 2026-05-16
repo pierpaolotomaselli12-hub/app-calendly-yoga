@@ -3,7 +3,7 @@ import { useApp } from '../../context/AppContext'
 import './AdminLayout.css'
 
 export default function AdminLayout() {
-  const { isAdminLoggedIn, adminLogout } = useApp()
+  const { isAdminLoggedIn, adminLogout, loading } = useApp()
   const navigate = useNavigate()
 
   if (!isAdminLoggedIn) {
@@ -56,7 +56,11 @@ export default function AdminLayout() {
         </button>
       </aside>
       <main className="admin-main">
-        <Outlet />
+        {loading ? (
+          <p style={{ textAlign: 'center', padding: '2rem' }}>Caricamento...</p>
+        ) : (
+          <Outlet />
+        )}
       </main>
     </div>
   )

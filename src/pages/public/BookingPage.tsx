@@ -73,7 +73,7 @@ function BookingForm({ slot }: { slot: Slot }) {
     return errs
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length > 0) {
@@ -89,7 +89,7 @@ function BookingForm({ slot }: { slot: Slot }) {
       return
     }
 
-    addBooking({
+    await addBooking({
       slotId: slot.id,
       firstName: firstName.trim(),
       lastName: lastName.trim(),
@@ -221,7 +221,7 @@ function WaitlistForm({ slot }: { slot: Slot }) {
     return errs
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length > 0) {
@@ -237,7 +237,7 @@ function WaitlistForm({ slot }: { slot: Slot }) {
       return
     }
 
-    addToWaitlist({
+    await addToWaitlist({
       slotId: slot.id,
       firstName: firstName.trim(),
       lastName: lastName.trim(),
@@ -344,10 +344,18 @@ function WaitlistForm({ slot }: { slot: Slot }) {
 
 export default function BookingPage() {
   const { slotId } = useParams<{ slotId: string }>()
-  const { slots } = useApp()
+  const { slots, loading } = useApp()
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
+
+  if (loading) {
+    return (
+      <div className="booking-unavailable">
+        <p>Caricamento...</p>
+      </div>
+    )
+  }
 
   const slot = slots.find(s => s.id === slotId)
 

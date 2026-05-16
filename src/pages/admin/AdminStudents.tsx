@@ -36,10 +36,10 @@ export default function AdminStudents() {
     })
   }
 
-  function handleDelete(slotId: string, bookingId: string) {
+  async function handleDelete(slotId: string, bookingId: string) {
     const key = `${slotId}:${bookingId}`
     if (deleteConfirm === key) {
-      deleteBooking(slotId, bookingId)
+      await deleteBooking(slotId, bookingId)
       setDeleteConfirm(null)
     } else {
       setDeleteConfirm(key)
@@ -171,7 +171,7 @@ export default function AdminStudents() {
                                 <td className="student-actions">
                                   <button
                                     className="btn-danger"
-                                    onClick={() => removeFromWaitlist(slot.id, entry.id)}
+                                    onClick={() => { void removeFromWaitlist(slot.id, entry.id) }}
                                   >
                                     Rimuovi
                                   </button>
