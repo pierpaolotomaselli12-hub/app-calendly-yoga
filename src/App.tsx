@@ -4,6 +4,7 @@ import AdminLogin from './pages/admin/AdminLogin'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminSlots from './pages/admin/AdminSlots'
 import AdminStudents from './pages/admin/AdminStudents'
+import AdminBookings from './pages/admin/AdminBookings'
 import AdminLayout from './components/admin/AdminLayout'
 import Home from './pages/public/Home'
 import BookingPage from './pages/public/BookingPage'
@@ -27,6 +28,7 @@ function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="slots" element={<AdminSlots />} />
+            <Route path="bookings" element={<AdminBookings />} />
             <Route path="students" element={<AdminStudents />} />
           </Route>
         </Routes>

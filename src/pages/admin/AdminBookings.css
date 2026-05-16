@@ -1,0 +1,351 @@
+.bookings-page {
+  max-width: 960px;
+}
+
+.bookings-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.bookings-title {
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.bookings-subtitle {
+  font-size: 14px;
+  color: var(--color-text-light);
+  letter-spacing: 0.02em;
+}
+
+.bookings-filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bookings-filter-btn {
+  padding: 7px 16px;
+  font-size: 13px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  color: var(--color-text-light);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.15s;
+}
+
+.bookings-filter-btn:hover {
+  border-color: var(--color-green);
+  color: var(--color-green);
+}
+
+.bookings-filter-btn--active {
+  background: var(--color-green);
+  border-color: var(--color-green);
+  color: var(--color-white);
+}
+
+.bookings-filter-btn--active:hover {
+  color: var(--color-white);
+}
+
+.bookings-empty-state {
+  background: var(--color-white);
+  padding: 48px 32px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+}
+
+.bookings-empty-title {
+  font-size: 18px;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.bookings-empty-sub {
+  font-size: 14px;
+  color: var(--color-text-light);
+}
+
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--color-border);
+}
+
+.bookings-slot {
+  background: var(--color-white);
+}
+
+.bookings-slot--past .bookings-slot-title {
+  color: var(--color-text-light);
+}
+
+.bookings-slot-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  gap: 16px;
+  font-family: 'Goudy Bookletter 1911', serif;
+}
+
+.bookings-slot-header:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.bookings-slot-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.bookings-slot-top {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bookings-badge-type {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-green);
+  border: 1px solid var(--color-green);
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+.bookings-badge-past {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  border: 1px solid var(--color-border);
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+.bookings-badge-full {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8b4a48;
+  border: 1px solid #8b4a48;
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+.bookings-slot-title {
+  font-size: 17px;
+  color: var(--color-text);
+}
+
+.bookings-slot-meta {
+  font-size: 13px;
+  color: var(--color-text-light);
+  letter-spacing: 0.02em;
+}
+
+.bookings-slot-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.bookings-count-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.bookings-count {
+  font-size: 14px;
+  color: var(--color-green);
+  font-family: 'Goudy Bookletter 1911', serif;
+  white-space: nowrap;
+}
+
+.bookings-bar {
+  width: 80px;
+  height: 3px;
+  background: var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.bookings-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+.bookings-waitlist-badge {
+  font-size: 12px;
+  color: #c17f3b;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.bookings-chevron {
+  font-size: 20px;
+  color: var(--color-text-light);
+  display: inline-block;
+  transform: rotate(0deg);
+  transition: transform 0.2s;
+  line-height: 1;
+}
+
+.bookings-chevron--open {
+  transform: rotate(90deg);
+}
+
+.bookings-detail {
+  border-top: 1px solid var(--color-border);
+  padding: 20px 24px 24px;
+}
+
+.bookings-section-label {
+  font-size: 12px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  margin-bottom: 12px;
+}
+
+.bookings-section-label--waitlist {
+  color: #c17f3b;
+  margin-top: 24px;
+}
+
+.bookings-no-entries {
+  font-size: 14px;
+  color: var(--color-text-light);
+}
+
+.bookings-waitlist-section {
+  margin-top: 8px;
+}
+
+.bookings-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bookings-table th {
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  padding: 0 12px 10px 0;
+  font-weight: 400;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.bookings-table td {
+  padding: 12px 12px 12px 0;
+  font-size: 14px;
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.bookings-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.bk-name {
+  font-weight: 500;
+}
+
+.bk-meta {
+  color: var(--color-text-light);
+}
+
+.bk-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.btn-confirm-delete-sm {
+  background: none;
+  border: 1px solid #b94a48;
+  color: #b94a48;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: 'Goudy Bookletter 1911', serif;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  margin-right: 4px;
+  border-radius: 2px;
+}
+
+.btn-confirm-delete-sm:hover {
+  background: #b94a48;
+  color: white;
+}
+
+.btn-cancel-xs {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Goudy Bookletter 1911', serif;
+  font-size: 12px;
+  color: var(--color-text-light);
+  padding: 4px 6px;
+}
+
+.btn-cancel-xs:hover {
+  color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+  .bookings-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bookings-slot-header {
+    padding: 14px 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .bookings-slot-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .bookings-bar {
+    width: 60px;
+  }
+
+  .bookings-detail {
+    padding: 14px 16px 18px;
+  }
+
+  .col-phone,
+  .col-date {
+    display: none;
+  }
+}

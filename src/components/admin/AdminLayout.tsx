@@ -42,6 +42,14 @@ export default function AdminLayout() {
               Lezioni
             </NavLink>
             <NavLink
+              to="/admin/bookings"
+              className={({ isActive }) =>
+                isActive ? 'sidebar-link sidebar-link--active' : 'sidebar-link'
+              }
+            >
+              Prenotazioni
+            </NavLink>
+            <NavLink
               to="/admin/students"
               className={({ isActive }) =>
                 isActive ? 'sidebar-link sidebar-link--active' : 'sidebar-link'
@@ -80,6 +88,15 @@ export default function AdminLayout() {
         >
           <span className="bottom-nav-icon">🗓</span>
           <span className="bottom-nav-label">Lezioni</span>
+        </NavLink>
+        <NavLink
+          to="/admin/bookings"
+          className={({ isActive }) =>
+            isActive ? 'bottom-nav-item bottom-nav-item--active' : 'bottom-nav-item'
+          }
+        >
+          <span className="bottom-nav-icon">📋</span>
+          <span className="bottom-nav-label">Prenotazioni</span>
         </NavLink>
         <NavLink
           to="/admin/students"
