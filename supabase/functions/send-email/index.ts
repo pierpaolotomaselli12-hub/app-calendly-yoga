@@ -45,23 +45,6 @@ serve(async (req) => {
 
     if (type === 'booking') {
       await sendEmail(
-        studentEmail,
-        `Prenotazione confermata – ${slotTitle}`,
-        `
-          <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2c2c2c;">
-            <h2 style="color:#818569;">Prenotazione confermata</h2>
-            <p>Ciao ${studentName},</p>
-            <p>La tua prenotazione è confermata. Ti aspettiamo!</p>
-            <div style="background:#f5f2ee;padding:20px;margin:24px 0;">
-              <strong>${slotTitle}</strong><br/>
-              ${slotDate} alle ${slotTime} · ${slotDuration} min
-            </div>
-            <p style="color:#6b6b6b;font-size:14px;">Ricordati di portare il tuo tappetino.</p>
-            <p style="color:#6b6b6b;font-size:14px;">Per info rispondi a questa email.</p>
-          </div>
-        `
-      )
-      await sendEmail(
         TEACHER_EMAIL,
         `Nuova prenotazione – ${slotTitle}`,
         `
@@ -72,25 +55,23 @@ serve(async (req) => {
               <strong>${slotTitle}</strong><br/>
               ${slotDate} alle ${slotTime} · ${slotDuration} min
             </div>
-            <p style="color:#6b6b6b;font-size:14px;">Contatto studente: ${studentEmail}</p>
+            <p style="color:#6b6b6b;font-size:14px;">Email studente: ${studentEmail}</p>
           </div>
         `
       )
     } else {
       await sendEmail(
-        studentEmail,
-        `Lista d'attesa – ${slotTitle}`,
+        TEACHER_EMAIL,
+        `Nuova iscrizione lista d'attesa – ${slotTitle}`,
         `
           <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2c2c2c;">
-            <h2 style="color:#818569;">Sei in lista d'attesa</h2>
-            <p>Ciao ${studentName},</p>
-            <p>Sei stato/a aggiunto/a alla lista d'attesa per la seguente lezione:</p>
+            <h2 style="color:#818569;">Nuova iscrizione lista d'attesa</h2>
+            <p><strong>${studentName}</strong> si è iscritto/a alla lista d'attesa per:</p>
             <div style="background:#f5f2ee;padding:20px;margin:24px 0;">
               <strong>${slotTitle}</strong><br/>
               ${slotDate} alle ${slotTime} · ${slotDuration} min
             </div>
-            <p style="color:#6b6b6b;font-size:14px;">Ti contatteremo se si libera un posto.</p>
-            <p style="color:#6b6b6b;font-size:14px;">Per info rispondi a questa email.</p>
+            <p style="color:#6b6b6b;font-size:14px;">Email studente: ${studentEmail}</p>
           </div>
         `
       )
