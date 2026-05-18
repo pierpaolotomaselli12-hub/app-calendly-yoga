@@ -25,22 +25,13 @@
 }
 
 .sidebar-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   padding: 0 28px;
 }
 
-.sidebar-leaf {
-  font-size: 18px;
-  color: var(--color-green);
-}
-
-.sidebar-name {
-  font-size: 17px;
-  font-family: 'Goudy Bookletter 1911', serif;
-  color: var(--color-text);
-  letter-spacing: 0.03em;
+.sidebar-logo {
+  width: 160px;
+  height: auto;
+  display: block;
 }
 
 .sidebar-nav {

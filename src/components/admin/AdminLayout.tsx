@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
+import logoFull from '../../assets/logo-full.png'
 import './AdminLayout.css'
 
 export default function AdminLayout() {
@@ -21,8 +22,7 @@ export default function AdminLayout() {
       <aside className="admin-sidebar">
         <div className="sidebar-top">
           <div className="sidebar-brand">
-            <span className="sidebar-leaf">✿</span>
-            <span className="sidebar-name">Laura Pagnossin</span>
+            <img src={logoFull} alt="Laura Pagnossin" className="sidebar-logo" />
           </div>
           <nav className="sidebar-nav">
             <NavLink
