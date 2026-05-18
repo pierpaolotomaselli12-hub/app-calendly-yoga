@@ -40,6 +40,26 @@ export interface Slot {
   bookings: Booking[]
 }
 
+export interface EventBooking {
+  id: string
+  eventId: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  createdAt: string
+}
+
+export interface EventWaitlistEntry {
+  id: string
+  eventId: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  createdAt: string
+}
+
 export interface YogaEvent {
   id: string
   title: string
@@ -49,5 +69,10 @@ export interface YogaEvent {
   location: string
   price: string
   notes: string
+  maxParticipants: number
+  bookings: EventBooking[]
+  waitlist: EventWaitlistEntry[]
   createdAt: string
 }
+
+export type EventFormData = Omit<YogaEvent, 'id' | 'createdAt' | 'bookings' | 'waitlist'>

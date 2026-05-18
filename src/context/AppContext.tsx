@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
-import type { Slot, Booking, WaitlistEntry, Student, YogaEvent } from '../types'
+import type { Slot, Booking, WaitlistEntry, Student, YogaEvent, EventBooking, EventWaitlistEntry, EventFormData } from '../types'
 import { supabase } from '../lib/supabase'
 
 interface AppContextType {
@@ -28,9 +28,13 @@ interface AppContextType {
   updateStudentCredits: (studentId: string, credits: number) => Promise<void>
   decrementStudentCredits: (studentId: string) => Promise<void>
   incrementStudentCredits: (studentId: string) => Promise<void>
-  addEvent: (data: Omit<YogaEvent, 'id' | 'createdAt'>) => Promise<void>
-  updateEvent: (id: string, data: Omit<YogaEvent, 'id' | 'createdAt'>) => Promise<void>
+  addEvent: (data: EventFormData) => Promise<void>
+  updateEvent: (id: string, data: EventFormData) => Promise<void>
   deleteEvent: (id: string) => Promise<void>
+  addEventBooking: (data: Omit<EventBooking, 'id' | 'createdAt'>) => Promise<void>
+  deleteEventBooking: (eventId: string, bookingId: string) => Promise<void>
+  addToEventWaitlist: (data: Omit<EventWaitlistEntry, 'id' | 'createdAt'>) => Promise<void>
+  removeFromEventWaitlist: (eventId: string, entryId: string) => Promise<void>
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -85,17 +89,27 @@ function mapStudent(raw: Record<string, unknown>): Student {
   }
 }
 
-function loadAdminStatus(): boolean {
-  return localStorage.getItem('yoga_admin') === 'true'
+function mapEventBooking(raw: Record<string, unknown>): EventBooking {
+  return {
+    id: raw.id as string,
+    eventId: raw.event_id as string,
+    firstName: raw.first_name as string,
+    lastName: raw.last_name as string,
+    email: raw.email as string,
+    phone: raw.phone as string,
+    createdAt: raw.created_at as string,
+  }
 }
 
-function loadCurrentStudent(): Student | null {
-  try {
-    const raw = localStorage.getItem('yoga_student_session')
-    if (!raw) return null
-    return JSON.parse(raw) as Student
-  } catch {
-    return null
+function mapEventWaitlistEntry(raw: Record<string, unknown>): EventWaitlistEntry {
+  return {
+    id: raw.id as string,
+    eventId: raw.event_id as string,
+    firstName: raw.first_name as string,
+    lastName: raw.last_name as string,
+    email: raw.email as string,
+    phone: raw.phone as string,
+    createdAt: raw.created_at as string,
   }
 }
 
@@ -109,7 +123,24 @@ function mapEvent(raw: Record<string, unknown>): YogaEvent {
     location: (raw.location as string) || '',
     price: (raw.price as string) || '',
     notes: (raw.notes as string) || '',
+    maxParticipants: (raw.max_participants as number) || 0,
+    bookings: ((raw.event_bookings as Record<string, unknown>[]) || []).map(mapEventBooking),
+    waitlist: ((raw.event_waitlist as Record<string, unknown>[]) || []).map(mapEventWaitlistEntry),
     createdAt: raw.created_at as string,
+  }
+}
+
+function loadAdminStatus(): boolean {
+  return localStorage.getItem('yoga_admin') === 'true'
+}
+
+function loadCurrentStudent(): Student | null {
+  try {
+    const raw = localStorage.getItem('yoga_student_session')
+    if (!raw) return null
+    return JSON.parse(raw) as Student
+  } catch {
+    return null
   }
 }
 
@@ -146,7 +177,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const { data: eventsData } = await supabase
       .from('events')
-      .select('*')
+      .select('*, event_bookings(*), event_waitlist(*)')
       .order('date', { ascending: true })
 
     setSlots((slotsData ?? []).map(s => mapSlot(s as Record<string, unknown>)))
@@ -184,6 +215,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         })
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => { void fetchAll() })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'event_bookings' }, () => { void fetchAll() })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'event_waitlist' }, () => { void fetchAll() })
       .subscribe()
 
     return () => { void supabase.removeChannel(channel) }
@@ -191,26 +224,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   async function addSlot(data: Omit<Slot, 'id' | 'bookings'>) {
     await supabase.from('slots').insert({
-      title: data.title,
-      type: data.type,
-      date: data.date,
-      time: data.time,
-      duration: data.duration,
-      max_participants: data.maxParticipants,
-      notes: data.notes,
+      title: data.title, type: data.type, date: data.date, time: data.time,
+      duration: data.duration, max_participants: data.maxParticipants, notes: data.notes,
     })
     await fetchAll()
   }
 
   async function updateSlot(id: string, data: Omit<Slot, 'id' | 'bookings'>) {
     await supabase.from('slots').update({
-      title: data.title,
-      type: data.type,
-      date: data.date,
-      time: data.time,
-      duration: data.duration,
-      max_participants: data.maxParticipants,
-      notes: data.notes,
+      title: data.title, type: data.type, date: data.date, time: data.time,
+      duration: data.duration, max_participants: data.maxParticipants, notes: data.notes,
     }).eq('id', id)
     await fetchAll()
   }
@@ -224,24 +247,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const original = slots.find(s => s.id === id)
     if (!original) return
     await supabase.from('slots').insert({
-      title: original.title,
-      type: original.type,
-      date: newDate,
-      time: original.time,
-      duration: original.duration,
-      max_participants: original.maxParticipants,
-      notes: original.notes,
+      title: original.title, type: original.type, date: newDate, time: original.time,
+      duration: original.duration, max_participants: original.maxParticipants, notes: original.notes,
     })
     await fetchAll()
   }
 
   async function addBooking(data: Omit<Booking, 'id' | 'createdAt'>) {
     await supabase.from('bookings').insert({
-      slot_id: data.slotId,
-      first_name: data.firstName,
-      last_name: data.lastName,
-      email: data.email,
-      phone: data.phone,
+      slot_id: data.slotId, first_name: data.firstName, last_name: data.lastName,
+      email: data.email, phone: data.phone,
     })
     await fetchAll()
   }
@@ -253,11 +268,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   async function addToWaitlist(data: Omit<WaitlistEntry, 'id' | 'createdAt'>) {
     await supabase.from('waitlist').insert({
-      slot_id: data.slotId,
-      first_name: data.firstName,
-      last_name: data.lastName,
-      email: data.email,
-      phone: data.phone,
+      slot_id: data.slotId, first_name: data.firstName, last_name: data.lastName,
+      email: data.email, phone: data.phone,
     })
     await fetchAll()
   }
@@ -268,37 +280,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   function adminLogin(password: string): boolean {
-    if (password === 'yoga2024') {
-      setIsAdminLoggedIn(true)
-      return true
-    }
+    if (password === 'yoga2024') { setIsAdminLoggedIn(true); return true }
     return false
   }
 
-  function adminLogout() {
-    setIsAdminLoggedIn(false)
-  }
+  function adminLogout() { setIsAdminLoggedIn(false) }
 
   async function studentRegister(data: { firstName: string; lastName: string; email: string; phone: string }): Promise<'ok' | 'email_taken'> {
     const existing = students.find(s => s.email.toLowerCase() === data.email.toLowerCase())
     if (existing) return 'email_taken'
     await supabase.from('students').insert({
-      first_name: data.firstName,
-      last_name: data.lastName,
-      email: data.email,
-      phone: data.phone,
+      first_name: data.firstName, last_name: data.lastName, email: data.email, phone: data.phone,
     })
     await fetchAll()
     return 'ok'
   }
 
   async function studentLogin(email: string): Promise<Student | null> {
-    const { data } = await supabase
-      .from('students')
-      .select('*')
-      .ilike('email', email)
-      .maybeSingle()
-
+    const { data } = await supabase.from('students').select('*').ilike('email', email).maybeSingle()
     if (!data) return null
     const student = mapStudent(data as Record<string, unknown>)
     setCurrentStudent(student)
@@ -312,10 +311,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   async function updateStudentCredits(studentId: string, credits: number) {
-    await supabase
-      .from('students')
-      .update({ lesson_credits: credits })
-      .eq('id', studentId)
+    await supabase.from('students').update({ lesson_credits: credits }).eq('id', studentId)
     const fresh = await fetchAll()
     setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
   }
@@ -323,10 +319,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   async function decrementStudentCredits(studentId: string) {
     const target = students.find(s => s.id === studentId)
     if (!target || target.lessonCredits <= 0) return
-    await supabase
-      .from('students')
-      .update({ lesson_credits: target.lessonCredits - 1 })
-      .eq('id', studentId)
+    await supabase.from('students').update({ lesson_credits: target.lessonCredits - 1 }).eq('id', studentId)
     const fresh = await fetchAll()
     setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
   }
@@ -334,10 +327,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   async function incrementStudentCredits(studentId: string) {
     const target = students.find(s => s.id === studentId)
     if (!target) return
-    await supabase
-      .from('students')
-      .update({ lesson_credits: target.lessonCredits + 1 })
-      .eq('id', studentId)
+    await supabase.from('students').update({ lesson_credits: target.lessonCredits + 1 }).eq('id', studentId)
     const fresh = await fetchAll()
     setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
   }
@@ -346,10 +336,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const existing = students.find(s => s.email.toLowerCase() === data.email.toLowerCase())
     if (existing) return 'email_taken'
     await supabase.from('students').insert({
-      first_name: data.firstName,
-      last_name: data.lastName,
-      email: data.email,
-      phone: data.phone,
+      first_name: data.firstName, last_name: data.lastName, email: data.email, phone: data.phone,
     })
     await fetchAll()
     return 'ok'
@@ -357,37 +344,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   async function updateStudent(id: string, data: { firstName: string; lastName: string; email: string; phone: string }) {
     await supabase.from('students').update({
-      first_name: data.firstName,
-      last_name: data.lastName,
-      email: data.email,
-      phone: data.phone,
+      first_name: data.firstName, last_name: data.lastName, email: data.email, phone: data.phone,
     }).eq('id', id)
     const fresh = await fetchAll()
     setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
   }
 
-  async function addEvent(data: Omit<YogaEvent, 'id' | 'createdAt'>) {
+  async function addEvent(data: EventFormData) {
     await supabase.from('events').insert({
-      title: data.title,
-      description: data.description,
-      date: data.date,
-      time: data.time,
-      location: data.location,
-      price: data.price,
-      notes: data.notes,
+      title: data.title, description: data.description, date: data.date, time: data.time,
+      location: data.location, price: data.price, notes: data.notes, max_participants: data.maxParticipants,
     })
     await fetchAll()
   }
 
-  async function updateEvent(id: string, data: Omit<YogaEvent, 'id' | 'createdAt'>) {
+  async function updateEvent(id: string, data: EventFormData) {
     await supabase.from('events').update({
-      title: data.title,
-      description: data.description,
-      date: data.date,
-      time: data.time,
-      location: data.location,
-      price: data.price,
-      notes: data.notes,
+      title: data.title, description: data.description, date: data.date, time: data.time,
+      location: data.location, price: data.price, notes: data.notes, max_participants: data.maxParticipants,
     }).eq('id', id)
     await fetchAll()
   }
@@ -397,39 +371,44 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await fetchAll()
   }
 
+  async function addEventBooking(data: Omit<EventBooking, 'id' | 'createdAt'>) {
+    await supabase.from('event_bookings').insert({
+      event_id: data.eventId, first_name: data.firstName, last_name: data.lastName,
+      email: data.email, phone: data.phone,
+    })
+    await fetchAll()
+  }
+
+  async function deleteEventBooking(_eventId: string, bookingId: string) {
+    await supabase.from('event_bookings').delete().eq('id', bookingId)
+    await fetchAll()
+  }
+
+  async function addToEventWaitlist(data: Omit<EventWaitlistEntry, 'id' | 'createdAt'>) {
+    await supabase.from('event_waitlist').insert({
+      event_id: data.eventId, first_name: data.firstName, last_name: data.lastName,
+      email: data.email, phone: data.phone,
+    })
+    await fetchAll()
+  }
+
+  async function removeFromEventWaitlist(_eventId: string, entryId: string) {
+    await supabase.from('event_waitlist').delete().eq('id', entryId)
+    await fetchAll()
+  }
+
   return (
-    <AppContext.Provider
-      value={{
-        slots,
-        waitlist,
-        students,
-        events,
-        loading,
-        addSlot,
-        updateSlot,
-        deleteSlot,
-        duplicateSlot,
-        addBooking,
-        deleteBooking,
-        addToWaitlist,
-        removeFromWaitlist,
-        isAdminLoggedIn,
-        adminLogin,
-        adminLogout,
-        currentStudent,
-        studentRegister,
-        studentLogin,
-        studentLogout,
-        createStudent,
-        updateStudent,
-        updateStudentCredits,
-        decrementStudentCredits,
-        incrementStudentCredits,
-        addEvent,
-        updateEvent,
-        deleteEvent,
-      }}
-    >
+    <AppContext.Provider value={{
+      slots, waitlist, students, events, loading,
+      addSlot, updateSlot, deleteSlot, duplicateSlot,
+      addBooking, deleteBooking, addToWaitlist, removeFromWaitlist,
+      isAdminLoggedIn, adminLogin, adminLogout,
+      currentStudent, studentRegister, studentLogin, studentLogout,
+      createStudent, updateStudent,
+      updateStudentCredits, decrementStudentCredits, incrementStudentCredits,
+      addEvent, updateEvent, deleteEvent,
+      addEventBooking, deleteEventBooking, addToEventWaitlist, removeFromEventWaitlist,
+    }}>
       {children}
     </AppContext.Provider>
   )

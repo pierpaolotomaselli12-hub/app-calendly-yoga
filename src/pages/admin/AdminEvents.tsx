@@ -1,18 +1,11 @@
 import { useState } from 'react'
 import { useApp } from '../../context/AppContext'
-import type { YogaEvent } from '../../types'
+import type { YogaEvent, EventFormData } from '../../types'
 import './AdminEvents.css'
 
-type FormData = Omit<YogaEvent, 'id' | 'createdAt'>
-
-const emptyForm: FormData = {
-  title: '',
-  description: '',
-  date: '',
-  time: '',
-  location: '',
-  price: '',
-  notes: '',
+const emptyForm: EventFormData = {
+  title: '', description: '', date: '', time: '',
+  location: '', price: '', notes: '', maxParticipants: 20,
 }
 
 function formatDateLong(dateStr: string): string {
@@ -26,7 +19,7 @@ export default function AdminEvents() {
   const { events, addEvent, updateEvent, deleteEvent } = useApp()
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [form, setForm] = useState<FormData>(emptyForm)
+  const [form, setForm] = useState<EventFormData>(emptyForm)
   const [saving, setSaving] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
@@ -44,13 +37,8 @@ export default function AdminEvents() {
   function openEdit(ev: YogaEvent) {
     setEditingId(ev.id)
     setForm({
-      title: ev.title,
-      description: ev.description,
-      date: ev.date,
-      time: ev.time,
-      location: ev.location,
-      price: ev.price,
-      notes: ev.notes,
+      title: ev.title, description: ev.description, date: ev.date, time: ev.time,
+      location: ev.location, price: ev.price, notes: ev.notes, maxParticipants: ev.maxParticipants,
     })
     setShowForm(true)
     setDeleteConfirm(null)
@@ -62,7 +50,7 @@ export default function AdminEvents() {
     setForm(emptyForm)
   }
 
-  function update(field: keyof FormData, value: string) {
+  function update(field: keyof EventFormData, value: string | number) {
     setForm(prev => ({ ...prev, [field]: value }))
   }
 
@@ -103,59 +91,41 @@ export default function AdminEvents() {
           <div className="event-form-grid">
             <div className="form-field event-form-full">
               <label className="form-label">Titolo *</label>
-              <input
-                type="text" required placeholder="Es. Workshop di meditazione"
-                value={form.title}
-                onChange={e => update('title', e.target.value)}
-              />
+              <input type="text" required placeholder="Es. Workshop di meditazione"
+                value={form.title} onChange={e => update('title', e.target.value)} />
             </div>
             <div className="form-field">
               <label className="form-label">Data *</label>
-              <input
-                type="date" required
-                value={form.date}
-                onChange={e => update('date', e.target.value)}
-              />
+              <input type="date" required value={form.date} onChange={e => update('date', e.target.value)} />
             </div>
             <div className="form-field">
               <label className="form-label">Orario *</label>
-              <input
-                type="time" required
-                value={form.time}
-                onChange={e => update('time', e.target.value)}
-              />
+              <input type="time" required value={form.time} onChange={e => update('time', e.target.value)} />
             </div>
             <div className="form-field">
-              <label className="form-label">Luogo</label>
-              <input
-                type="text" placeholder="Es. Studio Yoga Milano"
-                value={form.location}
-                onChange={e => update('location', e.target.value)}
-              />
+              <label className="form-label">Max partecipanti *</label>
+              <input type="number" required min={1} value={form.maxParticipants}
+                onChange={e => update('maxParticipants', parseInt(e.target.value, 10) || 1)} />
             </div>
             <div className="form-field">
               <label className="form-label">Prezzo</label>
-              <input
-                type="text" placeholder="Es. €30 · Gratuito"
-                value={form.price}
-                onChange={e => update('price', e.target.value)}
-              />
+              <input type="text" placeholder="Es. €30 · Gratuito"
+                value={form.price} onChange={e => update('price', e.target.value)} />
+            </div>
+            <div className="form-field event-form-full">
+              <label className="form-label">Luogo</label>
+              <input type="text" placeholder="Es. Studio Yoga Milano"
+                value={form.location} onChange={e => update('location', e.target.value)} />
             </div>
             <div className="form-field event-form-full">
               <label className="form-label">Descrizione</label>
-              <textarea
-                rows={3} placeholder="Descrivi l'evento…"
-                value={form.description}
-                onChange={e => update('description', e.target.value)}
-              />
+              <textarea rows={3} placeholder="Descrivi l'evento…"
+                value={form.description} onChange={e => update('description', e.target.value)} />
             </div>
             <div className="form-field event-form-full">
               <label className="form-label">Note</label>
-              <textarea
-                rows={2} placeholder="Informazioni aggiuntive…"
-                value={form.notes}
-                onChange={e => update('notes', e.target.value)}
-              />
+              <textarea rows={2} placeholder="Informazioni aggiuntive…"
+                value={form.notes} onChange={e => update('notes', e.target.value)} />
             </div>
           </div>
           <div className="event-form-actions">
@@ -177,11 +147,16 @@ export default function AdminEvents() {
           {sorted.map(ev => {
             const [y, m, d] = ev.date.split('-').map(Number)
             const isPast = new Date(y, m - 1, d) < today
+            const isFull = ev.bookings.length >= ev.maxParticipants
+            const fillPct = ev.maxParticipants > 0
+              ? Math.round((ev.bookings.length / ev.maxParticipants) * 100)
+              : 0
             return (
               <div key={ev.id} className={`event-card ${isPast ? 'event-card--past' : ''}`}>
                 <div className="event-card__body">
                   <div className="event-card__top">
                     {isPast && <span className="event-badge-past">Passato</span>}
+                    {isFull && !isPast && <span className="event-badge-full">Al completo</span>}
                     {ev.price && <span className="event-badge-price">{ev.price}</span>}
                   </div>
                   <h2 className="event-card__title">{ev.title}</h2>
@@ -189,6 +164,16 @@ export default function AdminEvents() {
                   {ev.location && <p className="event-card__location">📍 {ev.location}</p>}
                   {ev.description && <p className="event-card__desc">{ev.description}</p>}
                   {ev.notes && <p className="event-card__notes">{ev.notes}</p>}
+                  <div className="event-card__fill">
+                    <span className="event-card__fill-count">{ev.bookings.length} / {ev.maxParticipants} iscritti</span>
+                    <div className="event-fill-bar">
+                      <div className="event-fill-bar__inner"
+                        style={{ width: `${fillPct}%`, background: isFull ? '#8b4a48' : 'var(--color-green)' }} />
+                    </div>
+                    {ev.waitlist.length > 0 && (
+                      <span className="event-card__waitlist-count">+{ev.waitlist.length} in lista d'attesa</span>
+                    )}
+                  </div>
                 </div>
                 <div className="event-card__actions">
                   <button className="btn-edit-event" onClick={() => openEdit(ev)}>Modifica</button>

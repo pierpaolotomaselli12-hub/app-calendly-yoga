@@ -51,7 +51,7 @@ function SpotsDisplay({ spotsLeft, maxParticipants }: { spotsLeft: number; maxPa
 }
 
 export default function Home() {
-  const { slots, events, loading, currentStudent, studentLogout, deleteBooking, incrementStudentCredits, students } = useApp()
+  const { slots, events, loading, currentStudent, studentLogout, deleteBooking, deleteEventBooking, incrementStudentCredits, students } = useApp()
   const navigate = useNavigate()
   const [activeType, setActiveType] = useState<string>('Tutte')
   const [expandedBooking, setExpandedBooking] = useState<string | null>(null)
@@ -94,7 +94,6 @@ export default function Home() {
 
   const myBookings = useMemo(() => {
     if (!currentStudent) return []
-    const now = new Date()
     return slots
       .filter(s => {
         const [y, m, d] = s.date.split('-').map(Number)
@@ -107,8 +106,22 @@ export default function Home() {
         booking: s.bookings.find(b => b.email.toLowerCase() === currentStudent.email.toLowerCase())!,
         cancelable: isCancelable(s.date, s.time),
       }))
-    void now
   }, [slots, currentStudent])
+
+  const myEventBookings = useMemo(() => {
+    if (!currentStudent) return []
+    return events
+      .filter(ev => {
+        const [y, m, d] = ev.date.split('-').map(Number)
+        return new Date(y, m - 1, d) >= today && ev.bookings.some(b => b.email.toLowerCase() === currentStudent.email.toLowerCase())
+      })
+      .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+      .map(ev => ({
+        event: ev,
+        booking: ev.bookings.find(b => b.email.toLowerCase() === currentStudent.email.toLowerCase())!,
+        cancelable: isCancelable(ev.date, ev.time),
+      }))
+  }, [events, currentStudent])
 
   async function handleCancel(slotId: string, bookingId: string, slotTitle: string, slotDate: string, slotTime: string, slotDuration: number) {
     setCancelling(bookingId)
@@ -124,6 +137,26 @@ export default function Home() {
         slotDate: formatDateLong(slotDate),
         slotTime,
         slotDuration,
+      },
+    })
+    setCancelling(null)
+    setCancelConfirm(null)
+    setExpandedBooking(null)
+  }
+
+  async function handleEventCancel(eventId: string, bookingId: string, eventTitle: string, eventDate: string, eventTime: string) {
+    const key = `ev:${bookingId}`
+    setCancelling(key)
+    await deleteEventBooking(eventId, bookingId)
+    void supabase.functions.invoke('send-email', {
+      body: {
+        type: 'cancellation',
+        studentEmail: currentStudent!.email,
+        studentName: `${currentStudent!.firstName} ${currentStudent!.lastName}`,
+        slotTitle: `[EVENTO] ${eventTitle}`,
+        slotDate: formatDateLong(eventDate),
+        slotTime: eventTime,
+        slotDuration: 0,
       },
     })
     setCancelling(null)
@@ -185,7 +218,7 @@ export default function Home() {
           <div className="home-loading">Caricamento lezioni...</div>
         ) : (
           <>
-            {myBookings.length > 0 && (
+            {(myBookings.length > 0 || myEventBookings.length > 0) && (
               <div className="my-bookings">
                 <h2 className="my-bookings__title">Le tue prenotazioni</h2>
                 <div className="my-bookings__list">
@@ -255,6 +288,64 @@ export default function Home() {
                             ) : (
                               <p className="my-booking-expired">
                                 La cancellazione non è più disponibile (scaduta alle 10:00 del giorno della lezione).
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+
+                  {myEventBookings.map(({ event, booking, cancelable }) => {
+                    const key = `ev:${booking.id}`
+                    const isExpanded = expandedBooking === key
+                    const isConfirming = cancelConfirm === key
+                    const isCancelling = cancelling === key
+                    return (
+                      <div key={key} className={`my-booking-card ${isExpanded ? 'my-booking-card--open' : ''}`}>
+                        <button
+                          className="my-booking-card__header"
+                          onClick={() => { setExpandedBooking(isExpanded ? null : key); setCancelConfirm(null) }}
+                        >
+                          <div className="my-booking-card__info">
+                            <span className="my-booking-type">Evento</span>
+                            <span className="my-booking-title">{event.title}</span>
+                            <span className="my-booking-meta">{formatDateLong(event.date)} · {event.time}</span>
+                          </div>
+                          <span className={`my-booking-chevron ${isExpanded ? 'my-booking-chevron--open' : ''}`}>›</span>
+                        </button>
+                        {isExpanded && (
+                          <div className="my-booking-card__detail">
+                            {event.location && <p className="my-booking-duration">📍 {event.location}</p>}
+                            {event.price && <p className="my-booking-notes" style={{ color: '#c17f3b' }}>{event.price} · Il pagamento avviene direttamente con l&apos;insegnante.</p>}
+                            {event.notes && <p className="my-booking-notes">{event.notes}</p>}
+                            {cancelable ? (
+                              <div className="my-booking-cancel-wrap">
+                                {!isConfirming ? (
+                                  <button className="btn-disdici" onClick={() => setCancelConfirm(key)} disabled={isCancelling}>
+                                    Disdici iscrizione
+                                  </button>
+                                ) : (
+                                  <div className="my-booking-confirm-row">
+                                    <span className="my-booking-confirm-label">Sei sicuro di voler disdire l&apos;iscrizione?</span>
+                                    <div className="my-booking-confirm-btns">
+                                      <button
+                                        className="btn-disdici-confirm"
+                                        disabled={isCancelling}
+                                        onClick={() => { void handleEventCancel(event.id, booking.id, event.title, event.date, event.time) }}
+                                      >
+                                        {isCancelling ? 'Annullamento…' : 'Conferma disdetta'}
+                                      </button>
+                                      <button className="btn-disdici-annulla" onClick={() => setCancelConfirm(null)} disabled={isCancelling}>
+                                        No, torna indietro
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <p className="my-booking-expired">
+                                La cancellazione non è più disponibile (scaduta alle 10:00 del giorno dell&apos;evento).
                               </p>
                             )}
                           </div>
@@ -379,16 +470,43 @@ export default function Home() {
           <div className="home-events-inner">
             <h2 className="home-events-title">Eventi in programma</h2>
             <div className="events-grid">
-              {upcomingEvents.map(ev => (
-                <div key={ev.id} className="event-public-card">
-                  {ev.price && <span className="event-public-price">{ev.price}</span>}
-                  <h3 className="event-public-title">{ev.title}</h3>
-                  <p className="event-public-date">{formatEventDate(ev.date)} · {ev.time}</p>
-                  {ev.location && <p className="event-public-location">📍 {ev.location}</p>}
-                  {ev.description && <p className="event-public-desc">{ev.description}</p>}
-                  {ev.notes && <p className="event-public-notes">{ev.notes}</p>}
-                </div>
-              ))}
+              {upcomingEvents.map(ev => {
+                const spotsLeft = ev.maxParticipants - ev.bookings.length
+                const isFull = spotsLeft === 0
+                const alreadyBooked = currentStudent !== null && ev.bookings.some(b => b.email.toLowerCase() === currentStudent.email.toLowerCase())
+                const alreadyWaitlisted = currentStudent !== null && ev.waitlist.some(w => w.email.toLowerCase() === currentStudent.email.toLowerCase())
+
+                let eventBtn: React.ReactNode
+                if (alreadyBooked) {
+                  eventBtn = <button className="btn-primary slot-card__btn" disabled style={{ opacity: 0.6 }}>Già iscritto ✓</button>
+                } else if (alreadyWaitlisted) {
+                  eventBtn = <button className="btn-waitlist slot-card__btn" disabled style={{ opacity: 0.6 }}>In lista d&apos;attesa</button>
+                } else if (isFull) {
+                  eventBtn = <button className="btn-waitlist slot-card__btn" onClick={() => navigate(`/eventi/${ev.id}`)}>Lista d&apos;attesa</button>
+                } else if (currentStudent === null) {
+                  eventBtn = <button className="btn-primary slot-card__btn" onClick={() => navigate('/accedi')}>Prenota</button>
+                } else {
+                  eventBtn = <button className="btn-primary slot-card__btn" onClick={() => navigate(`/eventi/${ev.id}`)}>Prenota</button>
+                }
+
+                return (
+                  <div key={ev.id} className="event-public-card">
+                    <div className="slot-card__badges">
+                      <span className="badge badge--type">Evento</span>
+                      {ev.price && <span className="badge badge--type" style={{ color: '#c17f3b', borderColor: '#c17f3b' }}>{ev.price}</span>}
+                      <span className="badge badge--spots">
+                        <SpotsDisplay spotsLeft={spotsLeft} maxParticipants={ev.maxParticipants} />
+                      </span>
+                    </div>
+                    <h3 className="event-public-title">{ev.title}</h3>
+                    <p className="event-public-date">{formatEventDate(ev.date)} · {ev.time}</p>
+                    {ev.location && <p className="event-public-location">📍 {ev.location}</p>}
+                    {ev.description && <p className="event-public-desc">{ev.description}</p>}
+                    {ev.notes && <p className="event-public-notes">{ev.notes}</p>}
+                    {eventBtn}
+                  </div>
+                )
+              })}
             </div>
           </div>
         </section>

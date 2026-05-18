@@ -213,6 +213,47 @@
   font-style: italic;
 }
 
+.event-card__fill {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.event-card__fill-count {
+  font-size: 13px;
+  color: var(--color-green);
+}
+
+.event-fill-bar {
+  width: 140px;
+  height: 3px;
+  background: var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.event-fill-bar__inner {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+.event-card__waitlist-count {
+  font-size: 12px;
+  color: #c17f3b;
+}
+
+.event-badge-full {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8b4a48;
+  border: 1px solid #8b4a48;
+  padding: 1px 7px;
+  border-radius: 2px;
+}
+
 .event-card__actions {
   display: flex;
   flex-direction: column;

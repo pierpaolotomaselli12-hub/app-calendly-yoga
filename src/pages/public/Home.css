@@ -534,19 +534,11 @@
   background: var(--color-white);
   padding: 24px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.event-public-price {
-  display: inline-block;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-green);
-  border: 1px solid var(--color-green);
-  padding: 2px 8px;
-  border-radius: 2px;
-  margin-bottom: 10px;
-}
 
 .event-public-title {
   font-size: 20px;
@@ -572,13 +564,11 @@
   font-size: 14px;
   color: var(--color-text);
   line-height: 1.6;
-  margin-top: 8px;
 }
 
 .event-public-notes {
   font-size: 13px;
   color: var(--color-text-light);
-  margin-top: 6px;
   font-style: italic;
 }
 
