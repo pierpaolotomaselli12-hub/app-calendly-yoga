@@ -572,6 +572,14 @@
   font-style: italic;
 }
 
+.card-cover-img {
+  display: block;
+  width: calc(100% + 48px);
+  margin: -24px -24px 0;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
 .home-footer {
   text-align: center;
   padding: 24px;

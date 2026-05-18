@@ -123,6 +123,7 @@ function BookingForm({ slot, currentStudent, decrementStudentCredits }: { slot: 
         <Link to="/" className="booking-back">← Torna alle lezioni</Link>
 
         <div className="booking-summary">
+          {slot.imageUrl && <img src={slot.imageUrl} className="booking-cover-img" alt={slot.title} />}
           <div className="booking-summary__top">
             {slot.type && <span className="badge badge--type">{slot.type}</span>}
           </div>
@@ -283,6 +284,7 @@ function WaitlistForm({ slot }: { slot: Slot }) {
         <Link to="/" className="booking-back">← Torna alle lezioni</Link>
 
         <div className="booking-summary">
+          {slot.imageUrl && <img src={slot.imageUrl} className="booking-cover-img" alt={slot.title} />}
           <div className="booking-summary__top">
             {slot.type && <span className="badge badge--type">{slot.type}</span>}
           </div>

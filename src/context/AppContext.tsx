@@ -73,6 +73,7 @@ function mapSlot(raw: Record<string, unknown>): Slot {
     duration: raw.duration as number,
     maxParticipants: raw.max_participants as number,
     notes: (raw.notes as string) || '',
+    imageUrl: (raw.image_url as string) || '',
     bookings: ((raw.bookings as Record<string, unknown>[]) || []).map(mapBooking),
   }
 }
@@ -123,6 +124,7 @@ function mapEvent(raw: Record<string, unknown>): YogaEvent {
     location: (raw.location as string) || '',
     price: (raw.price as string) || '',
     notes: (raw.notes as string) || '',
+    imageUrl: (raw.image_url as string) || '',
     maxParticipants: (raw.max_participants as number) || 0,
     bookings: ((raw.event_bookings as Record<string, unknown>[]) || []).map(mapEventBooking),
     waitlist: ((raw.event_waitlist as Record<string, unknown>[]) || []).map(mapEventWaitlistEntry),
@@ -226,6 +228,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from('slots').insert({
       title: data.title, type: data.type, date: data.date, time: data.time,
       duration: data.duration, max_participants: data.maxParticipants, notes: data.notes,
+      image_url: data.imageUrl || null,
     })
     await fetchAll()
   }
@@ -234,6 +237,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from('slots').update({
       title: data.title, type: data.type, date: data.date, time: data.time,
       duration: data.duration, max_participants: data.maxParticipants, notes: data.notes,
+      image_url: data.imageUrl || null,
     }).eq('id', id)
     await fetchAll()
   }
@@ -249,6 +253,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from('slots').insert({
       title: original.title, type: original.type, date: newDate, time: original.time,
       duration: original.duration, max_participants: original.maxParticipants, notes: original.notes,
+      image_url: original.imageUrl || null,
     })
     await fetchAll()
   }
@@ -354,6 +359,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from('events').insert({
       title: data.title, description: data.description, date: data.date, time: data.time,
       location: data.location, price: data.price, notes: data.notes, max_participants: data.maxParticipants,
+      image_url: data.imageUrl || null,
     })
     await fetchAll()
   }
@@ -362,6 +368,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from('events').update({
       title: data.title, description: data.description, date: data.date, time: data.time,
       location: data.location, price: data.price, notes: data.notes, max_participants: data.maxParticipants,
+      image_url: data.imageUrl || null,
     }).eq('id', id)
     await fetchAll()
   }

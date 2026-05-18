@@ -1,5 +1,6 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react'
 import { useApp } from '../../context/AppContext'
+import { supabase } from '../../lib/supabase'
 import type { Slot } from '../../types'
 import './AdminSlots.css'
 
@@ -11,6 +12,7 @@ interface SlotForm {
   duration: string
   maxParticipants: string
   notes: string
+  imageUrl: string
 }
 
 const emptyForm: SlotForm = {
@@ -21,6 +23,7 @@ const emptyForm: SlotForm = {
   duration: '60',
   maxParticipants: '10',
   notes: '',
+  imageUrl: '',
 }
 
 const TYPE_OPTIONS = ['Hatha', 'Vinyasa', 'Yin', 'Restorative', 'Pranayama', 'Altro']
@@ -65,6 +68,9 @@ export default function AdminSlots() {
   const [expandedSlot, setExpandedSlot] = useState<string | null>(null)
   const [duplicatingSlot, setDuplicatingSlot] = useState<string | null>(null)
   const [duplicateDate, setDuplicateDate] = useState<string>('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string>('')
+  const [imageUploading, setImageUploading] = useState(false)
 
   const today = todayStr()
 
@@ -83,6 +89,8 @@ export default function AdminSlots() {
   function openCreate() {
     setEditingSlot(null)
     setForm(emptyForm)
+    setImageFile(null)
+    setImagePreview('')
     setShowForm(true)
   }
 
@@ -96,7 +104,10 @@ export default function AdminSlots() {
       duration: String(slot.duration),
       maxParticipants: String(slot.maxParticipants),
       notes: slot.notes,
+      imageUrl: slot.imageUrl,
     })
+    setImageFile(null)
+    setImagePreview(slot.imageUrl)
     setShowForm(true)
     setDeleteConfirm(null)
     setExpandedSlot(null)
@@ -107,10 +118,30 @@ export default function AdminSlots() {
     setShowForm(false)
     setForm(emptyForm)
     setEditingSlot(null)
+    setImageFile(null)
+    setImagePreview('')
+  }
+
+  function handleImageChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    setImageUploading(true)
+    let imageUrl = form.imageUrl
+    try {
+      if (imageFile) {
+        const ext = imageFile.name.split('.').pop() ?? 'jpg'
+        const path = `slots/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+        const { error } = await supabase.storage.from('images').upload(path, imageFile)
+        if (!error) imageUrl = supabase.storage.from('images').getPublicUrl(path).data.publicUrl
+      }
+    } catch { /* keep existing URL */ }
+    setImageUploading(false)
     const data = {
       title: form.title.trim(),
       type: form.type,
@@ -119,6 +150,7 @@ export default function AdminSlots() {
       duration: Number(form.duration),
       maxParticipants: Number(form.maxParticipants),
       notes: form.notes.trim(),
+      imageUrl,
     }
     if (editingSlot) {
       await updateSlot(editingSlot.id, data)
@@ -252,9 +284,27 @@ export default function AdminSlots() {
               />
             </div>
           </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Immagine (opzionale)</label>
+              {imagePreview && (
+                <div className="form-image-preview-wrap">
+                  <img src={imagePreview} className="form-image-preview" alt="" />
+                  <button type="button" className="btn-remove-image" onClick={() => {
+                    setImageFile(null); setImagePreview(''); setForm(p => ({ ...p, imageUrl: '' }))
+                  }}>Rimuovi</button>
+                </div>
+              )}
+              <label className="btn-upload-image">
+                {imagePreview ? 'Cambia immagine' : '+ Carica immagine'}
+                <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleImageChange} style={{ display: 'none' }} />
+              </label>
+              <p className="form-hint">JPG o WebP · consigliato <strong>1280 × 720 px</strong> · max 2 MB</p>
+            </div>
+          </div>
           <div className="form-actions">
-            <button type="submit" className="btn-primary">
-              {editingSlot ? 'Aggiorna Lezione' : 'Salva Lezione'}
+            <button type="submit" className="btn-primary" disabled={imageUploading}>
+              {imageUploading ? 'Caricamento immagine…' : editingSlot ? 'Aggiorna Lezione' : 'Salva Lezione'}
             </button>
             <button type="button" className="btn-cancel" onClick={closeForm}>
               Annulla
@@ -295,6 +345,7 @@ export default function AdminSlots() {
             return (
               <div key={slot.id} className="slot-card">
                 <div className="slot-main">
+                  {slot.imageUrl && <img src={slot.imageUrl} className="slot-img-thumb" alt="" />}
                   <div className="slot-info">
                     <div className="slot-name-row">
                       <span className="slot-name">{slot.title}</span>

@@ -37,6 +37,7 @@ export interface Slot {
   duration: number
   maxParticipants: number
   notes: string
+  imageUrl: string
   bookings: Booking[]
 }
 
@@ -69,6 +70,7 @@ export interface YogaEvent {
   location: string
   price: string
   notes: string
+  imageUrl: string
   maxParticipants: number
   bookings: EventBooking[]
   waitlist: EventWaitlistEntry[]

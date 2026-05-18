@@ -137,6 +137,12 @@
 .event-card {
   background: var(--color-white);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-card__inner {
   padding: 20px 24px;
   display: flex;
   align-items: flex-start;
@@ -310,6 +316,75 @@
 
 .btn-cancel-xs:hover {
   color: var(--color-text);
+}
+
+.event-admin-img-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+  border-radius: 2px 2px 0 0;
+}
+
+.form-image-preview-wrap {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.form-image-preview {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid var(--color-border);
+}
+
+.btn-remove-image {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-family: 'Goudy Bookletter 1911', serif;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+
+.btn-remove-image:hover {
+  background: rgba(0,0,0,0.75);
+}
+
+.btn-upload-image {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  letter-spacing: 0.04em;
+  background: none;
+  border: 1px dashed var(--color-border);
+  color: var(--color-green);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-upload-image:hover {
+  border-color: var(--color-green);
+  background: rgba(129,133,105,0.06);
+}
+
+.form-hint {
+  font-size: 12px;
+  color: var(--color-text-light);
+  margin-top: 4px;
+  letter-spacing: 0.01em;
 }
 
 @media (max-width: 640px) {

@@ -425,6 +425,7 @@ export default function Home() {
 
                   return (
                     <div key={slot.id} className="slot-card">
+                      {slot.imageUrl && <img src={slot.imageUrl} className="card-cover-img" alt={slot.title} />}
                       <div className="slot-card__badges">
                         {slot.type && (
                           <span className="badge badge--type">{slot.type}</span>
@@ -491,6 +492,7 @@ export default function Home() {
 
                 return (
                   <div key={ev.id} className="event-public-card">
+                    {ev.imageUrl && <img src={ev.imageUrl} className="card-cover-img" alt={ev.title} />}
                     <div className="slot-card__badges">
                       <span className="badge badge--type">Evento</span>
                       {ev.price && <span className="badge badge--type" style={{ color: '#c17f3b', borderColor: '#c17f3b' }}>{ev.price}</span>}

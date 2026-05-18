@@ -62,6 +62,15 @@
   color: var(--color-green);
 }
 
+.booking-cover-img {
+  display: block;
+  width: calc(100% + 56px);
+  margin: -28px -28px 0;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 2px 2px 0 0;
+}
+
 .booking-summary__notes {
   font-size: 14px;
   color: var(--color-text-light);
@@ -198,6 +207,11 @@
   .booking-summary,
   .booking-form {
     padding: 20px;
+  }
+
+  .booking-cover-img {
+    width: calc(100% + 40px);
+    margin: -20px -20px 0;
   }
 
   .booking-form__submit {

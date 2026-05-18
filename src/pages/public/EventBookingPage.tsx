@@ -83,6 +83,7 @@ function BookingForm({ event }: { event: YogaEvent }) {
       <div className="booking-page__inner">
         <Link to="/" className="booking-back">← Torna agli eventi</Link>
         <div className="booking-summary">
+          {event.imageUrl && <img src={event.imageUrl} className="booking-cover-img" alt={event.title} />}
           <div className="booking-summary__top">
             <span className="badge badge--type">Evento</span>
             {event.price && <span className="badge badge--type" style={{ color: '#c17f3b', borderColor: '#c17f3b' }}>{event.price}</span>}
@@ -185,6 +186,7 @@ function WaitlistForm({ event }: { event: YogaEvent }) {
       <div className="booking-page__inner">
         <Link to="/" className="booking-back">← Torna agli eventi</Link>
         <div className="booking-summary">
+          {event.imageUrl && <img src={event.imageUrl} className="booking-cover-img" alt={event.title} />}
           <div className="booking-summary__top"><span className="badge badge--type">Evento</span></div>
           <h1 className="booking-summary__title">{event.title}</h1>
           <p className="booking-summary__date">{formatDateLong(event.date)}</p>
