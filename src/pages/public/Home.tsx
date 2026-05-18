@@ -1,7 +1,15 @@
 import { useState, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
+import { supabase } from '../../lib/supabase'
 import './Home.css'
+
+function isCancelable(dateStr: string, timeStr: string): boolean {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  const deadline = new Date(y, m - 1, d, 10, 0, 0)
+  void timeStr
+  return new Date() < deadline
+}
 
 function formatEventDate(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number)
@@ -43,9 +51,12 @@ function SpotsDisplay({ spotsLeft, maxParticipants }: { spotsLeft: number; maxPa
 }
 
 export default function Home() {
-  const { slots, events, loading, currentStudent, studentLogout } = useApp()
+  const { slots, events, loading, currentStudent, studentLogout, deleteBooking, incrementStudentCredits, students } = useApp()
   const navigate = useNavigate()
   const [activeType, setActiveType] = useState<string>('Tutte')
+  const [expandedBooking, setExpandedBooking] = useState<string | null>(null)
+  const [cancelConfirm, setCancelConfirm] = useState<string | null>(null)
+  const [cancelling, setCancelling] = useState<string | null>(null)
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -80,6 +91,45 @@ export default function Home() {
       })
       .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
   }, [events])
+
+  const myBookings = useMemo(() => {
+    if (!currentStudent) return []
+    const now = new Date()
+    return slots
+      .filter(s => {
+        const [y, m, d] = s.date.split('-').map(Number)
+        const slotDate = new Date(y, m - 1, d)
+        return slotDate >= today && s.bookings.some(b => b.email.toLowerCase() === currentStudent.email.toLowerCase())
+      })
+      .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+      .map(s => ({
+        slot: s,
+        booking: s.bookings.find(b => b.email.toLowerCase() === currentStudent.email.toLowerCase())!,
+        cancelable: isCancelable(s.date, s.time),
+      }))
+    void now
+  }, [slots, currentStudent])
+
+  async function handleCancel(slotId: string, bookingId: string, slotTitle: string, slotDate: string, slotTime: string, slotDuration: number) {
+    setCancelling(bookingId)
+    await deleteBooking(slotId, bookingId)
+    const student = students.find(s => s.email.toLowerCase() === currentStudent!.email.toLowerCase())
+    if (student) await incrementStudentCredits(student.id)
+    void supabase.functions.invoke('send-email', {
+      body: {
+        type: 'cancellation',
+        studentEmail: currentStudent!.email,
+        studentName: `${currentStudent!.firstName} ${currentStudent!.lastName}`,
+        slotTitle,
+        slotDate: formatDateLong(slotDate),
+        slotTime,
+        slotDuration,
+      },
+    })
+    setCancelling(null)
+    setCancelConfirm(null)
+    setExpandedBooking(null)
+  }
 
   const gamification = useMemo(() => {
     if (!currentStudent) return null
@@ -135,6 +185,87 @@ export default function Home() {
           <div className="home-loading">Caricamento lezioni...</div>
         ) : (
           <>
+            {myBookings.length > 0 && (
+              <div className="my-bookings">
+                <h2 className="my-bookings__title">Le tue prenotazioni</h2>
+                <div className="my-bookings__list">
+                  {myBookings.map(({ slot, booking, cancelable }) => {
+                    const isExpanded = expandedBooking === booking.id
+                    const isConfirming = cancelConfirm === booking.id
+                    const isCancelling = cancelling === booking.id
+                    return (
+                      <div
+                        key={booking.id}
+                        className={`my-booking-card ${isExpanded ? 'my-booking-card--open' : ''}`}
+                      >
+                        <button
+                          className="my-booking-card__header"
+                          onClick={() => {
+                            setExpandedBooking(isExpanded ? null : booking.id)
+                            setCancelConfirm(null)
+                          }}
+                        >
+                          <div className="my-booking-card__info">
+                            {slot.type && <span className="my-booking-type">{slot.type}</span>}
+                            <span className="my-booking-title">{slot.title}</span>
+                            <span className="my-booking-meta">{formatDateLong(slot.date)} · {slot.time}</span>
+                          </div>
+                          <span className={`my-booking-chevron ${isExpanded ? 'my-booking-chevron--open' : ''}`}>›</span>
+                        </button>
+
+                        {isExpanded && (
+                          <div className="my-booking-card__detail">
+                            <p className="my-booking-duration">{slot.duration} minuti</p>
+                            {slot.notes && <p className="my-booking-notes">{slot.notes}</p>}
+
+                            {cancelable ? (
+                              <div className="my-booking-cancel-wrap">
+                                {!isConfirming ? (
+                                  <button
+                                    className="btn-disdici"
+                                    onClick={() => setCancelConfirm(booking.id)}
+                                    disabled={isCancelling}
+                                  >
+                                    Disdici prenotazione
+                                  </button>
+                                ) : (
+                                  <div className="my-booking-confirm-row">
+                                    <span className="my-booking-confirm-label">Sei sicuro? Il credito ti verrà restituito.</span>
+                                    <div className="my-booking-confirm-btns">
+                                      <button
+                                        className="btn-disdici-confirm"
+                                        disabled={isCancelling}
+                                        onClick={() => {
+                                          void handleCancel(slot.id, booking.id, slot.title, slot.date, slot.time, slot.duration)
+                                        }}
+                                      >
+                                        {isCancelling ? 'Annullamento…' : 'Conferma disdetta'}
+                                      </button>
+                                      <button
+                                        className="btn-disdici-annulla"
+                                        onClick={() => setCancelConfirm(null)}
+                                        disabled={isCancelling}
+                                      >
+                                        No, torna indietro
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <p className="my-booking-expired">
+                                La cancellazione non è più disponibile (scaduta alle 10:00 del giorno della lezione).
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
             {types.length > 0 && (
               <div className="home-filters">
                 <button

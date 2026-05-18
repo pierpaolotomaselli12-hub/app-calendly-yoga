@@ -17,6 +17,11 @@ function formatDate(dateStr: string): string {
   return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`
 }
 
+function isCancelable(dateStr: string): boolean {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date() < new Date(y, m - 1, d, 10, 0, 0)
+}
+
 export default function CancelPage() {
   const { slots, deleteBooking, students, incrementStudentCredits } = useApp()
   const [searchEmail, setSearchEmail] = useState('')
@@ -103,7 +108,10 @@ export default function CancelPage() {
                     </span>
                   </div>
                   <div className="cancel-card__actions">
-                    {state === 'idle' && (
+                    {!isCancelable(item.slot.date) && state === 'idle' && (
+                      <span className="cancel-status cancel-status--expired">Cancellazione scaduta (ore 10:00)</span>
+                    )}
+                    {isCancelable(item.slot.date) && state === 'idle' && (
                       <button
                         className="cancel-btn-disdici"
                         onClick={() => setRowState(item.booking.id, 'confirming')}

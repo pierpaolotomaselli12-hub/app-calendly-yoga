@@ -182,6 +182,12 @@
   font-style: normal;
 }
 
+.cancel-status--expired {
+  color: #b94a48;
+  font-style: normal;
+  font-size: 13px;
+}
+
 @media (max-width: 540px) {
   .cancel-page {
     padding: 28px 16px 48px;

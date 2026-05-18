@@ -269,6 +269,201 @@
   text-align: center;
 }
 
+.my-bookings {
+  margin-bottom: 40px;
+}
+
+.my-bookings__title {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--color-text);
+  letter-spacing: 0.02em;
+  margin-bottom: 14px;
+}
+
+.my-bookings__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--color-border);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.my-booking-card {
+  background: var(--color-white);
+}
+
+.my-booking-card--open {
+  background: #fafaf8;
+}
+
+.my-booking-card__header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+}
+
+.my-booking-card__header:hover {
+  background: rgba(0,0,0,0.02);
+}
+
+.my-booking-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.my-booking-type {
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-green);
+}
+
+.my-booking-title {
+  font-size: 16px;
+  color: var(--color-text);
+}
+
+.my-booking-meta {
+  font-size: 13px;
+  color: var(--color-text-light);
+}
+
+.my-booking-chevron {
+  font-size: 20px;
+  color: var(--color-text-light);
+  flex-shrink: 0;
+  display: inline-block;
+  transform: rotate(0deg);
+  transition: transform 0.2s;
+  line-height: 1;
+}
+
+.my-booking-chevron--open {
+  transform: rotate(90deg);
+}
+
+.my-booking-card__detail {
+  border-top: 1px solid var(--color-border);
+  padding: 16px 20px 20px;
+}
+
+.my-booking-duration {
+  font-size: 14px;
+  color: var(--color-text-light);
+  margin-bottom: 6px;
+}
+
+.my-booking-notes {
+  font-size: 14px;
+  color: var(--color-text-light);
+  font-style: italic;
+  margin-bottom: 16px;
+}
+
+.my-booking-cancel-wrap {
+  margin-top: 16px;
+}
+
+.my-booking-confirm-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.my-booking-confirm-label {
+  font-size: 13px;
+  color: var(--color-text-light);
+}
+
+.my-booking-confirm-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-disdici {
+  padding: 9px 20px;
+  font-size: 13px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  letter-spacing: 0.04em;
+  background: none;
+  border: 1px solid #b94a48;
+  color: #b94a48;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-disdici:hover:not(:disabled) {
+  background: #b94a48;
+  color: #fff;
+}
+
+.btn-disdici:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn-disdici-confirm {
+  padding: 9px 18px;
+  font-size: 13px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  letter-spacing: 0.04em;
+  background: #b94a48;
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-disdici-confirm:hover:not(:disabled) {
+  background: #9e3c3a;
+}
+
+.btn-disdici-confirm:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn-disdici-annulla {
+  padding: 9px 16px;
+  font-size: 13px;
+  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-light);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-disdici-annulla:hover:not(:disabled) {
+  border-color: var(--color-text-light);
+  color: var(--color-text);
+}
+
+.my-booking-expired {
+  font-size: 13px;
+  color: var(--color-text-light);
+  font-style: italic;
+  margin-top: 16px;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.03);
+  border-left: 3px solid var(--color-border);
+}
+
 .home-gamification {
   background: var(--color-green);
   padding: 32px 40px;
