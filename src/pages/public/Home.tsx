@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import { supabase } from '../../lib/supabase'
+import logoFull from '../../assets/logo-full.png'
 import './Home.css'
 
 function isCancelable(dateStr: string, timeStr: string): boolean {
@@ -184,8 +185,7 @@ export default function Home() {
       <div className="home-sticky-top">
         <header className="home-header">
           <div className="home-header-left">
-            <h1 className="home-logo">Laura Pagnossin</h1>
-            <p className="home-subtitle">Prenota la tua lezione</p>
+            <img src={logoFull} alt="Laura Pagnossin" className="home-logo-img" />
           </div>
           {currentStudent === null ? (
             <div className="home-header-auth">

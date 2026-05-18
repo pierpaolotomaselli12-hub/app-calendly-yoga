@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
+import logoFull from '../../assets/logo-full.png'
 import './RegisterPage.css'
 
 interface FormErrors {
@@ -67,6 +68,7 @@ export default function RegisterPage() {
       <div className="register-inner">
         <Link to="/" className="register-back">← Torna alle lezioni</Link>
 
+        <img src={logoFull} alt="Laura Pagnossin" className="auth-logo" />
         <div className="register-card">
           <h1 className="register-title">Crea il tuo account</h1>
           <p className="register-subtitle">Registrati per prenotare le lezioni</p>

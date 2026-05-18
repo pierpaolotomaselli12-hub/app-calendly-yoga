@@ -1,4 +1,5 @@
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
+import logoFull from '../../assets/logo-full.png'
 import './BookingConfirmed.css'
 
 export default function BookingConfirmed() {
@@ -14,6 +15,7 @@ export default function BookingConfirmed() {
   if (isWaitlist) {
     return (
       <div className="confirmed-page">
+        <img src={logoFull} alt="Laura Pagnossin" className="confirmed-logo" />
         <div className="confirmed-card">
           <div className="confirmed-checkmark confirmed-checkmark--waitlist">✉</div>
           <h1 className="confirmed-title">Sei in lista d'attesa!</h1>
@@ -33,6 +35,7 @@ export default function BookingConfirmed() {
 
   return (
     <div className="confirmed-page">
+      <img src={logoFull} alt="Laura Pagnossin" className="confirmed-logo" />
       <div className="confirmed-card">
         <div className="confirmed-checkmark">✓</div>
         <h1 className="confirmed-title">Prenotazione confermata!</h1>

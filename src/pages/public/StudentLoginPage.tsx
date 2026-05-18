@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
+import logoFull from '../../assets/logo-full.png'
 import './StudentLoginPage.css'
 
 export default function StudentLoginPage() {
@@ -29,6 +30,7 @@ export default function StudentLoginPage() {
       <div className="student-login-inner">
         <Link to="/" className="student-login-back">← Torna alle lezioni</Link>
 
+        <img src={logoFull} alt="Laura Pagnossin" className="auth-logo" />
         <div className="student-login-card">
           <h1 className="student-login-title">Accedi</h1>
           <p className="student-login-subtitle">Inserisci la tua email per accedere</p>

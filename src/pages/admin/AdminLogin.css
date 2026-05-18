@@ -15,22 +15,11 @@
   text-align: center;
 }
 
-.login-logo {
-  margin-bottom: 16px;
-}
-
-.login-leaf {
-  font-size: 32px;
-  color: var(--color-green);
-  letter-spacing: 0;
-}
-
-.login-title {
-  font-size: 28px;
-  font-weight: 400;
-  color: var(--color-text);
-  margin-bottom: 6px;
-  letter-spacing: 0.04em;
+.login-logo-img {
+  height: 88px;
+  width: auto;
+  display: block;
+  margin: 0 auto 20px;
 }
 
 .login-subtitle {

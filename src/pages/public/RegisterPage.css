@@ -12,6 +12,13 @@
   gap: 24px;
 }
 
+.auth-logo {
+  height: 80px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+}
+
 .register-back {
   display: inline-block;
   color: var(--color-green);

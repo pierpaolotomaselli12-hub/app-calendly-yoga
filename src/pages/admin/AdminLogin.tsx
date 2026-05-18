@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
+import logoFull from '../../assets/logo-full.png'
 import './AdminLogin.css'
 
 export default function AdminLogin() {
@@ -23,10 +24,7 @@ export default function AdminLogin() {
   return (
     <div className="login-page">
       <div className="login-card">
-        <div className="login-logo">
-          <span className="login-leaf">✿</span>
-        </div>
-        <h1 className="login-title">Laura Pagnossin</h1>
+        <img src={logoFull} alt="Laura Pagnossin" className="login-logo-img" />
         <p className="login-subtitle">Area Riservata</p>
         <form onSubmit={handleSubmit} className="login-form">
           <input

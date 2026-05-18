@@ -57,16 +57,10 @@
   flex-direction: column;
 }
 
-.home-logo {
-  font-size: 36px;
-  color: var(--color-green);
-  line-height: 1.1;
-}
-
-.home-subtitle {
-  color: var(--color-text-light);
-  font-size: 15px;
-  margin-top: 4px;
+.home-logo-img {
+  height: 72px;
+  width: auto;
+  display: block;
 }
 
 .home-header-auth {
@@ -642,6 +636,10 @@
   .home-header {
     padding: 16px 20px;
     gap: 12px;
+  }
+
+  .home-logo-img {
+    height: 52px;
   }
 
   .home-logo {
