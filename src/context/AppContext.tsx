@@ -228,7 +228,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from('slots').insert({
       title: data.title, type: data.type, date: data.date, time: data.time,
       duration: data.duration, max_participants: data.maxParticipants, notes: data.notes,
-      image_url: data.imageUrl || null,
+      ...(data.imageUrl ? { image_url: data.imageUrl } : {}),
     })
     await fetchAll()
   }
@@ -237,7 +237,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from('slots').update({
       title: data.title, type: data.type, date: data.date, time: data.time,
       duration: data.duration, max_participants: data.maxParticipants, notes: data.notes,
-      image_url: data.imageUrl || null,
+      ...(data.imageUrl ? { image_url: data.imageUrl } : { image_url: null }),
     }).eq('id', id)
     await fetchAll()
   }
@@ -253,7 +253,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from('slots').insert({
       title: original.title, type: original.type, date: newDate, time: original.time,
       duration: original.duration, max_participants: original.maxParticipants, notes: original.notes,
-      image_url: original.imageUrl || null,
+      ...(original.imageUrl ? { image_url: original.imageUrl } : {}),
     })
     await fetchAll()
   }
@@ -359,7 +359,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from('events').insert({
       title: data.title, description: data.description, date: data.date, time: data.time,
       location: data.location, price: data.price, notes: data.notes, max_participants: data.maxParticipants,
-      image_url: data.imageUrl || null,
+      ...(data.imageUrl ? { image_url: data.imageUrl } : {}),
     })
     await fetchAll()
   }
@@ -368,7 +368,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from('events').update({
       title: data.title, description: data.description, date: data.date, time: data.time,
       location: data.location, price: data.price, notes: data.notes, max_participants: data.maxParticipants,
-      image_url: data.imageUrl || null,
+      ...(data.imageUrl ? { image_url: data.imageUrl } : { image_url: null }),
     }).eq('id', id)
     await fetchAll()
   }
