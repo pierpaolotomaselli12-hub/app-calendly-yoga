@@ -73,6 +73,8 @@ export default function AdminSlots() {
   const [imageUploading, setImageUploading] = useState(false)
   const [addStudentId, setAddStudentId] = useState<string>('')
   const [addingStudent, setAddingStudent] = useState(false)
+  const [studentSearch, setStudentSearch] = useState<string>('')
+  const [showStudentDropdown, setShowStudentDropdown] = useState(false)
 
   const today = todayStr()
 
@@ -174,6 +176,9 @@ export default function AdminSlots() {
 
   function toggleExpanded(id: string) {
     setExpandedSlot(prev => (prev === id ? null : id))
+    setStudentSearch('')
+    setAddStudentId('')
+    setShowStudentDropdown(false)
   }
 
   function startDuplicate(id: string) {
@@ -201,6 +206,7 @@ export default function AdminSlots() {
     await addBooking({ slotId, firstName: student.firstName, lastName: student.lastName, email: student.email, phone: student.phone })
     if (student.lessonCredits > 0) await decrementStudentCredits(student.id)
     setAddStudentId('')
+    setStudentSearch('')
     setAddingStudent(false)
   }
 
@@ -484,18 +490,47 @@ export default function AdminSlots() {
                         <div className="add-student-row">
                           <span className="add-student-label">Aggiungi studente</span>
                           <div className="add-student-controls">
-                            <select
-                              value={addStudentId}
-                              onChange={e => setAddStudentId(e.target.value)}
-                              className="add-student-select"
-                            >
-                              <option value="">Seleziona studente…</option>
-                              {available.map(s => (
-                                <option key={s.id} value={s.id}>
-                                  {s.firstName} {s.lastName} · {s.email}{s.lessonCredits > 0 ? ` · ${s.lessonCredits} crediti` : ' · nessun credito'}
-                                </option>
-                              ))}
-                            </select>
+                            <div className="student-search-wrap">
+                              <input
+                                type="text"
+                                className="student-search-input"
+                                placeholder="Cerca per nome o email…"
+                                autoComplete="off"
+                                value={studentSearch}
+                                onChange={e => {
+                                  setStudentSearch(e.target.value)
+                                  setAddStudentId('')
+                                  setShowStudentDropdown(true)
+                                }}
+                                onFocus={() => setShowStudentDropdown(true)}
+                                onBlur={() => setTimeout(() => setShowStudentDropdown(false), 150)}
+                              />
+                              {showStudentDropdown && studentSearch.length > 0 && (() => {
+                                const filtered = available.filter(s =>
+                                  `${s.firstName} ${s.lastName} ${s.email}`.toLowerCase().includes(studentSearch.toLowerCase())
+                                )
+                                return filtered.length > 0 ? (
+                                  <ul className="student-search-dropdown">
+                                    {filtered.slice(0, 8).map(s => (
+                                      <li
+                                        key={s.id}
+                                        className="student-search-option"
+                                        onMouseDown={() => {
+                                          setAddStudentId(s.id)
+                                          setStudentSearch(`${s.firstName} ${s.lastName}`)
+                                          setShowStudentDropdown(false)
+                                        }}
+                                      >
+                                        <span className="student-search-name">{s.firstName} {s.lastName}</span>
+                                        <span className="student-search-meta">{s.email} · {s.lessonCredits > 0 ? `${s.lessonCredits} crediti` : 'nessun credito'}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <div className="student-search-empty">Nessuno studente trovato</div>
+                                )
+                              })()}
+                            </div>
                             <button
                               className="btn-primary btn-sm"
                               disabled={!addStudentId || addingStudent}
