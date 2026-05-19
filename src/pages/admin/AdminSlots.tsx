@@ -485,7 +485,7 @@ export default function AdminSlots() {
                     )}
                     {(() => {
                       const bookedIds = new Set(slot.bookings.map(b => b.email))
-                      const available = students.filter(s => !bookedIds.has(s.email))
+                      const available = students.filter(s => !bookedIds.has(s.email) && s.lessonCredits >= 1)
                       return (
                         <div className="add-student-row">
                           <span className="add-student-label">Aggiungi studente</span>
