@@ -59,7 +59,7 @@ const STATUS_LABELS: Record<StatusBadge, string> = {
 type Tab = 'upcoming' | 'past'
 
 export default function AdminSlots() {
-  const { slots, addSlot, deleteSlot, updateSlot, duplicateSlot, deleteBooking, waitlist } = useApp()
+  const { slots, addSlot, deleteSlot, updateSlot, duplicateSlot, deleteBooking, waitlist, students, addBooking, decrementStudentCredits } = useApp()
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<SlotForm>(emptyForm)
   const [editingSlot, setEditingSlot] = useState<Slot | null>(null)
@@ -71,6 +71,8 @@ export default function AdminSlots() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>('')
   const [imageUploading, setImageUploading] = useState(false)
+  const [addStudentId, setAddStudentId] = useState<string>('')
+  const [addingStudent, setAddingStudent] = useState(false)
 
   const today = todayStr()
 
@@ -190,6 +192,16 @@ export default function AdminSlots() {
   function cancelDuplicate() {
     setDuplicatingSlot(null)
     setDuplicateDate('')
+  }
+
+  async function handleAddStudent(slotId: string) {
+    const student = students.find(s => s.id === addStudentId)
+    if (!student) return
+    setAddingStudent(true)
+    await addBooking({ slotId, firstName: student.firstName, lastName: student.lastName, email: student.email, phone: student.phone })
+    if (student.lessonCredits > 0) await decrementStudentCredits(student.id)
+    setAddStudentId('')
+    setAddingStudent(false)
   }
 
   return (
@@ -465,6 +477,39 @@ export default function AdminSlots() {
                         ))}
                       </ul>
                     )}
+                    {(() => {
+                      const bookedIds = new Set(slot.bookings.map(b => b.email))
+                      const available = students.filter(s => !bookedIds.has(s.email))
+                      return (
+                        <div className="add-student-row">
+                          <span className="add-student-label">Aggiungi studente</span>
+                          <div className="add-student-controls">
+                            <select
+                              value={addStudentId}
+                              onChange={e => setAddStudentId(e.target.value)}
+                              className="add-student-select"
+                            >
+                              <option value="">Seleziona studente…</option>
+                              {available.map(s => (
+                                <option key={s.id} value={s.id}>
+                                  {s.firstName} {s.lastName} · {s.email}{s.lessonCredits > 0 ? ` · ${s.lessonCredits} crediti` : ' · nessun credito'}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              className="btn-primary btn-sm"
+                              disabled={!addStudentId || addingStudent}
+                              onClick={() => handleAddStudent(slot.id)}
+                            >
+                              {addingStudent ? '…' : 'Aggiungi'}
+                            </button>
+                          </div>
+                          {slot.bookings.length >= slot.maxParticipants && (
+                            <p className="add-student-warning">La lezione è al completo — l'aggiunta manuale supererà il limite.</p>
+                          )}
+                        </div>
+                      )
+                    })()}
                   </div>
                 )}
               </div>

@@ -353,6 +353,47 @@
   color: var(--color-text-light);
 }
 
+.add-student-row {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.add-student-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-light);
+}
+
+.add-student-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.add-student-select {
+  flex: 1;
+  min-width: 200px;
+  padding: 7px 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  font-family: 'Goudy Bookletter 1911', serif;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.add-student-warning {
+  font-size: 12px;
+  color: #c17f3b;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
 .slot-duplicate-panel {
   display: flex;
   align-items: center;
