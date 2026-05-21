@@ -303,23 +303,11 @@ export default function Home() {
             </div>
           ) : (
             <div className="home-header-auth">
-              <div className="home-credits-badge">
-                <span className="home-credits-icon">◉</span>
-                <span className="home-credits-count">{currentStudent.lessonCredits}</span>
-                <span className="home-credits-label">lezioni rimanenti</span>
-              </div>
               <span className="home-student-name">Ciao, {currentStudent.firstName}</span>
               <button className="home-auth-link" onClick={studentLogout}>Esci</button>
             </div>
           )}
         </header>
-        {currentStudent !== null && (
-          <div className="home-credits-bar">
-            <span className="home-credits-bar__icon">◉</span>
-            <span className="home-credits-bar__count">{currentStudent.lessonCredits}</span>
-            <span className="home-credits-bar__label">lezioni rimanenti nel pacchetto</span>
-          </div>
-        )}
       </div>
 
       <main className="home-main">
