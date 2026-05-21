@@ -40,13 +40,12 @@ function getSpotsColor(spotsLeft: number, maxParticipants: number): string {
 
 function SpotsDisplay({ spotsLeft, maxParticipants }: { spotsLeft: number; maxParticipants: number }) {
   if (spotsLeft === 0) {
-    return <span className="spots-count" style={{ color: '#999' }}>Al completo</span>
+    return <span className="spots-full">Al completo</span>
   }
   const color = getSpotsColor(spotsLeft, maxParticipants)
   return (
-    <span className="spots-display">
-      <span className="spots-count" style={{ color }}>{spotsLeft}</span>
-      <span className="spots-total">/ {maxParticipants} posti disponibili</span>
+    <span className="spots-available" style={{ color }}>
+      {spotsLeft} {spotsLeft === 1 ? 'posto' : 'posti'} disponibili
     </span>
   )
 }
@@ -426,21 +425,17 @@ export default function Home() {
                   return (
                     <div key={slot.id} className="slot-card">
                       {slot.imageUrl && <img src={slot.imageUrl} className="card-cover-img" alt={slot.title} />}
-                      <div className="slot-card__badges">
-                        {slot.type && (
-                          <span className="badge badge--type">{slot.type}</span>
-                        )}
-                        <span className="badge badge--spots">
+                      <div className="slot-card__body">
+                        <div className="slot-card__badges">
+                          {slot.type && <span className="badge badge--type">{slot.type}</span>}
                           <SpotsDisplay spotsLeft={spotsLeft} maxParticipants={slot.maxParticipants} />
-                        </span>
+                        </div>
+                        <h2 className="slot-card__title">{slot.title}</h2>
+                        <p className="slot-card__date">{formatDateLong(slot.date)}</p>
+                        <p className="slot-card__time">{slot.time} · {slot.duration} min</p>
+                        {slot.notes && <p className="slot-card__notes">{slot.notes}</p>}
+                        <div className="slot-card__footer">{bookBtn}</div>
                       </div>
-                      <h2 className="slot-card__title">{slot.title}</h2>
-                      <p className="slot-card__date">{formatDateLong(slot.date)}</p>
-                      <p className="slot-card__time">{slot.time} · {slot.duration} min</p>
-                      {slot.notes && (
-                        <p className="slot-card__notes">{slot.notes}</p>
-                      )}
-                      {bookBtn}
                     </div>
                   )
                 })}
@@ -493,19 +488,19 @@ export default function Home() {
                 return (
                   <div key={ev.id} className="event-public-card">
                     {ev.imageUrl && <img src={ev.imageUrl} className="card-cover-img" alt={ev.title} />}
-                    <div className="slot-card__badges">
-                      <span className="badge badge--type">Evento</span>
-                      {ev.price && <span className="badge badge--type" style={{ color: '#c17f3b', borderColor: '#c17f3b' }}>{ev.price}</span>}
-                      <span className="badge badge--spots">
+                    <div className="slot-card__body">
+                      <div className="slot-card__badges">
+                        <span className="badge badge--type">Evento</span>
+                        {ev.price && <span className="badge badge--price">{ev.price}</span>}
                         <SpotsDisplay spotsLeft={spotsLeft} maxParticipants={ev.maxParticipants} />
-                      </span>
+                      </div>
+                      <h3 className="event-public-title">{ev.title}</h3>
+                      <p className="event-public-date">{formatEventDate(ev.date)} · {ev.time}</p>
+                      {ev.location && <p className="event-public-location">📍 {ev.location}</p>}
+                      {ev.description && <p className="event-public-desc">{ev.description}</p>}
+                      {ev.notes && <p className="event-public-notes">{ev.notes}</p>}
+                      <div className="slot-card__footer">{eventBtn}</div>
                     </div>
-                    <h3 className="event-public-title">{ev.title}</h3>
-                    <p className="event-public-date">{formatEventDate(ev.date)} · {ev.time}</p>
-                    {ev.location && <p className="event-public-location">📍 {ev.location}</p>}
-                    {ev.description && <p className="event-public-desc">{ev.description}</p>}
-                    {ev.notes && <p className="event-public-notes">{ev.notes}</p>}
-                    {eventBtn}
                   </div>
                 )
               })}

@@ -11,10 +11,12 @@
   z-index: 100;
 }
 
+/* ── Header ─────────────────────────────────────────────── */
+
 .home-header {
   background: var(--color-white);
-  padding: 20px 40px;
-  box-shadow: 0 1px 0 var(--color-border);
+  padding: 18px 40px;
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -30,24 +32,9 @@
   padding: 10px 20px;
 }
 
-.home-credits-bar__icon {
-  color: #fff;
-  font-size: 15px;
-  line-height: 1;
-  opacity: 0.85;
-}
-
-.home-credits-bar__count {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.home-credits-bar__label {
-  color: #fff;
-  font-size: 13px;
-  opacity: 0.9;
-}
+.home-credits-bar__icon { color: #fff; font-size: 14px; opacity: 0.8; }
+.home-credits-bar__count { color: #fff; font-size: 16px; font-weight: 600; }
+.home-credits-bar__label { color: #fff; font-size: 13px; opacity: 0.85; }
 
 .home-header-left {
   display: flex;
@@ -55,7 +42,7 @@
 }
 
 .home-logo-img {
-  height: 64px;
+  height: 60px;
   width: auto;
   display: block;
 }
@@ -77,19 +64,16 @@
   background: none;
   border: none;
   font-family: var(--font-body);
-  letter-spacing: 0.01em;
 }
 
 .home-auth-link--primary {
-  padding: 9px 20px;
+  padding: 9px 22px;
   background: var(--color-green);
   color: var(--color-white);
   border-radius: var(--radius-sm);
 }
 
-.home-auth-link--primary:hover {
-  background: var(--color-green-dark);
-}
+.home-auth-link--primary:hover { background: var(--color-green-dark); }
 
 .home-student-name {
   font-size: 14px;
@@ -100,32 +84,19 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(129, 133, 105, 0.12);
-  padding: 7px 14px;
+  background: rgba(129, 133, 105, 0.1);
+  padding: 8px 14px;
   border-radius: 999px;
+  border: 1px solid rgba(129, 133, 105, 0.2);
 }
 
-.home-credits-icon {
-  color: var(--color-green);
-  font-size: 15px;
-  line-height: 1;
-}
-
-.home-credits-count {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--color-green);
-}
-
-.home-credits-label {
-  font-size: 13px;
-  color: var(--color-green);
-  opacity: 0.85;
-}
+.home-credits-icon { color: var(--color-green); font-size: 14px; line-height: 1; }
+.home-credits-count { font-size: 15px; font-weight: 600; color: var(--color-green); }
+.home-credits-label { font-size: 13px; color: var(--color-green); opacity: 0.85; }
 
 .btn-no-credits {
   display: inline-block;
-  background: #bbb;
+  background: #d4cfc9;
   color: var(--color-white);
   border: none;
   padding: 13px 24px;
@@ -134,47 +105,54 @@
   font-weight: 500;
   cursor: not-allowed;
   border-radius: var(--radius-sm);
-  opacity: 0.7;
+  width: 100%;
+  text-align: center;
 }
+
+/* ── Main layout ─────────────────────────────────────────── */
 
 .home-main {
   flex: 1;
-  max-width: 1000px;
+  max-width: 1040px;
   width: 100%;
   margin: 0 auto;
   padding: 48px 28px;
 }
 
+/* ── Filter pills ────────────────────────────────────────── */
+
 .home-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 36px;
 }
 
 .pill {
   background: transparent;
-  border: 1.5px solid var(--color-green);
-  color: var(--color-green);
-  padding: 8px 20px;
+  border: 1.5px solid rgba(129, 133, 105, 0.4);
+  color: var(--color-text-light);
+  padding: 7px 18px;
   border-radius: 999px;
   cursor: pointer;
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 500;
-  letter-spacing: 0.01em;
-  transition: background 0.15s, color 0.15s;
+  transition: all 0.15s;
 }
 
 .pill:hover {
-  background: var(--color-green);
-  color: var(--color-white);
+  border-color: var(--color-green);
+  color: var(--color-green);
 }
 
 .pill--active {
   background: var(--color-green);
+  border-color: var(--color-green);
   color: var(--color-white);
 }
+
+/* ── Empty state ─────────────────────────────────────────── */
 
 .home-empty {
   text-align: center;
@@ -183,90 +161,189 @@
   font-size: 18px;
 }
 
+/* ── Cards grid ──────────────────────────────────────────── */
+
 .home-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 28px;
+  gap: 24px;
 }
 
-.slot-card {
+/* ── Slot card & Event card shared base ──────────────────── */
+
+.slot-card,
+.event-public-card {
   background: var(--color-white);
-  padding: 28px;
-  box-shadow: var(--shadow-card);
   border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  transition: box-shadow 0.2s;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
 }
 
-.slot-card:hover {
-  box-shadow: var(--shadow-card-hover);
+.slot-card:hover,
+.event-public-card:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08), 0 8px 28px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
 }
+
+/* Cover image — no negative margin needed, overflow:hidden clips */
+.card-cover-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Card body — all content below image */
+.slot-card__body {
+  padding: 22px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+/* ── Badge row ───────────────────────────────────────────── */
 
 .slot-card__badges {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
+  margin-bottom: 6px;
 }
 
 .badge {
-  font-size: 12px;
-  font-weight: 500;
-  padding: 4px 12px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
   border-radius: 999px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .badge--type {
-  background: rgba(129, 133, 105, 0.12);
+  background: rgba(129, 133, 105, 0.1);
   color: var(--color-green);
 }
 
-.badge--spots {
-  background: transparent;
-  color: var(--color-text-light);
-  font-size: 13px;
-  margin-left: auto;
+.badge--price {
+  background: rgba(193, 127, 59, 0.1);
+  color: #c17f3b;
 }
+
+/* Spots availability — right-aligned, no pill */
+.spots-available {
+  font-size: 13px;
+  font-weight: 500;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.spots-full {
+  font-size: 13px;
+  font-weight: 500;
+  color: #aaa;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* ── Card content ────────────────────────────────────────── */
 
 .slot-card__title {
   font-family: var(--font-display);
   font-size: 22px;
   color: var(--color-text);
   line-height: 1.2;
+  margin-bottom: 2px;
 }
 
 .slot-card__date {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--color-text);
   text-transform: capitalize;
 }
 
 .slot-card__time {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-text-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .slot-card__notes {
   font-size: 14px;
   color: var(--color-text-light);
-  line-height: 1.5;
+  line-height: 1.55;
+  margin-top: 4px;
 }
 
-.slot-card__btn {
+/* ── Card CTA button ─────────────────────────────────────── */
+
+.slot-card__footer {
   margin-top: auto;
+  padding-top: 20px;
+}
+
+.slot-card__footer .btn-primary,
+.slot-card__footer .btn-waitlist,
+.slot-card__footer .btn-no-credits {
   width: 100%;
   padding: 13px;
   font-size: 15px;
+  font-weight: 500;
   text-align: center;
+  display: block;
 }
 
+/* ── Event card specific text ────────────────────────────── */
+
+.event-public-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--color-text);
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.event-public-date {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  text-transform: capitalize;
+}
+
+.event-public-location {
+  font-size: 13px;
+  color: var(--color-text-light);
+}
+
+.event-public-desc {
+  font-size: 14px;
+  color: var(--color-text);
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+.event-public-notes {
+  font-size: 13px;
+  color: var(--color-text-light);
+  font-style: italic;
+}
+
+/* ── My bookings ─────────────────────────────────────────── */
+
 .my-bookings {
-  margin-bottom: 48px;
+  margin-bottom: 52px;
 }
 
 .my-bookings__title {
@@ -280,18 +357,14 @@
 .my-bookings__list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .my-booking-card {
   background: var(--color-white);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
   overflow: hidden;
-}
-
-.my-booking-card--open {
-  background: var(--color-white);
 }
 
 .my-booking-card__header {
@@ -299,13 +372,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
   padding: 18px 22px;
   background: none;
   border: none;
   cursor: pointer;
   text-align: left;
   font-family: var(--font-body);
+  transition: background 0.1s;
 }
 
 .my-booking-card__header:hover {
@@ -321,7 +395,7 @@
 
 .my-booking-type {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-green);
@@ -336,13 +410,13 @@
 .my-booking-meta {
   font-size: 13px;
   color: var(--color-text-light);
+  text-transform: capitalize;
 }
 
 .my-booking-chevron {
-  font-size: 20px;
+  font-size: 22px;
   color: var(--color-text-light);
   flex-shrink: 0;
-  display: inline-block;
   transform: rotate(0deg);
   transition: transform 0.2s;
   line-height: 1;
@@ -355,23 +429,24 @@
 .my-booking-card__detail {
   border-top: 1px solid var(--color-border);
   padding: 18px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .my-booking-duration {
   font-size: 14px;
   color: var(--color-text-light);
-  margin-bottom: 6px;
 }
 
 .my-booking-notes {
   font-size: 14px;
   color: var(--color-text-light);
   font-style: italic;
-  margin-bottom: 16px;
 }
 
 .my-booking-cancel-wrap {
-  margin-top: 16px;
+  margin-top: 8px;
 }
 
 .my-booking-confirm-row {
@@ -404,15 +479,8 @@
   transition: all 0.15s;
 }
 
-.btn-disdici:hover:not(:disabled) {
-  background: #b94a48;
-  color: #fff;
-}
-
-.btn-disdici:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
+.btn-disdici:hover:not(:disabled) { background: #b94a48; color: #fff; }
+.btn-disdici:disabled { opacity: 0.5; cursor: default; }
 
 .btn-disdici-confirm {
   padding: 10px 18px;
@@ -427,14 +495,8 @@
   transition: background 0.15s;
 }
 
-.btn-disdici-confirm:hover:not(:disabled) {
-  background: #9e3c3a;
-}
-
-.btn-disdici-confirm:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
+.btn-disdici-confirm:hover:not(:disabled) { background: #9e3c3a; }
+.btn-disdici-confirm:disabled { opacity: 0.6; cursor: default; }
 
 .btn-disdici-annulla {
   padding: 10px 16px;
@@ -457,16 +519,17 @@
   font-size: 13px;
   color: var(--color-text-light);
   font-style: italic;
-  margin-top: 16px;
   padding: 10px 14px;
   background: rgba(0, 0, 0, 0.03);
   border-left: 3px solid var(--color-border);
   border-radius: 0 4px 4px 0;
 }
 
+/* ── Gamification bar ────────────────────────────────────── */
+
 .home-gamification {
   background: var(--color-green);
-  padding: 40px 40px;
+  padding: 40px;
 }
 
 .gamification-inner {
@@ -494,9 +557,7 @@
 
 .gamification-label {
   font-size: 13px;
-  font-weight: 400;
   color: rgba(255, 255, 255, 0.8);
-  letter-spacing: 0.02em;
   text-align: center;
 }
 
@@ -506,13 +567,16 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
+/* ── Events section ──────────────────────────────────────── */
+
 .home-events {
-  background: var(--color-bg);
+  background: rgba(0, 0, 0, 0.03);
   padding: 56px 40px;
+  border-top: 1px solid var(--color-border);
 }
 
 .home-events-inner {
-  max-width: 1000px;
+  max-width: 1040px;
   margin: 0 auto;
 }
 
@@ -530,60 +594,7 @@
   gap: 24px;
 }
 
-.event-public-card {
-  background: var(--color-white);
-  padding: 28px;
-  box-shadow: var(--shadow-card);
-  border-radius: var(--radius);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  transition: box-shadow 0.2s;
-}
-
-.event-public-card:hover {
-  box-shadow: var(--shadow-card-hover);
-}
-
-.event-public-title {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 400;
-  color: var(--color-text);
-  line-height: 1.2;
-}
-
-.event-public-date {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text);
-}
-
-.event-public-location {
-  font-size: 14px;
-  color: var(--color-text-light);
-}
-
-.event-public-desc {
-  font-size: 15px;
-  color: var(--color-text);
-  line-height: 1.6;
-}
-
-.event-public-notes {
-  font-size: 14px;
-  color: var(--color-text-light);
-  font-style: italic;
-}
-
-.card-cover-img {
-  display: block;
-  width: calc(100% + 56px);
-  margin: -28px -28px 0;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  border-radius: var(--radius) var(--radius) 0 0;
-}
+/* ── Footer ──────────────────────────────────────────────── */
 
 .home-footer {
   text-align: center;
@@ -594,109 +605,54 @@
 
 .home-footer a {
   color: var(--color-green);
+  font-weight: 500;
   text-decoration: none;
 }
 
-.home-footer a:hover {
-  text-decoration: underline;
-}
+.home-footer a:hover { text-decoration: underline; }
 
-.spots-display {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.spots-count {
-  font-size: 15px;
-  font-weight: 500;
-}
-
-.spots-total {
-  font-size: 13px;
-  color: var(--color-text-light);
-}
-
-.btn-waitlist {
-  display: inline-block;
-  background: #8b4a48;
-  color: var(--color-white);
-  border: none;
-  padding: 13px 24px;
-  font-family: var(--font-body);
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-  transition: background 0.15s;
-}
-
-.btn-waitlist:hover {
-  background: #7a3e3c;
-}
+/* ── Mobile ──────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
-  .home-credits-bar {
-    display: flex;
-  }
-
-  .home-credits-badge {
-    display: none;
-  }
+  .home-credits-bar { display: flex; }
+  .home-credits-badge { display: none; }
 
   .home-header {
-    padding: 16px 20px;
+    padding: 14px 18px;
     gap: 12px;
   }
 
-  .home-logo-img {
-    height: 48px;
-  }
+  .home-logo-img { height: 44px; }
 
   .home-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
-  .home-main {
-    padding: 32px 16px;
-  }
+  .home-main { padding: 28px 16px; }
 
-  .slot-card {
-    padding: 22px;
-  }
+  .slot-card__body { padding: 18px 18px 20px; }
 
-  .slot-card__btn,
-  .btn-waitlist {
-    min-height: 48px;
+  .slot-card__footer .btn-primary,
+  .slot-card__footer .btn-waitlist,
+  .slot-card__footer .btn-no-credits {
+    min-height: 50px;
+    font-size: 16px;
   }
 
   .pill {
-    min-height: 40px;
-    padding: 8px 18px;
+    min-height: 38px;
+    font-size: 13px;
+    padding: 6px 16px;
   }
 
-  .home-gamification {
-    padding: 32px 20px;
-  }
+  .home-gamification { padding: 32px 20px; }
+  .gamification-inner { gap: 28px; }
+  .gamification-number { font-size: 40px; }
 
-  .gamification-inner {
-    gap: 28px;
-  }
+  .home-events { padding: 40px 18px; }
+  .events-grid { grid-template-columns: 1fr; }
 
-  .gamification-number {
-    font-size: 40px;
-  }
-
-  .home-events {
-    padding: 40px 20px;
-  }
-
-  .events-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .card-cover-img {
-    width: calc(100% + 44px);
-    margin: -22px -22px 0;
-  }
+  .my-booking-card__header { padding: 16px 18px; }
+  .my-booking-card__detail { padding: 16px 18px 20px; }
 }
