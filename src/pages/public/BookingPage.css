@@ -1,7 +1,7 @@
 .booking-page {
   min-height: 100vh;
   background: var(--color-bg);
-  padding: 40px 24px 60px;
+  padding: 48px 24px 72px;
 }
 
 .booking-page__inner {
@@ -13,11 +13,14 @@
 }
 
 .booking-back {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--color-green);
   text-decoration: none;
   font-size: 14px;
-  letter-spacing: 0.02em;
+  font-weight: 500;
+  letter-spacing: 0.01em;
   transition: opacity 0.15s;
 }
 
@@ -27,12 +30,12 @@
 
 .booking-summary {
   background: var(--color-white);
-  padding: 28px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
-  border-radius: 2px;
+  padding: 32px;
+  box-shadow: var(--shadow-card);
+  border-radius: var(--radius);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .booking-summary__top {
@@ -42,12 +45,14 @@
 }
 
 .booking-summary__title {
-  font-size: 26px;
+  font-family: var(--font-display);
+  font-size: 28px;
   color: var(--color-text);
 }
 
 .booking-summary__date {
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 500;
   color: var(--color-text);
   text-transform: capitalize;
 }
@@ -58,50 +63,52 @@
 }
 
 .booking-summary__spots {
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--color-green);
 }
 
 .booking-cover-img {
   display: block;
-  width: calc(100% + 56px);
-  margin: -28px -28px 0;
+  width: calc(100% + 64px);
+  margin: -32px -32px 0;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  border-radius: 2px 2px 0 0;
+  border-radius: var(--radius) var(--radius) 0 0;
 }
 
 .booking-summary__notes {
   font-size: 14px;
   color: var(--color-text-light);
-  font-style: italic;
+  line-height: 1.5;
 }
 
 .badge {
   font-size: 12px;
-  padding: 3px 10px;
-  border-radius: 2px;
-  letter-spacing: 0.04em;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
 }
 
 .badge--type {
-  background: var(--color-bg);
+  background: rgba(129, 133, 105, 0.12);
   color: var(--color-green);
-  border: 1px solid var(--color-border);
 }
 
 .booking-form {
   background: var(--color-white);
-  padding: 28px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
-  border-radius: 2px;
+  padding: 32px;
+  box-shadow: var(--shadow-card);
+  border-radius: var(--radius);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
 .booking-form__title {
-  font-size: 22px;
+  font-family: var(--font-display);
+  font-size: 24px;
   color: var(--color-text);
 }
 
@@ -109,9 +116,9 @@
   background: #fdf2f2;
   border: 1px solid #e8c0be;
   color: #b94a48;
-  padding: 10px 14px;
+  padding: 12px 16px;
   font-size: 14px;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
 }
 
 .booking-form__grid {
@@ -128,8 +135,9 @@
 
 .form-label {
   font-size: 13px;
+  font-weight: 500;
   color: var(--color-text-light);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
 }
 
 .form-error {
@@ -139,8 +147,9 @@
 
 .booking-form__submit {
   width: 100%;
-  padding: 14px;
+  padding: 15px;
   font-size: 16px;
+  font-weight: 500;
   text-align: center;
   margin-top: 4px;
 }
@@ -166,6 +175,7 @@
   color: var(--color-green);
   text-decoration: none;
   font-size: 15px;
+  font-weight: 500;
 }
 
 .booking-unavailable a:hover {
@@ -173,7 +183,7 @@
 }
 
 .waitlist-notice {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--color-text-light);
   font-style: italic;
   margin-bottom: 20px;
@@ -187,7 +197,7 @@
 
 .spots-count {
   font-size: 15px;
-  font-weight: normal;
+  font-weight: 500;
 }
 
 .spots-total {
@@ -201,17 +211,17 @@
   }
 
   .booking-page {
-    padding: 28px 16px 48px;
+    padding: 32px 16px 56px;
   }
 
   .booking-summary,
   .booking-form {
-    padding: 20px;
+    padding: 22px;
   }
 
   .booking-cover-img {
-    width: calc(100% + 40px);
-    margin: -20px -20px 0;
+    width: calc(100% + 44px);
+    margin: -22px -22px 0;
   }
 
   .booking-form__submit {
@@ -221,8 +231,6 @@
 
   .booking-back {
     min-height: 44px;
-    display: inline-flex;
-    align-items: center;
   }
 
   input,

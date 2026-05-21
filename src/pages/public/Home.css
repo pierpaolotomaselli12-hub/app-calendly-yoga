@@ -13,11 +13,11 @@
 
 .home-header {
   background: var(--color-white);
-  padding: 24px 40px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  padding: 20px 40px;
+  box-shadow: 0 1px 0 var(--color-border);
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   flex-wrap: wrap;
   gap: 16px;
 }
@@ -40,15 +40,12 @@
 .home-credits-bar__count {
   color: #fff;
   font-size: 16px;
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
-  font-weight: normal;
+  font-weight: 500;
 }
 
 .home-credits-bar__label {
   color: #fff;
   font-size: 13px;
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
-  letter-spacing: 0.02em;
   opacity: 0.9;
 }
 
@@ -58,7 +55,7 @@
 }
 
 .home-logo-img {
-  height: 72px;
+  height: 64px;
   width: auto;
   display: block;
 }
@@ -66,27 +63,28 @@
 .home-header-auth {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .home-auth-link {
   font-size: 14px;
+  font-weight: 500;
   color: var(--color-green);
   text-decoration: none;
   padding: 6px 0;
   cursor: pointer;
   background: none;
   border: none;
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
-  letter-spacing: 0.02em;
+  font-family: var(--font-body);
+  letter-spacing: 0.01em;
 }
 
 .home-auth-link--primary {
-  padding: 8px 20px;
+  padding: 9px 20px;
   background: var(--color-green);
   color: var(--color-white);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
 }
 
 .home-auth-link--primary:hover {
@@ -96,7 +94,6 @@
 .home-student-name {
   font-size: 14px;
   color: var(--color-text-light);
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
 }
 
 .home-credits-badge {
@@ -104,28 +101,25 @@
   align-items: center;
   gap: 6px;
   background: rgba(129, 133, 105, 0.12);
-  padding: 6px 12px;
+  padding: 7px 14px;
   border-radius: 999px;
 }
 
 .home-credits-icon {
   color: var(--color-green);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1;
 }
 
 .home-credits-count {
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--color-green);
-  font-weight: normal;
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
 }
 
 .home-credits-label {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--color-green);
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
-  letter-spacing: 0.02em;
   opacity: 0.85;
 }
 
@@ -134,40 +128,41 @@
   background: #bbb;
   color: var(--color-white);
   border: none;
-  padding: 10px 24px;
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  padding: 13px 24px;
+  font-family: var(--font-body);
   font-size: 15px;
-  letter-spacing: 0.04em;
+  font-weight: 500;
   cursor: not-allowed;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   opacity: 0.7;
 }
 
 .home-main {
   flex: 1;
-  max-width: 960px;
+  max-width: 1000px;
   width: 100%;
   margin: 0 auto;
-  padding: 40px 24px;
+  padding: 48px 28px;
 }
 
 .home-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 32px;
+  margin-bottom: 36px;
 }
 
 .pill {
   background: transparent;
-  border: 1px solid var(--color-green);
+  border: 1.5px solid var(--color-green);
   color: var(--color-green);
-  padding: 6px 18px;
+  padding: 8px 20px;
   border-radius: 999px;
   cursor: pointer;
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  font-family: var(--font-body);
   font-size: 14px;
-  letter-spacing: 0.02em;
+  font-weight: 500;
+  letter-spacing: 0.01em;
   transition: background 0.15s, color 0.15s;
 }
 
@@ -185,23 +180,28 @@
   text-align: center;
   padding: 80px 24px;
   color: var(--color-text-light);
-  font-size: 17px;
+  font-size: 18px;
 }
 
 .home-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
+  gap: 28px;
 }
 
 .slot-card {
   background: var(--color-white);
-  padding: 24px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
-  border-radius: 2px;
+  padding: 28px;
+  box-shadow: var(--shadow-card);
+  border-radius: var(--radius);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  transition: box-shadow 0.2s;
+}
+
+.slot-card:hover {
+  box-shadow: var(--shadow-card-hover);
 }
 
 .slot-card__badges {
@@ -214,32 +214,34 @@
 
 .badge {
   font-size: 12px;
-  padding: 3px 10px;
-  border-radius: 2px;
-  letter-spacing: 0.04em;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
 }
 
 .badge--type {
-  background: var(--color-bg);
+  background: rgba(129, 133, 105, 0.12);
   color: var(--color-green);
-  border: 1px solid var(--color-border);
 }
 
 .badge--spots {
   background: transparent;
   color: var(--color-text-light);
-  font-size: 12px;
+  font-size: 13px;
   margin-left: auto;
 }
 
 .slot-card__title {
-  font-size: 20px;
+  font-family: var(--font-display);
+  font-size: 22px;
   color: var(--color-text);
   line-height: 1.2;
 }
 
 .slot-card__date {
   font-size: 15px;
+  font-weight: 500;
   color: var(--color-text);
   text-transform: capitalize;
 }
@@ -252,43 +254,44 @@
 .slot-card__notes {
   font-size: 14px;
   color: var(--color-text-light);
-  font-style: italic;
+  line-height: 1.5;
 }
 
 .slot-card__btn {
   margin-top: auto;
   width: 100%;
-  padding: 12px;
+  padding: 13px;
   font-size: 15px;
   text-align: center;
 }
 
 .my-bookings {
-  margin-bottom: 40px;
+  margin-bottom: 48px;
 }
 
 .my-bookings__title {
-  font-size: 20px;
+  font-family: var(--font-display);
+  font-size: 22px;
   font-weight: 400;
   color: var(--color-text);
-  letter-spacing: 0.02em;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .my-bookings__list {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  background: var(--color-border);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  gap: 8px;
 }
 
 .my-booking-card {
   background: var(--color-white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
 }
 
 .my-booking-card--open {
-  background: #fafaf8;
+  background: var(--color-white);
 }
 
 .my-booking-card__header {
@@ -297,16 +300,16 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 16px 20px;
+  padding: 18px 22px;
   background: none;
   border: none;
   cursor: pointer;
   text-align: left;
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  font-family: var(--font-body);
 }
 
 .my-booking-card__header:hover {
-  background: rgba(0,0,0,0.02);
+  background: rgba(0, 0, 0, 0.02);
 }
 
 .my-booking-card__info {
@@ -318,13 +321,15 @@
 
 .my-booking-type {
   font-size: 11px;
-  letter-spacing: 0.07em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-green);
 }
 
 .my-booking-title {
   font-size: 16px;
+  font-weight: 500;
   color: var(--color-text);
 }
 
@@ -349,7 +354,7 @@
 
 .my-booking-card__detail {
   border-top: 1px solid var(--color-border);
-  padding: 16px 20px 20px;
+  padding: 18px 22px 22px;
 }
 
 .my-booking-duration {
@@ -376,7 +381,7 @@
 }
 
 .my-booking-confirm-label {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-text-light);
 }
 
@@ -387,14 +392,14 @@
 }
 
 .btn-disdici {
-  padding: 9px 20px;
-  font-size: 13px;
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
-  letter-spacing: 0.04em;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  font-weight: 500;
   background: none;
-  border: 1px solid #b94a48;
+  border: 1.5px solid #b94a48;
   color: #b94a48;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -410,14 +415,14 @@
 }
 
 .btn-disdici-confirm {
-  padding: 9px 18px;
-  font-size: 13px;
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
-  letter-spacing: 0.04em;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  font-weight: 500;
   background: #b94a48;
   color: #fff;
   border: none;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -432,13 +437,13 @@
 }
 
 .btn-disdici-annulla {
-  padding: 9px 16px;
-  font-size: 13px;
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-family: var(--font-body);
   background: none;
-  border: 1px solid var(--color-border);
+  border: 1.5px solid var(--color-border);
   color: var(--color-text-light);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -454,13 +459,14 @@
   font-style: italic;
   margin-top: 16px;
   padding: 10px 14px;
-  background: rgba(0,0,0,0.03);
+  background: rgba(0, 0, 0, 0.03);
   border-left: 3px solid var(--color-border);
+  border-radius: 0 4px 4px 0;
 }
 
 .home-gamification {
   background: var(--color-green);
-  padding: 32px 40px;
+  padding: 40px 40px;
 }
 
 .gamification-inner {
@@ -469,115 +475,120 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 40px;
+  gap: 48px;
 }
 
 .gamification-stat {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .gamification-number {
-  font-size: 48px;
+  font-family: var(--font-display);
+  font-size: 52px;
   color: #fff;
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
   line-height: 1;
 }
 
 .gamification-label {
   font-size: 13px;
-  color: rgba(255,255,255,0.8);
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
-  letter-spacing: 0.03em;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.02em;
   text-align: center;
 }
 
 .gamification-divider {
   width: 1px;
   height: 56px;
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .home-events {
   background: var(--color-bg);
-  padding: 48px 40px;
+  padding: 56px 40px;
 }
 
 .home-events-inner {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 .home-events-title {
-  font-size: 26px;
+  font-family: var(--font-display);
+  font-size: 28px;
   font-weight: 400;
   color: var(--color-text);
-  margin-bottom: 28px;
-  letter-spacing: 0.02em;
+  margin-bottom: 32px;
 }
 
 .events-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
 }
 
 .event-public-card {
   background: var(--color-white);
-  padding: 24px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  padding: 28px;
+  box-shadow: var(--shadow-card);
+  border-radius: var(--radius);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  transition: box-shadow 0.2s;
 }
 
+.event-public-card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
 
 .event-public-title {
-  font-size: 20px;
+  font-family: var(--font-display);
+  font-size: 22px;
   font-weight: 400;
   color: var(--color-text);
-  margin-bottom: 6px;
   line-height: 1.2;
 }
 
 .event-public-date {
   font-size: 14px;
-  color: var(--color-text-light);
-  margin-bottom: 4px;
+  font-weight: 500;
+  color: var(--color-text);
 }
 
 .event-public-location {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-text-light);
-  margin-bottom: 8px;
 }
 
 .event-public-desc {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--color-text);
   line-height: 1.6;
 }
 
 .event-public-notes {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-text-light);
   font-style: italic;
 }
 
 .card-cover-img {
   display: block;
-  width: calc(100% + 48px);
-  margin: -24px -24px 0;
+  width: calc(100% + 56px);
+  margin: -28px -28px 0;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+  border-radius: var(--radius) var(--radius) 0 0;
 }
 
 .home-footer {
   text-align: center;
-  padding: 24px;
-  font-size: 13px;
+  padding: 28px;
+  font-size: 14px;
   color: var(--color-text-light);
 }
 
@@ -598,7 +609,7 @@
 
 .spots-count {
   font-size: 15px;
-  font-weight: normal;
+  font-weight: 500;
 }
 
 .spots-total {
@@ -611,12 +622,12 @@
   background: #8b4a48;
   color: var(--color-white);
   border: none;
-  padding: 10px 24px;
-  font-family: 'Goudy Bookletter 1911', Georgia, serif;
+  padding: 13px 24px;
+  font-family: var(--font-body);
   font-size: 15px;
-  letter-spacing: 0.04em;
+  font-weight: 500;
   cursor: pointer;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   transition: background 0.15s;
 }
 
@@ -639,11 +650,7 @@
   }
 
   .home-logo-img {
-    height: 52px;
-  }
-
-  .home-logo {
-    font-size: 28px;
+    height: 48px;
   }
 
   .home-grid {
@@ -651,11 +658,11 @@
   }
 
   .home-main {
-    padding: 28px 16px;
+    padding: 32px 16px;
   }
 
   .slot-card {
-    padding: 20px;
+    padding: 22px;
   }
 
   .slot-card__btn,
@@ -669,22 +676,27 @@
   }
 
   .home-gamification {
-    padding: 28px 20px;
+    padding: 32px 20px;
   }
 
   .gamification-inner {
-    gap: 24px;
+    gap: 28px;
   }
 
   .gamification-number {
-    font-size: 36px;
+    font-size: 40px;
   }
 
   .home-events {
-    padding: 36px 20px;
+    padding: 40px 20px;
   }
 
   .events-grid {
     grid-template-columns: 1fr;
+  }
+
+  .card-cover-img {
+    width: calc(100% + 44px);
+    margin: -22px -22px 0;
   }
 }
