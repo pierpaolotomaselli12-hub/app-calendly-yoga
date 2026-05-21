@@ -30,6 +30,43 @@ function formatDateLong(dateStr: string): string {
   })
 }
 
+const YOGA_QUOTES = [
+  { text: 'Lo yoga è il viaggio del sé, attraverso il sé, al sé.', author: 'Bhagavad Gītā' },
+  { text: 'Il corpo è il tuo tempio. Mantienilo puro e pulito per l\'anima che vi risiede.', author: 'B.K.S. Iyengar' },
+  { text: 'La pace viene dall\'interno. Non cercarla fuori.', author: 'Buddha' },
+  { text: 'Respira. Lascia andare. Ricorda che questo momento è l\'unico che hai con certezza.', author: '' },
+  { text: 'Non importa quanto velocemente vai, fintanto che non ti fermi.', author: 'Confucio' },
+  { text: 'Nel silenzio si ritrova la propria natura più profonda.', author: 'Patañjali' },
+  { text: 'Ogni respiro è un nuovo inizio.', author: '' },
+]
+
+function CreditRing({ credits, total }: { credits: number; total: number }) {
+  const r = 28
+  const circ = 2 * Math.PI * r
+  const pct = total > 0 ? Math.min(credits / total, 1) : 0
+  const dash = circ * pct
+  return (
+    <div className="gami-ring">
+      <svg width="72" height="72" viewBox="0 0 72 72">
+        <circle cx="36" cy="36" r={r} fill="none" stroke="var(--color-border)" strokeWidth="5" />
+        <circle
+          cx="36" cy="36" r={r}
+          fill="none"
+          stroke="var(--color-green)"
+          strokeWidth="5"
+          strokeDasharray={`${dash} ${circ}`}
+          strokeLinecap="round"
+          transform="rotate(-90 36 36)"
+        />
+      </svg>
+      <div className="gami-ring-center">
+        <span className="gami-ring-num">{credits}</span>
+        <span className="gami-ring-sub">di {total}</span>
+      </div>
+    </div>
+  )
+}
+
 function getSpotsColor(spotsLeft: number, maxParticipants: number): string {
   if (spotsLeft === 0) return '#999'
   const pct = spotsLeft / maxParticipants
@@ -445,21 +482,54 @@ export default function Home() {
         )}
       </main>
 
-      {gamification && (
-        <section className="home-gamification">
-          <div className="gamification-inner">
-            <div className="gamification-stat">
-              <span className="gamification-number">{gamification.lessonsCompleted}</span>
-              <span className="gamification-label">lezioni completate</span>
+      {gamification && currentStudent && (() => {
+        const totalCredits = currentStudent.lessonCredits + gamification.lessonsCompleted
+        const todayQuote = YOGA_QUOTES[new Date().getDay() % YOGA_QUOTES.length]
+        return (
+          <section className="home-gamification">
+            <div className="gamification-card">
+              <div className="gami-col gami-col--credits">
+                <span className="gami-eyebrow">Pacchetto</span>
+                <div className="gami-credits-body">
+                  <CreditRing credits={currentStudent.lessonCredits} total={totalCredits} />
+                  <div>
+                    <p className="gami-main-text">
+                      {currentStudent.lessonCredits} {currentStudent.lessonCredits === 1 ? 'lezione rimanente' : 'lezioni rimanenti'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="gami-sep" />
+
+              <div className="gami-col gami-col--quote">
+                <span className="gami-eyebrow">Intenzione di oggi</span>
+                <blockquote className="gami-quote">
+                  <p>"{todayQuote.text}"</p>
+                  {todayQuote.author && <footer>— {todayQuote.author}</footer>}
+                </blockquote>
+              </div>
+
+              <div className="gami-sep" />
+
+              <div className="gami-col gami-col--streak">
+                <span className="gami-eyebrow">Continua</span>
+                <div className="gami-streak-body">
+                  <span className="gami-streak-icon">🔥</span>
+                  <div>
+                    <p className="gami-streak-num">
+                      {gamification.daysPracticing} <span className="gami-streak-unit">giorni</span>
+                    </p>
+                    <p className="gami-streak-sub">
+                      con Laura · {gamification.lessonsCompleted} {gamification.lessonsCompleted === 1 ? 'completata' : 'completate'}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="gamification-divider" />
-            <div className="gamification-stat">
-              <span className="gamification-number">{gamification.daysPracticing}</span>
-              <span className="gamification-label">giorni che pratichi con Laura</span>
-            </div>
-          </div>
-        </section>
-      )}
+          </section>
+        )
+      })()}
 
       {upcomingEvents.length > 0 && (
         <section className="home-events">

@@ -525,46 +525,147 @@
   border-radius: 0 4px 4px 0;
 }
 
-/* ── Gamification bar ────────────────────────────────────── */
+/* ── Gamification card ────────────────────────────────────── */
 
 .home-gamification {
-  background: var(--color-green);
-  padding: 40px;
+  background: var(--color-bg);
+  padding: 0 28px 48px;
 }
 
-.gamification-inner {
-  max-width: 700px;
+.gamification-card {
+  max-width: 1040px;
   margin: 0 auto;
+  background: var(--color-white);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+  padding: 28px 36px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 48px;
+  gap: 32px;
 }
 
-.gamification-stat {
+.gami-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.gami-col--quote { flex: 1.6; }
+
+.gami-sep {
+  width: 1px;
+  height: 64px;
+  background: var(--color-border);
+  flex-shrink: 0;
+}
+
+.gami-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+
+/* Credits column */
+.gami-credits-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.gami-ring {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+}
+
+.gami-ring svg { display: block; }
+
+.gami-ring-center {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 1px;
 }
 
-.gamification-number {
-  font-family: var(--font-display);
-  font-size: 52px;
-  color: #fff;
+.gami-ring-num {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text);
   line-height: 1;
 }
 
-.gamification-label {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.8);
-  text-align: center;
+.gami-ring-sub {
+  font-size: 10px;
+  color: var(--color-text-light);
+  line-height: 1;
 }
 
-.gamification-divider {
-  width: 1px;
-  height: 56px;
-  background: rgba(255, 255, 255, 0.25);
+.gami-main-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+/* Quote column */
+.gami-quote {
+  font-style: italic;
+  color: var(--color-text);
+  line-height: 1.65;
+}
+
+.gami-quote p {
+  font-size: 14px;
+  color: var(--color-text);
+  line-height: 1.65;
+}
+
+.gami-quote footer {
+  font-size: 12px;
+  font-style: normal;
+  color: var(--color-text-light);
+  margin-top: 8px;
+}
+
+/* Streak column */
+.gami-streak-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gami-streak-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.gami-streak-num {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.gami-streak-unit {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--color-text-light);
+}
+
+.gami-streak-sub {
+  font-size: 13px;
+  color: var(--color-text-light);
+  margin-top: 5px;
 }
 
 /* ── Events section ──────────────────────────────────────── */
@@ -655,4 +756,20 @@
 
   .my-booking-card__header { padding: 16px 18px; }
   .my-booking-card__detail { padding: 16px 18px 20px; }
+
+  .home-gamification { padding: 0 16px 36px; }
+
+  .gamification-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 22px 20px;
+    gap: 20px;
+  }
+
+  .gami-sep {
+    width: 100%;
+    height: 1px;
+  }
+
+  .gami-col--quote { flex: 1; }
 }
