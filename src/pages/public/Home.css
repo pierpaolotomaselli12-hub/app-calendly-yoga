@@ -500,9 +500,10 @@
   flex-shrink: 0;
 }
 
-.cal-legend-dot--next    { background: #c17f3b; }
-.cal-legend-dot--booked  { background: var(--color-green); }
+.cal-legend-dot--next      { background: #c17f3b; }
+.cal-legend-dot--booked    { background: var(--color-green); }
 .cal-legend-dot--available { background: rgba(129,133,105,0.4); border: 1.5px solid var(--color-green); }
+.cal-legend-dot--past      { background: rgba(139, 74, 72, 0.65); }
 
 /* ── Bottom: pratica + eventi ──────────────────────────────── */
 

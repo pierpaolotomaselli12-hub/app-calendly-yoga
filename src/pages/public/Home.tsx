@@ -425,6 +425,7 @@ export default function Home() {
                 <span className="cal-legend-item"><span className="cal-legend-dot cal-legend-dot--next" /> prossima</span>
                 <span className="cal-legend-item"><span className="cal-legend-dot cal-legend-dot--booked" /> prenotata</span>
                 <span className="cal-legend-item"><span className="cal-legend-dot cal-legend-dot--available" /> disponibile</span>
+                <span className="cal-legend-item"><span className="cal-legend-dot cal-legend-dot--past" /> passata</span>
               </div>
             </section>
 
