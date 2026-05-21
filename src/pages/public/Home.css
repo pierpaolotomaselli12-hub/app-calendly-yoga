@@ -395,7 +395,26 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 
-.cal-slot--past { opacity: 0.45; pointer-events: none; }
+.cal-slot--past { pointer-events: none; }
+
+.cal-slot--past.cal-slot--available,
+.cal-slot--past.cal-slot--full {
+  background: rgba(139, 74, 72, 0.09);
+}
+
+.cal-slot--past.cal-slot--available .cal-slot-time,
+.cal-slot--past.cal-slot--available .cal-slot-title,
+.cal-slot--past.cal-slot--available .cal-slot-type,
+.cal-slot--past.cal-slot--full .cal-slot-time,
+.cal-slot--past.cal-slot--full .cal-slot-title,
+.cal-slot--past.cal-slot--full .cal-slot-type {
+  color: rgba(139, 74, 72, 0.65);
+}
+
+.cal-slot--past.cal-slot--booked,
+.cal-slot--past.cal-slot--next {
+  opacity: 0.45;
+}
 
 .cal-slot-time,
 .cal-slot-title,
