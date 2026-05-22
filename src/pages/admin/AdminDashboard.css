@@ -1,198 +1,565 @@
-.dashboard {
-  max-width: 760px;
+/* ── Two-column shell ──────────────────────────────────── */
+
+.dash {
+  display: flex;
+  gap: 28px;
+  align-items: start;
 }
 
-.dashboard-greeting {
-  font-size: 30px;
-  font-weight: 400;
-  color: var(--color-text);
-  margin-bottom: 36px;
-  letter-spacing: 0.02em;
-}
-
-.dashboard-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-bottom: 52px;
-}
-
-.stat-card {
-  background: var(--color-white);
-  padding: 28px 24px;
+.dash-main {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  gap: 22px;
 }
 
-.stat-label {
-  font-size: 12px;
+.dash-side {
+  width: 296px;
+  min-width: 296px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Header ────────────────────────────────────────────── */
+
+.dash-greeting {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 400;
+  color: var(--color-text);
+  line-height: 1.1;
+}
+
+.dash-date {
+  font-size: 14px;
+  color: var(--color-text-light);
+  margin-top: 4px;
+}
+
+/* ── Stat cards ────────────────────────────────────────── */
+
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.dash-stat {
+  background: var(--color-white);
+  border-radius: var(--radius);
+  padding: 18px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: var(--shadow-card);
+}
+
+.dash-stat-label {
+  font-size: 10px;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-text-light);
 }
 
-.stat-value {
-  font-size: 40px;
+.dash-stat-value {
+  font-family: var(--font-display);
+  font-size: 38px;
   color: var(--color-green);
-  line-height: 1;
-  font-family: 'Goudy Bookletter 1911', serif;
+  line-height: 1.05;
 }
 
-.stat-sub {
-  font-size: 12px;
+.dash-stat-sub {
+  font-size: 11px;
   color: var(--color-text-light);
 }
 
-.dashboard-section {
-  margin-bottom: 52px;
+/* ── Prossima lezione ──────────────────────────────────── */
+
+.dash-next {
+  background: var(--color-white);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.section-title {
-  font-size: 17px;
-  font-weight: 400;
+.dash-next-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-green);
+}
+
+.dash-next-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dash-next-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dash-next-title {
+  font-size: 16px;
+  font-weight: 500;
   color: var(--color-text);
-  margin-bottom: 16px;
-  letter-spacing: 0.03em;
-  padding-bottom: 12px;
+}
+
+.dash-next-meta {
+  font-size: 13px;
+  color: var(--color-text-light);
+}
+
+.dash-next-count {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.dash-next-num {
+  font-family: var(--font-display);
+  font-size: 30px;
+  color: var(--color-green);
+  line-height: 1;
+}
+
+.dash-next-denom {
+  font-size: 15px;
+  color: var(--color-text-light);
+}
+
+.dash-next-bar-wrap {
+  height: 4px;
+  background: var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.dash-next-bar {
+  height: 4px;
+  border-radius: 2px;
+  transition: width 0.35s ease;
+}
+
+/* ── Weekly calendar ───────────────────────────────────── */
+
+.dash-cal {
+  background: var(--color-white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.dash-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
   border-bottom: 1px solid var(--color-border);
 }
 
-.empty-msg {
+.dash-cal-heading {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   color: var(--color-text-light);
-  font-size: 15px;
 }
 
-.upcoming-list {
+.dash-cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dash-cal-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  font-size: 15px;
+  color: var(--color-text-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.dash-cal-btn:hover {
+  border-color: var(--color-green);
+  color: var(--color-green);
+}
+
+.dash-cal-range {
+  font-size: 12px;
+  color: var(--color-text-light);
+  white-space: nowrap;
+}
+
+.dash-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  overflow-x: auto;
+}
+
+.dash-cal-day {
+  border-right: 1px solid var(--color-border);
+  padding: 12px 10px 14px;
+  min-width: 80px;
+}
+
+.dash-cal-day:last-child {
+  border-right: none;
+}
+
+.dash-cal-day-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.dash-cal-day-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+
+.dash-cal-day-num {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.dash-cal-day--today .dash-cal-day-lbl { color: var(--color-green); }
+.dash-cal-day--today .dash-cal-day-num { color: var(--color-green); }
+.dash-cal-day--past .dash-cal-day-num  { color: var(--color-text-light); opacity: 0.6; }
+
+.dash-cal-day-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dash-cal-empty {
+  font-size: 12px;
+  color: var(--color-border);
+}
+
+.dash-cal-slot {
+  background: rgba(129, 133, 105, 0.12);
+  border-radius: 4px;
+  padding: 4px 6px;
   display: flex;
   flex-direction: column;
   gap: 1px;
-  background: var(--color-border);
 }
 
-.upcoming-item {
-  display: flex;
-  flex-direction: column;
-  padding: 16px 20px;
+.dash-cal-slot--past {
+  background: rgba(139, 74, 72, 0.1);
+}
+
+.dash-cal-slot-time {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-green);
+}
+
+.dash-cal-slot--past .dash-cal-slot-time {
+  color: rgba(139, 74, 72, 0.75);
+}
+
+.dash-cal-slot-fill {
+  font-size: 10px;
+  color: var(--color-text-light);
+}
+
+.dash-cal-slot--past .dash-cal-slot-fill {
+  color: rgba(139, 74, 72, 0.55);
+}
+
+/* ── Type bars ─────────────────────────────────────────── */
+
+.dash-types {
   background: var(--color-white);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-card);
 }
 
-.upcoming-item-top {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+.dash-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  margin-bottom: 18px;
 }
 
-.upcoming-info {
+.dash-types-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 14px;
 }
 
-.upcoming-title {
-  font-size: 16px;
+.dash-type-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 64px;
+  align-items: center;
+  gap: 12px;
+}
+
+.dash-type-name {
+  font-size: 13px;
   color: var(--color-text);
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.upcoming-meta {
+.dash-type-bar-wrap {
+  height: 6px;
+  background: var(--color-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dash-type-bar {
+  height: 6px;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.dash-type-count {
+  font-size: 12px;
+  color: var(--color-text-light);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ── Right sidebar cards ───────────────────────────────── */
+
+.dash-side-card {
+  background: var(--color-white);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.dash-side-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  margin-bottom: 14px;
+}
+
+.dash-side-empty {
   font-size: 13px;
   color: var(--color-text-light);
-  letter-spacing: 0.02em;
 }
 
-.upcoming-count {
+/* Today list */
+
+.dash-today-list {
   display: flex;
-  align-items: baseline;
-  gap: 3px;
-  color: var(--color-text-light);
-  font-size: 14px;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.count-num {
-  font-size: 20px;
+.dash-today-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dash-today-time {
+  font-size: 12px;
+  font-weight: 600;
   color: var(--color-green);
-  font-family: 'Goudy Bookletter 1911', serif;
+  width: 36px;
+  flex-shrink: 0;
 }
 
-.count-sep {
-  color: var(--color-border);
-  font-size: 16px;
+.dash-today-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
-.count-max {
-  font-size: 15px;
+.dash-today-title {
+  font-size: 13px;
+  font-weight: 500;
   color: var(--color-text);
 }
 
-.count-label {
-  font-size: 12px;
+.dash-today-meta {
+  font-size: 11px;
   color: var(--color-text-light);
-  margin-left: 4px;
-  letter-spacing: 0.04em;
 }
 
-.fill-bar-wrap {
-  height: 3px;
-  background: var(--color-border);
-  width: 100%;
-  margin-top: 8px;
-  border-radius: 2px;
+.dash-today-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-green);
+  flex-shrink: 0;
 }
 
-.fill-bar {
-  height: 3px;
-  border-radius: 2px;
-  transition: width 0.3s ease;
+.dash-today-dot--full {
+  background: #8b4a48;
 }
 
-.type-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 16px;
-}
+/* Activity feed */
 
-.type-card {
-  background: var(--color-white);
-  padding: 16px 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+.dash-activity-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 11px;
 }
 
-.type-card__name {
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-light);
+.dash-activity-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
 }
 
-.type-card__bookings {
-  font-size: 24px;
+.dash-activity-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(129, 133, 105, 0.14);
   color: var(--color-green);
-  font-family: 'Goudy Bookletter 1911', serif;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.03em;
 }
 
-.type-card__lessons {
+.dash-activity-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.dash-activity-name {
   font-size: 12px;
-  color: var(--color-text-light);
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-@media (max-width: 760px) {
-  .dashboard-stats {
+.dash-activity-slot {
+  font-size: 11px;
+  color: var(--color-text-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-activity-time {
+  font-size: 10px;
+  color: var(--color-text-light);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Top students */
+
+.dash-top-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dash-top-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dash-top-rank {
+  font-size: 11px;
+  color: var(--color-text-light);
+  width: 22px;
+  flex-shrink: 0;
+}
+
+.dash-top-name {
+  flex: 1;
+  font-size: 13px;
+  color: var(--color-text);
+}
+
+.dash-top-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-green);
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+
+@media (max-width: 1140px) {
+  .dash {
+    flex-direction: column;
+  }
+
+  .dash-side {
+    width: 100%;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .dash-stats {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 480px) {
-  .dashboard-stats {
+@media (max-width: 680px) {
+  .dash-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .dash-side {
     grid-template-columns: 1fr;
   }
 
-  .type-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .dash-stat-value {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 420px) {
+  .dash-type-row {
+    grid-template-columns: 90px 1fr 50px;
+    gap: 8px;
   }
 }
