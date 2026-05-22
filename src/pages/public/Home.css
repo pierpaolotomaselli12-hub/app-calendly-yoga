@@ -399,7 +399,7 @@
 
 .cal-slot--past.cal-slot--available,
 .cal-slot--past.cal-slot--full {
-  background: rgba(139, 74, 72, 0.09);
+  background: rgba(139, 74, 72, 0.16) !important;
 }
 
 .cal-slot--past.cal-slot--available .cal-slot-time,
@@ -408,7 +408,7 @@
 .cal-slot--past.cal-slot--full .cal-slot-time,
 .cal-slot--past.cal-slot--full .cal-slot-title,
 .cal-slot--past.cal-slot--full .cal-slot-type {
-  color: rgba(139, 74, 72, 0.65);
+  color: #8b4a48 !important;
 }
 
 .cal-slot--past.cal-slot--booked,
