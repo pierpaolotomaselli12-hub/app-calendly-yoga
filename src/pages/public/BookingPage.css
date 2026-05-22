@@ -1,15 +1,17 @@
+/* ── Page shell ──────────────────────────────────────────────── */
+
 .booking-page {
   min-height: 100vh;
   background: var(--color-bg);
-  padding: 48px 24px 72px;
+  padding: 40px 24px 72px;
 }
 
 .booking-page__inner {
-  max-width: 640px;
+  max-width: 1040px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
 .booking-back {
@@ -20,99 +22,258 @@
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  letter-spacing: 0.01em;
   transition: opacity 0.15s;
+  align-self: flex-start;
 }
 
-.booking-back:hover {
-  opacity: 0.75;
+.booking-back:hover { opacity: 0.7; }
+
+/* ── Two-column layout ───────────────────────────────────────── */
+
+.booking-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
 }
 
-.booking-summary {
+/* ── Left: lesson detail card ────────────────────────────────── */
+
+.lesson-card {
   background: var(--color-white);
-  padding: 32px;
-  box-shadow: var(--shadow-card);
   border-radius: var(--radius);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 20px rgba(0,0,0,0.07);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
-.booking-summary__top {
+/* Hero image / placeholder */
+.lesson-hero {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.lesson-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lesson-hero-placeholder {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(140deg, #818569 0%, #6e7258 45%, #5c6148 100%);
+}
+
+.lesson-hero-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 18px,
+    rgba(255,255,255,0.05) 18px,
+    rgba(255,255,255,0.05) 19px
+  );
+}
+
+.lesson-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.18) 55%, transparent 100%);
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px 22px;
+  gap: 8px;
 }
 
-.booking-summary__title {
+.lesson-hero-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(255,255,255,0.22);
+  padding: 4px 11px;
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+}
+
+.lesson-hero-title {
   font-family: var(--font-display);
-  font-size: 28px;
-  color: var(--color-text);
+  font-size: 30px;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.15;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.3);
 }
 
-.booking-summary__date {
-  font-size: 16px;
+/* Info grid */
+.lesson-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 18px 18px 0;
+}
+
+.lesson-info-cell {
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  padding: 13px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lesson-info-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+}
+
+.lesson-info-value {
+  font-size: 14px;
   font-weight: 500;
   color: var(--color-text);
   text-transform: capitalize;
+  line-height: 1.35;
 }
 
-.booking-summary__time {
-  font-size: 14px;
+/* Description */
+.lesson-description {
+  padding: 18px 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lesson-description-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   color: var(--color-text-light);
 }
 
-.booking-summary__spots {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-green);
-}
-
-.booking-cover-img {
-  display: block;
-  width: calc(100% + 64px);
-  margin: -32px -32px 0;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  border-radius: var(--radius) var(--radius) 0 0;
-}
-
-.booking-summary__notes {
+.lesson-description-text {
   font-size: 14px;
   color: var(--color-text-light);
-  line-height: 1.5;
+  line-height: 1.65;
 }
 
-.badge {
+/* Pills */
+.lesson-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px 20px 20px;
+}
+
+.lesson-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 12px;
   font-weight: 500;
-  padding: 4px 12px;
+  color: var(--color-text-light);
+  background: var(--color-bg);
   border-radius: 999px;
-  letter-spacing: 0.02em;
+  padding: 5px 12px;
 }
 
-.badge--type {
-  background: rgba(129, 133, 105, 0.12);
-  color: var(--color-green);
+.lesson-pill-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  stroke: var(--color-text-light);
 }
 
-.booking-form {
+/* ── Right: form card ────────────────────────────────────────── */
+
+.booking-form-card {
   background: var(--color-white);
-  padding: 32px;
-  box-shadow: var(--shadow-card);
   border-radius: var(--radius);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 20px rgba(0,0,0,0.07);
+  padding: 32px 30px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.booking-form__title {
-  font-family: var(--font-display);
-  font-size: 24px;
-  color: var(--color-text);
+/* Step indicator */
+.booking-steps {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.booking-form__error-banner {
+.booking-step {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-light);
+}
+
+.booking-step--active { color: var(--color-text); }
+
+.booking-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-light);
+  flex-shrink: 0;
+}
+
+.booking-step--active .booking-step-num {
+  background: var(--color-green);
+  color: #fff;
+}
+
+.booking-steps-sep {
+  color: var(--color-border);
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Form heading */
+.booking-form-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--color-text);
+  line-height: 1.15;
+}
+
+.booking-form-subtitle {
+  font-size: 14px;
+  color: var(--color-text-light);
+  line-height: 1.6;
+  margin-top: -8px;
+}
+
+/* Error banner */
+.booking-error-banner {
   background: #fdf2f2;
   border: 1px solid #e8c0be;
   color: #b94a48;
@@ -121,10 +282,17 @@
   border-radius: var(--radius-sm);
 }
 
+/* Form inner */
+.booking-form-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
 .booking-form__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 14px;
 }
 
 .form-field {
@@ -134,10 +302,11 @@
 }
 
 .form-label {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
   color: var(--color-text-light);
-  letter-spacing: 0.02em;
 }
 
 .form-error {
@@ -145,14 +314,150 @@
   color: #b94a48;
 }
 
-.booking-form__submit {
+/* Email with icon */
+.input-icon-wrap {
+  position: relative;
+}
+
+.input-prefix-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  stroke: var(--color-text-light);
+  pointer-events: none;
+}
+
+.input-with-icon {
+  padding-left: 40px !important;
+}
+
+/* Phone with flag prefix */
+.phone-input-wrap {
+  display: flex;
+  align-items: center;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.phone-input-wrap:focus-within {
+  border-color: var(--color-green);
+  box-shadow: 0 0 0 3px rgba(129,133,105,0.12);
+}
+
+.phone-prefix {
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.phone-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border);
+  flex-shrink: 0;
+}
+
+.phone-input {
+  flex: 1;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding-left: 12px !important;
+}
+
+.phone-input:focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Credit box */
+.booking-credit-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(129,133,105,0.09);
+  border: 1px solid rgba(129,133,105,0.2);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+}
+
+.booking-credit-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  line-height: 1.3;
+}
+
+.booking-credit-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.booking-credit-sub {
+  font-size: 12px;
+  color: var(--color-text-light);
+  margin-top: 3px;
+}
+
+/* Action buttons */
+.booking-actions {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+}
+
+.btn-annulla {
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  color: var(--color-text);
+  padding: 13px 22px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.btn-annulla:hover {
+  border-color: var(--color-text-light);
+  background: var(--color-bg);
+}
+
+.booking-submit {
   width: 100%;
-  padding: 15px;
-  font-size: 16px;
+  padding: 14px;
+  font-size: 15px;
   font-weight: 500;
   text-align: center;
-  margin-top: 4px;
 }
+
+.booking-submit:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+/* Privacy note */
+.booking-privacy {
+  font-size: 12px;
+  color: var(--color-text-light);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ── Unavailable states ───────────────────────────────────────── */
 
 .booking-unavailable {
   min-height: 100vh;
@@ -166,10 +471,7 @@
   text-align: center;
 }
 
-.booking-unavailable p {
-  font-size: 18px;
-  color: var(--color-text-light);
-}
+.booking-unavailable p { font-size: 18px; color: var(--color-text-light); }
 
 .booking-unavailable a {
   color: var(--color-green);
@@ -178,64 +480,40 @@
   font-weight: 500;
 }
 
-.booking-unavailable a:hover {
-  text-decoration: underline;
-}
+.booking-unavailable a:hover { text-decoration: underline; }
 
-.waitlist-notice {
-  font-size: 15px;
-  color: var(--color-text-light);
-  font-style: italic;
-  margin-bottom: 20px;
-}
+/* ── Tablet ──────────────────────────────────────────────────── */
 
-.spots-display {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 4px;
-}
-
-.spots-count {
-  font-size: 15px;
-  font-weight: 500;
-}
-
-.spots-total {
-  font-size: 13px;
-  color: var(--color-text-light);
-}
-
-@media (max-width: 540px) {
-  .booking-form__grid {
+@media (max-width: 860px) {
+  .booking-layout {
     grid-template-columns: 1fr;
   }
 
-  .booking-page {
-    padding: 32px 16px 56px;
-  }
+  .lesson-hero { aspect-ratio: 21 / 9; }
+}
 
-  .booking-summary,
-  .booking-form {
-    padding: 22px;
-  }
+/* ── Mobile ──────────────────────────────────────────────────── */
 
-  .booking-cover-img {
-    width: calc(100% + 44px);
-    margin: -22px -22px 0;
-  }
+@media (max-width: 540px) {
+  .booking-page { padding: 24px 16px 56px; }
 
-  .booking-form__submit {
-    min-height: 52px;
-    font-size: 17px;
-  }
+  .lesson-hero { aspect-ratio: 16 / 9; }
 
-  .booking-back {
-    min-height: 44px;
-  }
+  .lesson-info-grid { padding: 14px 14px 0; gap: 8px; }
+  .lesson-info-cell { padding: 11px 13px; }
 
-  input,
-  select,
-  textarea {
-    min-height: 48px;
-  }
+  .lesson-description { padding: 14px 16px 0; }
+  .lesson-pills { padding: 12px 16px 16px; }
+
+  .booking-form-card { padding: 24px 20px; }
+
+  .booking-form-title { font-size: 24px; }
+
+  .booking-form__grid { grid-template-columns: 1fr; gap: 14px; }
+
+  .booking-actions { grid-template-columns: 1fr; }
+
+  .booking-submit { min-height: 52px; font-size: 16px; }
+
+  input, select, textarea { min-height: 48px; }
 }
