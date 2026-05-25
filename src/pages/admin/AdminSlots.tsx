@@ -4,6 +4,8 @@ import { supabase } from '../../lib/supabase'
 import type { Slot } from '../../types'
 import './AdminSlots.css'
 
+// ── Form & type helpers ───────────────────────────────
+
 interface SlotForm {
   title: string
   type: string
@@ -28,11 +30,6 @@ const emptyForm: SlotForm = {
 
 const TYPE_OPTIONS = ['Hatha', 'Vinyasa', 'Yin', 'Restorative', 'Pranayama', 'Altro']
 
-function formatDate(dateStr: string): string {
-  const [y, m, d] = dateStr.split('-')
-  return `${d}/${m}/${y}`
-}
-
 function todayStr(): string {
   const now = new Date()
   const y = now.getFullYear()
@@ -41,25 +38,50 @@ function todayStr(): string {
   return `${y}-${m}-${d}`
 }
 
-type StatusBadge = 'available' | 'full' | 'past'
+// ── Date display helpers ──────────────────────────────
 
-function getStatus(slot: Slot): StatusBadge {
-  const today = todayStr()
-  if (slot.date < today) return 'past'
-  if (slot.bookings.length >= slot.maxParticipants) return 'full'
-  return 'available'
+const MONTH_SHORT = ['GEN', 'FEB', 'MAR', 'APR', 'MAG', 'GIU', 'LUG', 'AGO', 'SET', 'OTT', 'NOV', 'DIC']
+const DAY_SHORT   = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']
+
+function parseDateParts(dateStr: string) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  const date = new Date(y, m - 1, d)
+  return { dayNum: d, month: MONTH_SHORT[m - 1], dayName: DAY_SHORT[date.getDay()] }
 }
 
-const STATUS_LABELS: Record<StatusBadge, string> = {
-  available: 'Disponibile',
-  full: 'Al completo',
-  past: 'Passata',
+// ── Avatar helpers ────────────────────────────────────
+
+const AVATAR_COLORS = ['#818569', '#8b4a48', '#c17f3b', '#5c6148', '#9a8878', '#6e7258', '#b0906e']
+
+function avatarColor(name: string): string {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffff
+  return AVATAR_COLORS[h % AVATAR_COLORS.length]
+}
+
+function initials(first: string, last: string): string {
+  return `${first[0] ?? ''}${last[0] ?? ''}`.toUpperCase()
+}
+
+// ── Fill rate ─────────────────────────────────────────
+
+function slotFillRate(slot: Slot): number {
+  return Math.min(Math.round((slot.bookings.length / Math.max(slot.maxParticipants, 1)) * 100), 100)
+}
+
+function fillBarColor(rate: number): string {
+  if (rate >= 100) return '#8b4a48'
+  if (rate >= 70)  return '#c17f3b'
+  return '#818569'
 }
 
 type Tab = 'upcoming' | 'past'
 
+// ── Component ─────────────────────────────────────────
+
 export default function AdminSlots() {
   const { slots, addSlot, deleteSlot, updateSlot, duplicateSlot, deleteBooking, waitlist, students, addBooking, decrementStudentCredits } = useApp()
+
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<SlotForm>(emptyForm)
   const [editingSlot, setEditingSlot] = useState<Slot | null>(null)
@@ -78,6 +100,9 @@ export default function AdminSlots() {
 
   const today = todayStr()
 
+  const upcomingCount = slots.filter(s => s.date >= today).length
+  const pastCount = slots.filter(s => s.date < today).length
+
   const filteredSlots = slots
     .filter(s => activeTab === 'upcoming' ? s.date >= today : s.date < today)
     .sort((a, b) => {
@@ -85,6 +110,8 @@ export default function AdminSlots() {
       if (activeTab === 'upcoming') return cmp !== 0 ? cmp : a.time.localeCompare(b.time)
       return cmp !== 0 ? -cmp : -a.time.localeCompare(b.time)
     })
+
+  // ── Form handlers ─────────────────────────────────
 
   function handleChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -171,6 +198,8 @@ export default function AdminSlots() {
       if (expandedSlot === slot.id) setExpandedSlot(null)
     } else {
       setDeleteConfirm(slot.id)
+      setExpandedSlot(null)
+      setDuplicatingSlot(null)
     }
   }
 
@@ -179,12 +208,14 @@ export default function AdminSlots() {
     setStudentSearch('')
     setAddStudentId('')
     setShowStudentDropdown(false)
+    setDeleteConfirm(null)
   }
 
   function startDuplicate(id: string) {
-    setDuplicatingSlot(id)
+    setDuplicatingSlot(prev => (prev === id ? null : id))
     setDuplicateDate('')
     setDeleteConfirm(null)
+    setExpandedSlot(null)
   }
 
   async function confirmDuplicate(id: string) {
@@ -210,96 +241,78 @@ export default function AdminSlots() {
     setAddingStudent(false)
   }
 
+  // ── Render ───────────────────────────────────────
+
   return (
     <div className="slots-page">
+
+      {/* Header */}
       <div className="slots-header">
-        <h1 className="slots-title">Lezioni</h1>
-        {!showForm && (
-          <button className="btn-primary" onClick={openCreate}>
-            + Nuova Lezione
+        <div className="slots-header-left">
+          <h1 className="slots-title">Lezioni</h1>
+          <p className="slots-subtitle">
+            {upcomingCount} {upcomingCount === 1 ? 'prossima' : 'prossime'} · {pastCount} {pastCount === 1 ? 'passata' : 'passate'}
+          </p>
+        </div>
+        <div className="slots-header-right">
+          <div className="slots-view-toggle">
+            <button className="view-btn view-btn--active">Lista</button>
+            <button className="view-btn">Settimana</button>
+          </div>
+          <button className="btn-filtri">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <path d="M2 4h12M5 8h6M7 12h2" />
+            </svg>
+            Filtri
           </button>
-        )}
+          {!showForm && (
+            <button className="btn-primary slots-new-btn" onClick={openCreate}>
+              + Nuova lezione
+            </button>
+          )}
+        </div>
       </div>
 
+      {/* Create/Edit Form */}
       {showForm && (
         <form className="slot-form" onSubmit={handleSubmit}>
           <div className="form-row form-row--2">
             <div className="form-group">
               <label className="form-label">Titolo</label>
-              <input
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-                required
-                placeholder="es. Hatha Yoga"
-              />
+              <input name="title" value={form.title} onChange={handleChange} required placeholder="es. Hatha Yoga" />
             </div>
             <div className="form-group">
               <label className="form-label">Tipo di lezione</label>
               <select name="type" value={form.type} onChange={handleChange} required>
                 <option value="">Seleziona tipo…</option>
-                {TYPE_OPTIONS.map(t => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
+                {TYPE_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
           </div>
           <div className="form-row form-row--3">
             <div className="form-group">
               <label className="form-label">Data</label>
-              <input
-                type="date"
-                name="date"
-                value={form.date}
-                onChange={handleChange}
-                required
-              />
+              <input type="date" name="date" value={form.date} onChange={handleChange} required />
             </div>
             <div className="form-group">
               <label className="form-label">Ora</label>
-              <input
-                type="time"
-                name="time"
-                value={form.time}
-                onChange={handleChange}
-                required
-              />
+              <input type="time" name="time" value={form.time} onChange={handleChange} required />
             </div>
             <div className="form-group">
               <label className="form-label">Durata (minuti)</label>
-              <input
-                type="number"
-                name="duration"
-                value={form.duration}
-                onChange={handleChange}
-                min={15}
-                required
-              />
+              <input type="number" name="duration" value={form.duration} onChange={handleChange} min={15} required />
             </div>
           </div>
           <div className="form-row">
             <div className="form-group form-group--half">
               <label className="form-label">Max partecipanti</label>
-              <input
-                type="number"
-                name="maxParticipants"
-                value={form.maxParticipants}
-                onChange={handleChange}
-                min={1}
-                required
-              />
+              <input type="number" name="maxParticipants" value={form.maxParticipants} onChange={handleChange} min={1} required />
             </div>
           </div>
           <div className="form-row">
             <div className="form-group">
               <label className="form-label">Note (opzionale)</label>
-              <textarea
-                name="notes"
-                value={form.notes}
-                onChange={handleChange}
-                rows={3}
-                placeholder="Informazioni aggiuntive per gli studenti…"
-              />
+              <textarea name="notes" value={form.notes} onChange={handleChange} rows={3} placeholder="Informazioni aggiuntive per gli studenti…" />
             </div>
           </div>
           <div className="form-row">
@@ -324,28 +337,30 @@ export default function AdminSlots() {
             <button type="submit" className="btn-primary" disabled={imageUploading}>
               {imageUploading ? 'Caricamento immagine…' : editingSlot ? 'Aggiorna Lezione' : 'Salva Lezione'}
             </button>
-            <button type="button" className="btn-cancel" onClick={closeForm}>
-              Annulla
-            </button>
+            <button type="button" className="btn-cancel" onClick={closeForm}>Annulla</button>
           </div>
         </form>
       )}
 
+      {/* Tabs */}
       <div className="slot-tabs">
         <button
           className={`slot-tab${activeTab === 'upcoming' ? ' slot-tab--active' : ''}`}
           onClick={() => setActiveTab('upcoming')}
         >
           Prossime
+          <span className="slot-tab-badge">{upcomingCount}</span>
         </button>
         <button
           className={`slot-tab${activeTab === 'past' ? ' slot-tab--active' : ''}`}
           onClick={() => setActiveTab('past')}
         >
           Passate
+          <span className="slot-tab-badge">{pastCount}</span>
         </button>
       </div>
 
+      {/* Slot list */}
       {filteredSlots.length === 0 ? (
         <div className="slots-empty">
           <p>{activeTab === 'upcoming' ? 'Nessuna lezione in programma.' : 'Nessuna lezione passata.'}</p>
@@ -356,90 +371,136 @@ export default function AdminSlots() {
       ) : (
         <div className="slots-list">
           {filteredSlots.map(slot => {
-            const status = getStatus(slot)
             const isExpanded = expandedSlot === slot.id
             const isDuplicating = duplicatingSlot === slot.id
+            const isDeleteConfirm = deleteConfirm === slot.id
+            const { dayNum, month, dayName } = parseDateParts(slot.date)
+            const rate = slotFillRate(slot)
+            const slotWaitlist = waitlist.filter(w => w.slotId === slot.id).length
+            const MAX_VISIBLE_AVATARS = 4
 
             return (
-              <div key={slot.id} className="slot-card">
+              <div key={slot.id} className={`slot-card${activeTab === 'past' ? ' slot-card--past' : ''}`}>
+
+                {/* Main row */}
                 <div className="slot-main">
-                  {slot.imageUrl && <img src={slot.imageUrl} className="slot-img-thumb" alt="" />}
-                  <div className="slot-info">
-                    <div className="slot-name-row">
-                      <span className="slot-name">{slot.title}</span>
-                      {slot.type && (
-                        <span className="slot-type-badge">{slot.type}</span>
+
+                  {/* Date block */}
+                  <div className="slot-date-col">
+                    <span className="slot-date-num">{dayNum}</span>
+                    <span className="slot-date-month">{month}</span>
+                    <span className="slot-date-day">{dayName}</span>
+                  </div>
+
+                  {/* Info block */}
+                  <div className="slot-info-col">
+                    <div className="slot-badges">
+                      {slot.type && <span className="slot-type-pill">{slot.type}</span>}
+                      {slotWaitlist > 0 && (
+                        <span className="slot-waitlist-pill">{slotWaitlist} in attesa</span>
                       )}
-                      <span className={`slot-status-badge badge--${status}`}>
-                        {STATUS_LABELS[status]}
-                      </span>
                     </div>
-                    <span className="slot-date">
-                      {formatDate(slot.date)} &middot; {slot.time} &middot; {slot.duration} min
-                    </span>
-                    {slot.notes && (
-                      <span className="slot-notes">{slot.notes}</span>
-                    )}
-                    <div className="slot-secondary-actions">
-                      <button
-                        className="btn-text"
-                        onClick={() => toggleExpanded(slot.id)}
-                      >
-                        Vedi studenti ({slot.bookings.length})
-                      </button>
-                      <button
-                        className="btn-text"
-                        onClick={() => openEdit(slot)}
-                      >
-                        Modifica
-                      </button>
-                      <button
-                        className="btn-text"
-                        onClick={() => startDuplicate(slot.id)}
-                      >
-                        Duplica
-                      </button>
+                    <span className="slot-title">{slot.title}</span>
+                    <div className="slot-meta">
+                      <svg className="slot-meta-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <circle cx="8" cy="8" r="6" />
+                        <path d="M8 5v3l2 1.2" />
+                      </svg>
+                      {slot.time} · {slot.duration} min · Laura P.
                     </div>
                   </div>
-                  <div className="slot-right">
-                    <div className="slot-capacity">
-                      <span className="capacity-booked">{slot.bookings.length}</span>
-                      <span className="capacity-sep">/</span>
-                      <span className="capacity-max">{slot.maxParticipants}</span>
-                      {waitlist.filter(w => w.slotId === slot.id).length > 0 && (
-                        <span className="capacity-waitlist">
-                          &middot; {waitlist.filter(w => w.slotId === slot.id).length} in attesa
-                        </span>
-                      )}
+
+                  {/* Capacity block */}
+                  <div className="slot-cap-col">
+                    <div className="slot-cap-header">
+                      <span className="slot-cap-text">{slot.bookings.length} / {slot.maxParticipants} prenotati</span>
+                      <span className="slot-cap-pct">{rate}%</span>
                     </div>
-                    <div className="slot-actions">
-                      {deleteConfirm === slot.id ? (
-                        <>
-                          <button
-                            className="btn-confirm-delete"
-                            onClick={() => handleDelete(slot)}
+                    <div className="fill-bar-wrap">
+                      <div className="fill-bar" style={{ width: `${rate}%`, background: fillBarColor(rate) }} />
+                    </div>
+                    <div className="slot-cap-footer">
+                      {/* Student avatars */}
+                      <div className="slot-avatars">
+                        {slot.bookings.slice(0, MAX_VISIBLE_AVATARS).map(b => (
+                          <div
+                            key={b.id}
+                            className="slot-avatar"
+                            style={{ background: avatarColor(`${b.firstName}${b.lastName}`) }}
+                            title={`${b.firstName} ${b.lastName}`}
                           >
-                            Conferma
-                          </button>
-                          <button
-                            className="btn-cancel-small"
-                            onClick={() => setDeleteConfirm(null)}
-                          >
-                            Annulla
-                          </button>
-                        </>
-                      ) : (
+                            {initials(b.firstName, b.lastName)}
+                          </div>
+                        ))}
+                        {slot.bookings.length > MAX_VISIBLE_AVATARS && (
+                          <div className="slot-avatar slot-avatar--more">
+                            +{slot.bookings.length - MAX_VISIBLE_AVATARS}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Icon action buttons */}
+                      <div className="slot-icon-actions">
+                        {/* View students */}
                         <button
-                          className="btn-danger"
-                          onClick={() => handleDelete(slot)}
+                          className={`slot-icon-btn${isExpanded ? ' slot-icon-btn--active' : ''}`}
+                          onClick={() => toggleExpanded(slot.id)}
+                          title="Vedi studenti"
                         >
-                          Elimina
+                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                            <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" />
+                            <circle cx="8" cy="8" r="2" />
+                          </svg>
                         </button>
-                      )}
+
+                        {/* Duplicate */}
+                        <button
+                          className={`slot-icon-btn${isDuplicating ? ' slot-icon-btn--active' : ''}`}
+                          onClick={() => startDuplicate(slot.id)}
+                          title="Duplica"
+                        >
+                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                            <rect x="5" y="5" width="9" height="9" rx="1.5" />
+                            <path d="M2 11V2h9" />
+                          </svg>
+                        </button>
+
+                        {/* Edit */}
+                        <button
+                          className="slot-icon-btn"
+                          onClick={() => openEdit(slot)}
+                          title="Modifica"
+                        >
+                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                            <path d="M11 2l3 3-8 8H3v-3l8-8z" />
+                          </svg>
+                        </button>
+
+                        {/* Delete */}
+                        <button
+                          className={`slot-icon-btn slot-icon-btn--danger${isDeleteConfirm ? ' slot-icon-btn--danger-active' : ''}`}
+                          onClick={() => handleDelete(slot)}
+                          title="Elimina"
+                        >
+                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                            <path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9h8l1-9" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
+                {/* Delete confirm strip */}
+                {isDeleteConfirm && (
+                  <div className="slot-delete-confirm">
+                    <span className="slot-delete-confirm-text">Eliminare questa lezione e tutte le sue prenotazioni?</span>
+                    <button className="btn-confirm-delete" onClick={() => handleDelete(slot)}>Conferma</button>
+                    <button className="btn-cancel-small" onClick={() => setDeleteConfirm(null)}>Annulla</button>
+                  </div>
+                )}
+
+                {/* Duplicate panel */}
                 {isDuplicating && (
                   <div className="slot-duplicate-panel">
                     <span className="duplicate-label">Nuova data per la copia:</span>
@@ -455,12 +516,11 @@ export default function AdminSlots() {
                     >
                       Conferma
                     </button>
-                    <button className="btn-cancel-small" onClick={cancelDuplicate}>
-                      Annulla
-                    </button>
+                    <button className="btn-cancel-small" onClick={cancelDuplicate}>Annulla</button>
                   </div>
                 )}
 
+                {/* Students panel */}
                 {isExpanded && (
                   <div className="slot-students-panel">
                     {slot.bookings.length === 0 ? (
