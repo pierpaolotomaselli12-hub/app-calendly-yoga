@@ -28,6 +28,8 @@ interface AppContextType {
   currentStudent: Student | null
   /** utente Auth loggato (anche senza profilo studente) */
   sessionEmail: string | null
+  /** nome da mostrare per l'utente loggato (admin compresi) */
+  sessionName: string | null
   studentRegister: (data: { firstName: string; lastName: string; email: string; phone: string; password: string }) => Promise<RegisterResult>
   studentLogin: (email: string, password: string) => Promise<LoginResult>
   studentLogout: () => Promise<void>
@@ -301,6 +303,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [students, userId],
   )
   const sessionEmail = session?.user.email ?? null
+  const sessionName = useMemo<string | null>(() => {
+    if (!session) return null
+    const meta = (session.user.user_metadata ?? {}) as { first_name?: string }
+    if (meta.first_name) return meta.first_name
+    if (currentStudent?.firstName) return currentStudent.firstName
+    // es. "laura.pagnossin152@…" -> "Laura"
+    const local = (session.user.email ?? '').split('@')[0].split(/[._\-0-9]/)[0]
+    return local ? local.charAt(0).toUpperCase() + local.slice(1) : null
+  }, [session, currentStudent])
 
   // ── Lezioni (solo admin, protette dalle policy) ──
 
@@ -583,7 +594,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addSlot, updateSlot, deleteSlot, duplicateSlot,
       addBooking, deleteBooking, addToWaitlist, removeFromWaitlist,
       isAdminLoggedIn, adminLogin, adminSignUp, adminLogout,
-      currentStudent, sessionEmail, studentRegister, studentLogin, studentLogout,
+      currentStudent, sessionEmail, sessionName, studentRegister, studentLogin, studentLogout,
       requestPasswordReset, updatePassword,
       createStudent, updateStudent,
       updateStudentCredits, decrementStudentCredits, incrementStudentCredits,

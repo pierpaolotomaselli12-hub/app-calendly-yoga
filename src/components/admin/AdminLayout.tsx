@@ -4,7 +4,8 @@ import logoFull from '../../assets/logo-full.png'
 import './AdminLayout.css'
 
 export default function AdminLayout() {
-  const { isAdminLoggedIn, adminLogout, loading, slots, waitlist, students, events } = useApp()
+  const { isAdminLoggedIn, adminLogout, loading, slots, waitlist, students, events, sessionName, sessionEmail } = useApp()
+  const adminName = sessionName ?? 'Admin'
   const navigate = useNavigate()
 
   if (loading) return <div className="admin-auth-loading" style={{ padding: 48, textAlign: 'center' }}>Caricamento…</div>
@@ -99,9 +100,9 @@ export default function AdminLayout() {
 
         <div className="sidebar-bottom">
           <div className="sidebar-profile">
-            <div className="sidebar-profile-avatar">LP</div>
+            <div className="sidebar-profile-avatar">{adminName.charAt(0).toUpperCase()}</div>
             <div className="sidebar-profile-info">
-              <span className="sidebar-profile-name">Laura P.</span>
+              <span className="sidebar-profile-name" title={sessionEmail ?? undefined}>{adminName}</span>
               <span className="sidebar-profile-role">Amministratore</span>
             </div>
           </div>

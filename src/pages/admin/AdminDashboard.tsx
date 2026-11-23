@@ -66,7 +66,7 @@ const TYPE_COLORS = ['#818569', '#c17f3b', '#8b4a48', '#5c6148', '#b0a897']
 // ── Component ─────────────────────────────────────────
 
 export default function AdminDashboard() {
-  const { slots, waitlist, students } = useApp()
+  const { slots, waitlist, students, sessionName } = useApp()
 
   const todayISO = useMemo(() => toISO(new Date()), [])
 
@@ -162,7 +162,7 @@ export default function AdminDashboard() {
         {/* Greeting */}
         <div className="dash-header">
           <div>
-            <h1 className="dash-greeting">{getGreeting()}, Maestra</h1>
+            <h1 className="dash-greeting">{getGreeting()}{sessionName ? `, ${sessionName}` : ''}</h1>
             <p className="dash-date">{formatDateShort(todayISO)}</p>
           </div>
         </div>
