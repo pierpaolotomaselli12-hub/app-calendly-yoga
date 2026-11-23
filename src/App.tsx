@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AppProvider } from './context/AppContext'
 import AdminLogin from './pages/admin/AdminLogin'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -8,6 +8,8 @@ import AdminBookings from './pages/admin/AdminBookings'
 import AdminEvents from './pages/admin/AdminEvents'
 import AdminLayout from './components/admin/AdminLayout'
 import Home from './pages/public/Home'
+import Landing from './pages/public/Landing'
+import { LESSONS_PATH } from './lib/navigation'
 import BookingPage from './pages/public/BookingPage'
 import EventBookingPage from './pages/public/EventBookingPage'
 import BookingConfirmed from './pages/public/BookingConfirmed'
@@ -20,7 +22,8 @@ function App() {
     <AppProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Landing />} />
+          <Route path={LESSONS_PATH} element={<Home />} />
           <Route path="/book/:slotId" element={<BookingPage />} />
           <Route path="/eventi/:eventId" element={<EventBookingPage />} />
           <Route path="/booking-confirmed" element={<BookingConfirmed />} />
@@ -29,12 +32,14 @@ function App() {
           <Route path="/accedi" element={<StudentLoginPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="slots" element={<AdminSlots />} />
             <Route path="bookings" element={<AdminBookings />} />
             <Route path="students" element={<AdminStudents />} />
             <Route path="events" element={<AdminEvents />} />
           </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AppProvider>

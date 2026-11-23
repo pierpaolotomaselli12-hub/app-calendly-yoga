@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import logoFull from '../../assets/logo-full.png'
 import './AdminLayout.css'
@@ -7,10 +7,7 @@ export default function AdminLayout() {
   const { isAdminLoggedIn, adminLogout, loading, slots, waitlist, students, events } = useApp()
   const navigate = useNavigate()
 
-  if (!isAdminLoggedIn) {
-    navigate('/admin/login', { replace: true })
-    return null
-  }
+  if (!isAdminLoggedIn) return <Navigate to="/admin/login" replace />
 
   function handleLogout() {
     adminLogout()

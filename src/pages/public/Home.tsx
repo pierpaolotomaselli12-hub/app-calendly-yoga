@@ -294,7 +294,7 @@ export default function Home() {
       <div className="home-sticky-top">
         <header className="home-header">
           <div className="home-header-left">
-            <img src={logoFull} alt="Laura Pagnossin" className="home-logo-img" />
+            <Link to="/" aria-label="Laura Pagnossin, torna alla home"><img src={logoFull} alt="Laura Pagnossin" className="home-logo-img" /></Link>
           </div>
           {currentStudent === null ? (
             <div className="home-header-auth">
@@ -485,7 +485,7 @@ export default function Home() {
                               )}
                             </>
                           ) : currentStudent === null ? (
-                            <button className="btn-primary pratica-btn-main" onClick={() => navigate('/accedi')}>
+                            <button className="btn-primary pratica-btn-main" onClick={() => navigate('/accedi', { state: { from: `/book/${nextPractice.id}` } })}>
                               Accedi per prenotare
                             </button>
                           ) : currentStudent.lessonCredits === 0 ? (
@@ -543,7 +543,7 @@ export default function Home() {
                               ) : isFull ? (
                                 <button className="btn-waitlist event-side-btn" onClick={() => navigate(`/eventi/${ev.id}`)}>Attesa</button>
                               ) : currentStudent === null ? (
-                                <button className="btn-primary event-side-btn" onClick={() => navigate('/accedi')}>Prenota</button>
+                                <button className="btn-primary event-side-btn" onClick={() => navigate('/accedi', { state: { from: `/eventi/${ev.id}` } })}>Prenota</button>
                               ) : (
                                 <button className="btn-primary event-side-btn" onClick={() => navigate(`/eventi/${ev.id}`)}>Prenota</button>
                               )}
@@ -708,7 +708,7 @@ export default function Home() {
                         if (isFull) {
                           bookBtn = <button className="btn-waitlist slot-card__btn" onClick={() => navigate(`/book/${slot.id}`)}>Lista d&apos;attesa</button>
                         } else if (currentStudent === null) {
-                          bookBtn = <button className="btn-primary slot-card__btn" onClick={() => navigate('/accedi')}>Prenota</button>
+                          bookBtn = <button className="btn-primary slot-card__btn" onClick={() => navigate('/accedi', { state: { from: `/book/${slot.id}` } })}>Prenota</button>
                         } else if (currentStudent.lessonCredits === 0) {
                           bookBtn = <button className="btn-no-credits slot-card__btn" disabled>Nessun credito</button>
                         } else {

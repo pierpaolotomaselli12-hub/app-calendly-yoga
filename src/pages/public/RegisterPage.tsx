@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { LESSONS_PATH, useReturnTo } from '../../lib/navigation'
 import { useApp } from '../../context/AppContext'
 import logoFull from '../../assets/logo-full.png'
 import './RegisterPage.css'
@@ -15,6 +16,8 @@ interface FormErrors {
 export default function RegisterPage() {
   const { studentRegister, studentLogin } = useApp()
   const navigate = useNavigate()
+  const location = useLocation()
+  const returnTo = useReturnTo()
 
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -60,13 +63,13 @@ export default function RegisterPage() {
       return
     }
     await studentLogin(email.trim())
-    navigate('/')
+    navigate(returnTo, { replace: true })
   }
 
   return (
     <div className="register-page">
       <div className="register-inner">
-        <Link to="/" className="register-back">← Torna alle lezioni</Link>
+        <Link to={LESSONS_PATH} className="register-back">← Torna alle lezioni</Link>
 
         <img src={logoFull} alt="Laura Pagnossin" className="auth-logo" />
         <div className="register-card">
@@ -134,7 +137,7 @@ export default function RegisterPage() {
           </form>
 
           <p className="register-login-link">
-            Hai già un account? <Link to="/accedi">Accedi</Link>
+            Hai già un account? <Link to="/accedi" state={location.state}>Accedi</Link>
           </p>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { LESSONS_PATH, useReturnTo } from '../../lib/navigation'
 import { useApp } from '../../context/AppContext'
 import logoFull from '../../assets/logo-full.png'
 import './StudentLoginPage.css'
@@ -7,6 +8,8 @@ import './StudentLoginPage.css'
 export default function StudentLoginPage() {
   const { studentLogin } = useApp()
   const navigate = useNavigate()
+  const location = useLocation()
+  const returnTo = useReturnTo()
 
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -22,13 +25,13 @@ export default function StudentLoginPage() {
       setSubmitting(false)
       return
     }
-    navigate('/')
+    navigate(returnTo, { replace: true })
   }
 
   return (
     <div className="student-login-page">
       <div className="student-login-inner">
-        <Link to="/" className="student-login-back">← Torna alle lezioni</Link>
+        <Link to={LESSONS_PATH} className="student-login-back">← Torna alle lezioni</Link>
 
         <img src={logoFull} alt="Laura Pagnossin" className="auth-logo" />
         <div className="student-login-card">
@@ -58,7 +61,7 @@ export default function StudentLoginPage() {
           </form>
 
           <p className="student-login-register-link">
-            Non hai ancora un account? <Link to="/registrati">Registrati</Link>
+            Non hai ancora un account? <Link to="/registrati" state={location.state}>Registrati</Link>
           </p>
         </div>
       </div>

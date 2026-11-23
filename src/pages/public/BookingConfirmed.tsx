@@ -1,4 +1,5 @@
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
+import { LESSONS_PATH } from '../../lib/navigation'
 import logoFull from '../../assets/logo-full.png'
 import './BookingConfirmed.css'
 
@@ -24,7 +25,7 @@ export default function BookingConfirmed() {
           </p>
           <button
             className="btn-primary confirmed-btn"
-            onClick={() => navigate('/')}
+            onClick={() => navigate(LESSONS_PATH)}
           >
             Torna alle lezioni
           </button>
@@ -49,7 +50,7 @@ export default function BookingConfirmed() {
         </p>
         <button
           className="btn-primary confirmed-btn"
-          onClick={() => navigate('/')}
+          onClick={() => navigate(LESSONS_PATH)}
         >
           Torna alle lezioni
         </button>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useParams, useNavigate, Link, Navigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation, Link, Navigate } from 'react-router-dom'
+import { LESSONS_PATH } from '../../lib/navigation'
 import { useApp } from '../../context/AppContext'
 import { supabase } from '../../lib/supabase'
 import type { YogaEvent } from '../../types'
@@ -81,7 +82,7 @@ function BookingForm({ event }: { event: YogaEvent }) {
   return (
     <div className="booking-page">
       <div className="booking-page__inner">
-        <Link to="/" className="booking-back">← Torna agli eventi</Link>
+        <Link to={LESSONS_PATH} className="booking-back">← Torna agli eventi</Link>
         <div className="booking-summary">
           {event.imageUrl && <img src={event.imageUrl} className="booking-cover-img" alt={event.title} />}
           <div className="booking-summary__top">
@@ -184,7 +185,7 @@ function WaitlistForm({ event }: { event: YogaEvent }) {
   return (
     <div className="booking-page">
       <div className="booking-page__inner">
-        <Link to="/" className="booking-back">← Torna agli eventi</Link>
+        <Link to={LESSONS_PATH} className="booking-back">← Torna agli eventi</Link>
         <div className="booking-summary">
           {event.imageUrl && <img src={event.imageUrl} className="booking-cover-img" alt={event.title} />}
           <div className="booking-summary__top"><span className="badge badge--type">Evento</span></div>
@@ -228,16 +229,17 @@ function WaitlistForm({ event }: { event: YogaEvent }) {
 
 export default function EventBookingPage() {
   const { eventId } = useParams<{ eventId: string }>()
+  const location = useLocation()
   const { events, loading, currentStudent } = useApp()
 
-  if (!currentStudent) return <Navigate to="/accedi" replace />
+  if (!currentStudent) return <Navigate to="/accedi" replace state={{ from: location.pathname }} />
   if (loading) return <div className="booking-unavailable"><p>Caricamento...</p></div>
 
   const event = events.find(e => e.id === eventId)
   if (!event) return (
     <div className="booking-unavailable">
       <p>Evento non disponibile.</p>
-      <Link to="/">← Torna alla home</Link>
+      <Link to={LESSONS_PATH}>← Torna alle lezioni</Link>
     </div>
   )
 
@@ -246,7 +248,7 @@ export default function EventBookingPage() {
   if (new Date(y, m - 1, d) < today) return (
     <div className="booking-unavailable">
       <p>Questo evento è già passato.</p>
-      <Link to="/">← Torna alla home</Link>
+      <Link to={LESSONS_PATH}>← Torna alle lezioni</Link>
     </div>
   )
 

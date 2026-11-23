@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { LESSONS_PATH } from '../../lib/navigation'
 import { useApp } from '../../context/AppContext'
 import { supabase } from '../../lib/supabase'
 import type { Slot, Booking } from '../../types'
@@ -76,7 +77,7 @@ export default function CancelPage() {
   return (
     <div className="cancel-page">
       <div className="cancel-inner">
-        <Link to="/" className="cancel-back">← Torna alle lezioni</Link>
+        <Link to={LESSONS_PATH} className="cancel-back">← Torna alle lezioni</Link>
         <h1 className="cancel-title">Disdici una prenotazione</h1>
         <form className="cancel-form" onSubmit={handleSearch}>
           <input

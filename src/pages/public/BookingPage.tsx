@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useParams, useNavigate, Link, Navigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation, Link, Navigate } from 'react-router-dom'
+import { LESSONS_PATH } from '../../lib/navigation'
 import { useApp } from '../../context/AppContext'
 import { supabase } from '../../lib/supabase'
 import type { Slot } from '../../types'
@@ -120,7 +121,7 @@ function BookingForm({ slot, currentStudent, decrementStudentCredits }: { slot: 
   return (
     <div className="booking-page">
       <div className="booking-page__inner">
-        <Link to="/" className="booking-back">← Torna alle lezioni</Link>
+        <Link to={LESSONS_PATH} className="booking-back">← Torna alle lezioni</Link>
 
         <div className="booking-layout">
           <LessonDetail slot={slot} />
@@ -206,7 +207,7 @@ function BookingForm({ slot, currentStudent, decrementStudentCredits }: { slot: 
               </div>
 
               <div className="booking-actions">
-                <button type="button" className="btn-annulla" onClick={() => navigate('/')}>
+                <button type="button" className="btn-annulla" onClick={() => navigate(LESSONS_PATH)}>
                   Annulla
                 </button>
                 <button type="submit" className="btn-primary booking-submit" disabled={submitting}>
@@ -269,7 +270,7 @@ function WaitlistForm({ slot }: { slot: Slot }) {
   return (
     <div className="booking-page">
       <div className="booking-page__inner">
-        <Link to="/" className="booking-back">← Torna alle lezioni</Link>
+        <Link to={LESSONS_PATH} className="booking-back">← Torna alle lezioni</Link>
 
         <div className="booking-layout">
           <LessonDetail slot={slot} />
@@ -327,7 +328,7 @@ function WaitlistForm({ slot }: { slot: Slot }) {
               </div>
 
               <div className="booking-actions">
-                <button type="button" className="btn-annulla" onClick={() => navigate('/')}>Annulla</button>
+                <button type="button" className="btn-annulla" onClick={() => navigate(LESSONS_PATH)}>Annulla</button>
                 <button type="submit" className="btn-primary booking-submit" disabled={submitting}>
                   {submitting ? 'Iscrizione in corso…' : 'Iscriviti alla lista d\'attesa →'}
                 </button>
@@ -346,12 +347,13 @@ function WaitlistForm({ slot }: { slot: Slot }) {
 
 export default function BookingPage() {
   const { slotId } = useParams<{ slotId: string }>()
+  const location = useLocation()
   const { slots, loading, currentStudent, decrementStudentCredits } = useApp()
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
-  if (!currentStudent) return <Navigate to="/accedi" replace />
+  if (!currentStudent) return <Navigate to="/accedi" replace state={{ from: location.pathname }} />
 
   if (loading) {
     return <div className="booking-unavailable"><p>Caricamento...</p></div>
@@ -362,7 +364,7 @@ export default function BookingPage() {
     return (
       <div className="booking-unavailable">
         <p>Lezione non disponibile.</p>
-        <Link to="/">← Torna alle lezioni</Link>
+        <Link to={LESSONS_PATH}>← Torna alle lezioni</Link>
       </div>
     )
   }
@@ -372,7 +374,7 @@ export default function BookingPage() {
     return (
       <div className="booking-unavailable">
         <p>Questa lezione è già passata.</p>
-        <Link to="/">← Torna alle lezioni</Link>
+        <Link to={LESSONS_PATH}>← Torna alle lezioni</Link>
       </div>
     )
   }
@@ -384,7 +386,7 @@ export default function BookingPage() {
         <p style={{ fontSize: '14px', color: 'var(--color-text-light)' }}>
           Contatta l&apos;insegnante per acquistare un nuovo pacchetto.
         </p>
-        <Link to="/">← Torna alle lezioni</Link>
+        <Link to={LESSONS_PATH}>← Torna alle lezioni</Link>
       </div>
     )
   }
