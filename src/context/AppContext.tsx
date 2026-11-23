@@ -138,6 +138,7 @@ function mapStudent(raw: Record<string, unknown>): Student {
     lessonCredits: raw.lesson_credits as number,
     createdAt: raw.created_at as string,
     userId: (raw.user_id as string | null) ?? null,
+    welcomeNotifiedAt: (raw.welcome_notified_at as string | null) ?? null,
   }
 }
 
@@ -303,6 +304,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [students, userId],
   )
   const sessionEmail = session?.user.email ?? null
+
+  // Avviso a Laura per un nuovo studente: la funzione send-email legge i dati dal database
+  // e manda l'email una volta sola (welcome_notified_at); qui basta chiamarla una volta per sessione.
+  const welcomeRequested = useRef<string | null>(null)
+  useEffect(() => {
+    if (loading || isAdminLoggedIn || !currentStudent || currentStudent.welcomeNotifiedAt) return
+    if (welcomeRequested.current === currentStudent.id) return
+    welcomeRequested.current = currentStudent.id
+    void supabase.functions.invoke('send-email', { body: { type: 'new_student' } }).then(() => fetchAll())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, isAdminLoggedIn, currentStudent?.id, currentStudent?.welcomeNotifiedAt])
   const sessionName = useMemo<string | null>(() => {
     if (!session) return null
     const meta = (session.user.user_metadata ?? {}) as { first_name?: string }
@@ -509,6 +521,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (existing) return 'email_taken'
     await supabase.from('students').insert({
       first_name: data.firstName, last_name: data.lastName, email: data.email.trim().toLowerCase(), phone: data.phone,
+      // creato dall'admin: l'avviso a Laura parte già dalla dashboard (tipo welcome)
+      welcome_notified_at: new Date().toISOString(),
     })
     await fetchAll()
     return 'ok'

@@ -8,6 +8,8 @@ export interface Student {
   createdAt: string
   /** utente Supabase Auth collegato (null se non si è ancora registrato) */
   userId?: string | null
+  /** quando è partito l'avviso a Laura per la nuova registrazione */
+  welcomeNotifiedAt?: string | null
 }
 
 export interface Booking {

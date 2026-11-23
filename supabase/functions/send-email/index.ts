@@ -3,9 +3,26 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
 const TEACHER_EMAIL = 'laura.pagnossin152@gmail.com'
 const FROM = 'Laura Pagnossin <lezioni@laurapagnossin.it>'
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
+// chiave di servizio fornita in automatico da Supabase alle Edge Functions: serve per leggere/segnare il profilo
+const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+const JSON_HEADERS = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+
+/** Chiamata REST al database con la chiave di servizio (scavalca le RLS: usare solo con filtri precisi). */
+async function db(path: string, init: RequestInit = {}) {
+  return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...init,
+    headers: {
+      apikey: SERVICE_KEY,
+      Authorization: `Bearer ${SERVICE_KEY}`,
+      'Content-Type': 'application/json',
+      ...(init.headers ?? {}),
+    },
+  })
+}
 
 interface EmailPayload {
-  type: 'booking' | 'waitlist' | 'cancellation' | 'welcome'
+  type: 'booking' | 'waitlist' | 'cancellation' | 'welcome' | 'new_student'
   studentEmail: string
   studentName: string
   slotTitle?: string
@@ -61,10 +78,10 @@ serve(async (req) => {
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       })
     }
-    const user = await userRes.json() as { email?: string }
+    const user = await userRes.json() as { id?: string; email?: string }
 
     const payload: EmailPayload = await req.json()
-    if (!['booking', 'waitlist', 'cancellation', 'welcome'].includes(payload.type)) {
+    if (!['booking', 'waitlist', 'cancellation', 'welcome', 'new_student'].includes(payload.type)) {
       return new Response(JSON.stringify({ error: 'bad_request' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
@@ -80,10 +97,50 @@ serve(async (req) => {
     const slotTime = esc(payload.slotTime)
     const slotDuration = Number(payload.slotDuration) || 0
 
-    if (type === 'welcome') {
+    if (type === 'new_student') {
+      // Avviso a Laura quando uno studente si registra da solo. Dati presi dal database,
+      // non dal browser. Il PATCH con filtro "welcome_notified_at is null" segna l'avviso
+      // in modo atomico: se due richieste arrivano insieme, solo una trova la riga.
+      if (!user.id) return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401, headers: JSON_HEADERS })
+      const mark = await db(
+        `students?user_id=eq.${user.id}&welcome_notified_at=is.null&select=first_name,last_name,email,phone`,
+        { method: 'PATCH', headers: { Prefer: 'return=representation' }, body: JSON.stringify({ welcome_notified_at: new Date().toISOString() }) },
+      )
+      const rows = mark.ok ? await mark.json() as { first_name: string; last_name: string; email: string; phone: string }[] : []
+      if (rows.length === 0) {
+        return new Response(JSON.stringify({ ok: true, skipped: true }), { headers: JSON_HEADERS })
+      }
+      const st = rows[0]
+      const name = esc(`${st.first_name} ${st.last_name}`)
+      try {
+        await sendEmail(
+          TEACHER_EMAIL,
+          `Nuovo studente registrato: ${st.first_name} ${st.last_name}`.slice(0, 150),
+          `
+            <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2c2c2c;">
+              <h2 style="color:#818569;">Nuovo studente registrato</h2>
+              <div style="background:#f5f2ee;padding:20px;margin:24px 0;">
+                <strong>${name}</strong><br/>
+                Email: ${esc(st.email)}<br/>
+                Telefono: ${esc(st.phone) || '-'}
+              </div>
+              <p style="color:#6b6b6b;font-size:14px;">Puoi caricare i crediti dalla sezione Studenti.</p>
+            </div>
+          `,
+        )
+      } catch (err) {
+        // invio fallito: tolgo il segno, così riprova al prossimo accesso
+        await db(`students?user_id=eq.${user.id}`, { method: 'PATCH', body: JSON.stringify({ welcome_notified_at: null }) })
+        throw err
+      }
+    } else if (type === 'welcome') {
+      // Studente creato da un admin dalla dashboard: solo gli admin possono usarlo
+      const adm = await db(`admins?user_id=eq.${user.id}&select=user_id`)
+      const isAdmin = adm.ok && (await adm.json() as unknown[]).length > 0
+      if (!isAdmin) return new Response(JSON.stringify({ error: 'forbidden' }), { status: 403, headers: JSON_HEADERS })
       await sendEmail(
         TEACHER_EMAIL,
-        `Nuovo studente registrato – ${studentName}`,
+        `Nuovo studente registrato: ${payload.studentName ?? ''}`.slice(0, 150),
         `
           <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2c2c2c;">
             <h2 style="color:#818569;">Nuovo studente</h2>
@@ -92,7 +149,7 @@ serve(async (req) => {
               <strong>${studentName}</strong><br/>
               Email: ${studentEmail}
             </div>
-            <p style="color:#6b6b6b;font-size:14px;">Puoi assegnarle un pacchetto dalla sezione Studenti.</p>
+            <p style="color:#6b6b6b;font-size:14px;">Puoi caricare i crediti dalla sezione Studenti.</p>
           </div>
         `
       )
