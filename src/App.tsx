@@ -6,6 +6,7 @@ import AdminSlots from './pages/admin/AdminSlots'
 import AdminStudents from './pages/admin/AdminStudents'
 import AdminBookings from './pages/admin/AdminBookings'
 import AdminEvents from './pages/admin/AdminEvents'
+import AdminAdmins from './pages/admin/AdminAdmins'
 import AdminLayout from './components/admin/AdminLayout'
 import Home from './pages/public/Home'
 import Landing from './pages/public/Landing'
@@ -40,6 +41,7 @@ function App() {
             <Route path="bookings" element={<AdminBookings />} />
             <Route path="students" element={<AdminStudents />} />
             <Route path="events" element={<AdminEvents />} />
+            <Route path="amministratori" element={<AdminAdmins />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -95,6 +95,17 @@ export default function AdminLayout() {
               Studenti
               {studentsCount > 0 && <span className="sidebar-badge">{studentsCount}</span>}
             </NavLink>
+
+            <NavLink
+              to="/admin/amministratori"
+              className={({ isActive }) => isActive ? 'sidebar-link sidebar-link--active' : 'sidebar-link'}
+            >
+              <svg className="sidebar-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <circle cx="7" cy="10" r="3.5" />
+                <path d="M10.5 10H18M15 10v3M17.5 10v2" />
+              </svg>
+              Amministratori
+            </NavLink>
           </nav>
         </div>
 

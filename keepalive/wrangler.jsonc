@@ -1,0 +1,20 @@
+// Chiave PUBBLICA (publishable) di Supabase: è già nel JavaScript del sito, non è un segreto.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "laurapagnossin-supabase-keepalive",
+  "main": "src/index.js",
+  "compatibility_date": "2026-06-10",
+  "workers_dev": false,
+  "triggers": {
+    "crons": [
+      "0 6 * * *"
+    ]
+  },
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "SUPABASE_URL": "https://hzusdnugrxzbkraqiwus.supabase.co",
+    "SUPABASE_ANON_KEY": "sb_publishable__lk56DEu_Sp3eK1t1ovJ4Q_0SJio48W"
+  }
+}

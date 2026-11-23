@@ -94,7 +94,7 @@ export default function StudentLoginPage() {
           </form>
 
           <p className="student-login-register-link">
-            Non hai ancora un account? <Link to="/registrati" state={location.state}>Registrati</Link>
+            Prima volta? <Link to="/registrati" state={location.state}>Crea il tuo account</Link>
           </p>
         </div>
       </div>

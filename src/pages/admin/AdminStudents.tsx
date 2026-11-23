@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 import type { Student, Slot } from '../../types'
 import { supabase } from '../../lib/supabase'
@@ -253,6 +254,7 @@ export default function AdminStudents() {
           </p>
         </div>
         <div className="st-header-actions">
+          <Link to="/admin/amministratori" className="btn-esporta">Amministratori</Link>
           <button className="btn-esporta" onClick={() => exportCSV(students)}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M3 12h10M8 2v8M5 7l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
