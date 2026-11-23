@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { LESSONS_PATH, useReturnTo } from '../../lib/navigation'
 import { useApp } from '../../context/AppContext'
@@ -6,7 +6,7 @@ import logoFull from '../../assets/logo-full.png'
 import './StudentLoginPage.css'
 
 export default function StudentLoginPage() {
-  const { studentLogin } = useApp()
+  const { studentLogin, currentStudent, loading } = useApp()
   const navigate = useNavigate()
   const location = useLocation()
   const returnTo = useReturnTo()
@@ -15,6 +15,11 @@ export default function StudentLoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  // Arrivo dal link di conferma email (sessione già attiva): si entra direttamente
+  useEffect(() => {
+    if (!loading && currentStudent) navigate(returnTo, { replace: true })
+  }, [loading, currentStudent, navigate, returnTo])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -26,6 +31,10 @@ export default function StudentLoginPage() {
     setSubmitting(true)
     const result = await studentLogin(email.trim(), password)
     setSubmitting(false)
+    if (result === 'not_confirmed') {
+      setError("Il tuo account non è ancora attivo: apri il link che ti ho mandato via email al momento della registrazione.")
+      return
+    }
     if (result === 'invalid') {
       setPassword('')
       setError('Email o password non corrette. Se non hai ancora creato la password, registrati con la stessa email: ritrovi i tuoi crediti.')
@@ -81,6 +90,7 @@ export default function StudentLoginPage() {
             <button type="submit" className="btn-primary student-login-submit" disabled={submitting}>
               {submitting ? 'Accesso...' : 'Accedi'}
             </button>
+            <p className="student-login-register-link"><Link to="/reimposta-password">Password dimenticata?</Link></p>
           </form>
 
           <p className="student-login-register-link">

@@ -32,7 +32,9 @@ export default function AdminLogin() {
         kind: 'error',
         text: result === 'not_admin'
           ? "Questo account non ha ancora l'accesso all'area riservata."
-          : 'Email o password non corrette.',
+          : result === 'not_confirmed'
+            ? "Prima conferma l'email: apri il link che ti è arrivato quando hai creato la password."
+            : 'Email o password non corrette.',
       })
       return
     }
@@ -44,7 +46,10 @@ export default function AdminLogin() {
     const result = await adminSignUp(email, password)
     setBusy(false)
     setPassword('')
-    if (result === 'ok') {
+    if (result === 'check_email') {
+      setMode('login')
+      setMessage({ kind: 'info', text: "Ti è arrivata un'email: apri il link per confermare l'indirizzo, poi accedi da qui." })
+    } else if (result === 'ok') {
       setMode('login')
       setMessage({ kind: 'info', text: "Password creata. Quando l'accesso all'area riservata è attivo, entra da qui con email e password." })
     } else if (result === 'email_taken') {
@@ -93,6 +98,7 @@ export default function AdminLogin() {
           >
             {mode === 'login' ? 'Primo accesso? Crea la password' : 'Hai già la password? Accedi'}
           </button>
+          <a className="login-switch" href="/reimposta-password">Password dimenticata?</a>
         </form>
       </div>
     </div>

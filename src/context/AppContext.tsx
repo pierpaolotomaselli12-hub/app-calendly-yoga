@@ -3,8 +3,8 @@ import type { Session } from '@supabase/supabase-js'
 import type { Slot, Booking, WaitlistEntry, Student, YogaEvent, EventBooking, EventWaitlistEntry, EventFormData } from '../types'
 import { supabase } from '../lib/supabase'
 
-export type LoginResult = 'ok' | 'invalid' | 'no_profile' | 'not_admin'
-export type RegisterResult = 'ok' | 'email_taken' | 'weak_password' | 'invalid_email' | 'error'
+export type LoginResult = 'ok' | 'invalid' | 'no_profile' | 'not_admin' | 'not_confirmed'
+export type RegisterResult = 'ok' | 'check_email' | 'email_taken' | 'weak_password' | 'invalid_email' | 'error'
 
 interface AppContextType {
   slots: Slot[]
@@ -31,6 +31,8 @@ interface AppContextType {
   studentRegister: (data: { firstName: string; lastName: string; email: string; phone: string; password: string }) => Promise<RegisterResult>
   studentLogin: (email: string, password: string) => Promise<LoginResult>
   studentLogout: () => Promise<void>
+  requestPasswordReset: (email: string) => Promise<boolean>
+  updatePassword: (password: string) => Promise<boolean>
   createStudent: (data: { firstName: string; lastName: string; email: string; phone: string }) => Promise<'ok' | 'email_taken'>
   updateStudent: (id: string, data: { firstName: string; lastName: string; email: string; phone: string }) => Promise<void>
   updateStudentCredits: (studentId: string, credits: number) => Promise<void>
@@ -384,7 +386,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   async function adminLogin(email: string, password: string): Promise<LoginResult> {
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
-    if (error) return 'invalid'
+    if (error) return error.message.toLowerCase().includes('not confirmed') ? 'not_confirmed' : 'invalid'
     const { data } = await supabase.rpc('is_admin')
     if (data !== true) {
       await supabase.auth.signOut()
@@ -396,8 +398,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   async function adminSignUp(email: string, password: string): Promise<RegisterResult> {
-    const { error } = await supabase.auth.signUp({ email: email.trim(), password })
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim(), password,
+      options: { emailRedirectTo: `${window.location.origin}/admin/login` },
+    })
     if (error) return mapRegisterError(error.message)
+    if (!data.session) return 'check_email'
     await supabase.auth.signOut() // l'accesso admin va abilitato prima di poter entrare
     return 'ok'
   }
@@ -410,16 +416,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   async function studentRegister(data: { firstName: string; lastName: string; email: string; phone: string; password: string }): Promise<RegisterResult> {
     const email = data.email.trim()
-    let { error } = await supabase.auth.signUp({ email, password: data.password })
-    if (error && mapRegisterError(error.message) === 'email_taken') {
-      // L'account esiste già (es. registrazione interrotta): proviamo ad accedere con la stessa password
-      const res = await supabase.auth.signInWithPassword({ email, password: data.password })
-      if (res.error) return 'email_taken'
-      error = null
-    }
+    const { data: res, error } = await supabase.auth.signUp({
+      email,
+      password: data.password,
+      options: {
+        // il profilo studente lo crea il database alla conferma dell'email (trigger on_auth_user_confirmed)
+        data: { first_name: data.firstName.trim(), last_name: data.lastName.trim(), phone: data.phone.trim() },
+        emailRedirectTo: `${window.location.origin}/accedi`,
+      },
+    })
     if (error) return mapRegisterError(error.message)
-    const { data: sess } = await supabase.auth.getSession()
-    if (!sess.session) return 'error' // conferma email attiva sul progetto: non dovrebbe succedere
+    // Supabase non rivela se l'email esiste già: in quel caso restituisce un utente senza identità
+    if (res.user && res.user.identities && res.user.identities.length === 0) return 'email_taken'
+    if (!res.session) return 'check_email'
+    // conferma email disattivata sul progetto: profilo creato subito
     const { error: regError } = await supabase.rpc('register_student', {
       p_first_name: data.firstName.trim(), p_last_name: data.lastName.trim(), p_phone: data.phone.trim(),
     })
@@ -433,7 +443,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   async function studentLogin(email: string, password: string): Promise<LoginResult> {
     const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
-    if (error || !data.user) return 'invalid'
+    if (error) return error.message.toLowerCase().includes('not confirmed') ? 'not_confirmed' : 'invalid'
+    if (!data.user) return 'invalid'
     const { data: row } = await supabase.from('students').select('id').eq('user_id', data.user.id).maybeSingle()
     await fetchAll()
     return row ? 'ok' : 'no_profile'
@@ -441,6 +452,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   async function studentLogout() {
     await supabase.auth.signOut()
+  }
+
+  async function requestPasswordReset(email: string): Promise<boolean> {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reimposta-password`,
+    })
+    return !error
+  }
+
+  async function updatePassword(password: string): Promise<boolean> {
+    const { error } = await supabase.auth.updateUser({ password })
+    return !error
   }
 
   // ── Crediti: modificabili solo dall'admin; per lo studente li gestiscono le funzioni del database ──
@@ -561,6 +584,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addBooking, deleteBooking, addToWaitlist, removeFromWaitlist,
       isAdminLoggedIn, adminLogin, adminSignUp, adminLogout,
       currentStudent, sessionEmail, studentRegister, studentLogin, studentLogout,
+      requestPasswordReset, updatePassword,
       createStudent, updateStudent,
       updateStudentCredits, decrementStudentCredits, incrementStudentCredits,
       addEvent, updateEvent, deleteEvent,

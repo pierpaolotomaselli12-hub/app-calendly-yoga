@@ -112,3 +112,12 @@
     padding: 32px 16px 56px;
   }
 }
+
+.student-login-info-banner {
+  background: #eef0e6;
+  color: var(--color-green-dark);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.45;
+}

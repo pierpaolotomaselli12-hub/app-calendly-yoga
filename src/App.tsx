@@ -16,6 +16,7 @@ import BookingConfirmed from './pages/public/BookingConfirmed'
 import CancelPage from './pages/public/CancelPage'
 import RegisterPage from './pages/public/RegisterPage'
 import StudentLoginPage from './pages/public/StudentLoginPage'
+import ResetPasswordPage from './pages/public/ResetPasswordPage'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/cancella" element={<CancelPage />} />
           <Route path="/registrati" element={<RegisterPage />} />
           <Route path="/accedi" element={<StudentLoginPage />} />
+          <Route path="/reimposta-password" element={<ResetPasswordPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Navigate to="dashboard" replace />} />

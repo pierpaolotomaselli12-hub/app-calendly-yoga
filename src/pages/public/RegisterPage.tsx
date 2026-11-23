@@ -27,6 +27,7 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState('')
   const [errors, setErrors] = useState<FormErrors>({})
   const [submitting, setSubmitting] = useState(false)
+  const [sentTo, setSentTo] = useState<string | null>(null)
 
   function validate(): FormErrors {
     const errs: FormErrors = {}
@@ -66,6 +67,10 @@ export default function RegisterPage() {
       navigate(returnTo, { replace: true })
       return
     }
+    if (result === 'check_email') {
+      setSentTo(email.trim())
+      return
+    }
     setPassword('')
     const messages: Record<string, string> = {
       email_taken: 'Questa email ha già un account. Prova ad accedere con la tua password.',
@@ -82,6 +87,17 @@ export default function RegisterPage() {
         <Link to={LESSONS_PATH} className="register-back">← Torna alle lezioni</Link>
 
         <img src={logoFull} alt="Laura Pagnossin" className="auth-logo" />
+        {sentTo ? (
+        <div className="register-card">
+          <h1 className="register-title">Controlla la tua email</h1>
+          <p className="register-subtitle">
+            Ti ho mandato un'email a <strong>{sentTo}</strong>. Apri il link che trovi dentro per attivare l'account,
+            poi accedi con email e password.
+          </p>
+          <p className="register-subtitle">Non la trovi? Guarda anche nello spam o nelle promozioni.</p>
+          <p className="register-login-link"><Link to="/accedi" state={location.state}>Vai ad Accedi</Link></p>
+        </div>
+        ) : (
         <div className="register-card">
           <h1 className="register-title">Crea il tuo account</h1>
           <p className="register-subtitle">Registrati per prenotare le lezioni</p>
@@ -163,6 +179,7 @@ export default function RegisterPage() {
             Hai già un account? <Link to="/accedi" state={location.state}>Accedi</Link>
           </p>
         </div>
+        )}
       </div>
     </div>
   )
