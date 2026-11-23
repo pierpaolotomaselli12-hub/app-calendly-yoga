@@ -159,28 +159,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('yoga_admin', String(isAdminLoggedIn))
   }, [isAdminLoggedIn])
 
-  async function fetchAll(): Promise<Student[]> {
-    setLoading(true)
+  async function fetchAll(isInitial = false): Promise<Student[]> {
+    if (isInitial) setLoading(true)
 
-    const { data: slotsData } = await supabase
-      .from('slots')
-      .select('*, bookings(*)')
-      .order('date', { ascending: true })
-
-    const { data: waitlistData } = await supabase
-      .from('waitlist')
-      .select('*')
-      .order('created_at', { ascending: true })
-
-    const { data: studentsData } = await supabase
-      .from('students')
-      .select('*')
-      .order('created_at', { ascending: true })
-
-    const { data: eventsData } = await supabase
-      .from('events')
-      .select('*, event_bookings(*), event_waitlist(*)')
-      .order('date', { ascending: true })
+    const [
+      { data: slotsData },
+      { data: waitlistData },
+      { data: studentsData },
+      { data: eventsData },
+    ] = await Promise.all([
+      supabase.from('slots').select('*, bookings(*)').order('date', { ascending: true }),
+      supabase.from('waitlist').select('*').order('created_at', { ascending: true }),
+      supabase.from('students').select('*').order('created_at', { ascending: true }),
+      supabase.from('events').select('*, event_bookings(*), event_waitlist(*)').order('date', { ascending: true }),
+    ])
 
     setSlots((slotsData ?? []).map(s => mapSlot(s as Record<string, unknown>)))
     setWaitlist((waitlistData ?? []).map(w => mapWaitlistEntry(w as Record<string, unknown>)))
@@ -200,7 +192,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    void fetchAll().then(fresh => {
+    void fetchAll(true).then(fresh => {
       setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
     })
   }, [])
