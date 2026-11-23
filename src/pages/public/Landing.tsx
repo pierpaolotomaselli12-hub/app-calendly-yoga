@@ -445,15 +445,10 @@ export default function Landing() {
             <Link to="/" className="lp-brand" aria-label="Laura Pagnossin, home"><img src={logoFull} alt="Laura Pagnossin" /></Link>
             <div className="lp-nav__links"><a href="#orari">Orari</a><a href="#lezioni">Le lezioni</a><a href="#laura">Chi sono</a><a href="#dove">Dove</a></div>
             <div className="lp-nav__cta">
-              {currentStudent ? (
-                <Link to={LESSONS_PATH} className="lp-login" aria-label="Le mie lezioni">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M4 10h16M9 3v4M15 3v4" /></svg><span className="lp-t">Le mie lezioni</span>
-                </Link>
-              ) : (
-                <Link to="/accedi" className="lp-login" aria-label="Accedi">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" /></svg><span className="lp-t">Accedi</span>
-                </Link>
-              )}
+              {/* Chi ha già la sessione aperta salta il login e va dritto all'area lezioni */}
+              <Link to={currentStudent ? LESSONS_PATH : '/accedi'} className="lp-login" aria-label="Accedi">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" /></svg><span className="lp-t">Accedi</span>
+              </Link>
               <a className="lp-btn lp-btn--sm" href={waLink()} target="_blank" rel="noopener noreferrer" onClick={trackContact} aria-label="Prenota la prova su WhatsApp">
                 <span className="lp-btn__ico"><WaIcon /></span><span className="lp-t">Prenota la prova</span>
               </a>
