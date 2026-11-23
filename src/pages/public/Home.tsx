@@ -136,6 +136,7 @@ export default function Home() {
   const [expandedBooking, setExpandedBooking] = useState<string | null>(null)
   const [cancelConfirm, setCancelConfirm] = useState<string | null>(null)
   const [cancelling, setCancelling] = useState<string | null>(null)
+  const [cancelError, setCancelError] = useState<string | null>(null)
   const [weekStart, setWeekStart] = useState(() => getMonday(new Date()))
   const [showAllSlots, setShowAllSlots] = useState(false)
 
@@ -246,7 +247,14 @@ export default function Home() {
 
   async function handleCancel(slotId: string, bookingId: string, slotTitle: string, slotDate: string, slotTime: string, slotDuration: number) {
     setCancelling(bookingId)
-    await deleteBooking(slotId, bookingId)
+    setCancelError(null)
+    try {
+      await deleteBooking(slotId, bookingId) // per lo studente: cancel_booking, che restituisce anche il credito
+    } catch (err) {
+      setCancelError(err instanceof Error ? err.message : 'Disdetta non riuscita. Riprova.')
+      setCancelling(null)
+      return
+    }
     const student = students.find(s => s.email.toLowerCase() === currentStudent!.email.toLowerCase())
     if (student) await incrementStudentCredits(student.id)
     void supabase.functions.invoke('send-email', {
@@ -268,7 +276,14 @@ export default function Home() {
   async function handleEventCancel(eventId: string, bookingId: string, eventTitle: string, eventDate: string, eventTime: string) {
     const key = `ev:${bookingId}`
     setCancelling(key)
-    await deleteEventBooking(eventId, bookingId)
+    setCancelError(null)
+    try {
+      await deleteEventBooking(eventId, bookingId)
+    } catch (err) {
+      setCancelError(err instanceof Error ? err.message : 'Disdetta non riuscita. Riprova.')
+      setCancelling(null)
+      return
+    }
     void supabase.functions.invoke('send-email', {
       body: {
         type: 'cancellation',
@@ -311,6 +326,12 @@ export default function Home() {
       </div>
 
       <main className="home-main">
+        {cancelError && (
+          <div className="home-error-banner" role="alert">
+            {cancelError}
+            <button type="button" onClick={() => setCancelError(null)} aria-label="Chiudi">×</button>
+          </div>
+        )}
         {loading ? (
           <div className="home-loading">Caricamento lezioni...</div>
         ) : (

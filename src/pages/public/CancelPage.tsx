@@ -24,8 +24,9 @@ function isCancelable(dateStr: string): boolean {
 }
 
 export default function CancelPage() {
-  const { slots, deleteBooking, students, incrementStudentCredits } = useApp()
-  const [searchEmail, setSearchEmail] = useState('')
+  const { slots, deleteBooking, students, incrementStudentCredits, currentStudent, loading } = useApp()
+  const [searchEmail, setSearchEmail] = useState(currentStudent?.email ?? '')
+  const [cancelError, setCancelError] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const [found, setFound] = useState<BookingItem[]>([])
   const [rowStates, setRowStates] = useState<Record<string, RowState>>({})
@@ -55,7 +56,14 @@ export default function CancelPage() {
 
   async function handleConfirm(item: BookingItem) {
     setRowState(item.booking.id, 'cancelling')
-    await deleteBooking(item.slot.id, item.booking.id)
+    setCancelError(null)
+    try {
+      await deleteBooking(item.slot.id, item.booking.id) // per lo studente: cancel_booking, che restituisce anche il credito
+    } catch (err) {
+      setCancelError(err instanceof Error ? err.message : 'Disdetta non riuscita. Riprova.')
+      setRowState(item.booking.id, 'idle')
+      return
+    }
     supabase.functions.invoke('send-email', {
       body: {
         type: 'cancellation',
@@ -74,11 +82,24 @@ export default function CancelPage() {
     setRowState(item.booking.id, 'done')
   }
 
+  if (!loading && !currentStudent) {
+    return (
+      <div className="cancel-page">
+        <div className="cancel-inner">
+          <Link to={LESSONS_PATH} className="cancel-back">← Torna alle lezioni</Link>
+          <h1 className="cancel-title">Disdici una prenotazione</h1>
+          <p className="cancel-empty">Per vedere e disdire le tue prenotazioni <Link to="/accedi" state={{ from: '/cancella' }}>accedi al tuo account</Link>.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="cancel-page">
       <div className="cancel-inner">
         <Link to={LESSONS_PATH} className="cancel-back">← Torna alle lezioni</Link>
         <h1 className="cancel-title">Disdici una prenotazione</h1>
+        {cancelError && <p className="cancel-empty" role="alert">{cancelError}</p>}
         <form className="cancel-form" onSubmit={handleSearch}>
           <input
             className="cancel-email-input"

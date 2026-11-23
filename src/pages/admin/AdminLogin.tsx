@@ -4,20 +4,54 @@ import { useApp } from '../../context/AppContext'
 import logoFull from '../../assets/logo-full.png'
 import './AdminLogin.css'
 
-export default function AdminLogin() {
-  const { adminLogin } = useApp()
-  const navigate = useNavigate()
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(false)
+type Mode = 'login' | 'signup'
 
-  function handleSubmit(e: FormEvent) {
+export default function AdminLogin() {
+  const { adminLogin, adminSignUp } = useApp()
+  const navigate = useNavigate()
+  const [mode, setMode] = useState<Mode>('login')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [message, setMessage] = useState<{ kind: 'error' | 'info'; text: string } | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    const ok = adminLogin(password)
-    if (ok) {
-      navigate('/admin/dashboard')
-    } else {
-      setError(true)
+    setMessage(null)
+    if (!email.trim() || !password) {
+      setMessage({ kind: 'error', text: 'Inserisci email e password.' })
+      return
+    }
+    setBusy(true)
+    if (mode === 'login') {
+      const result = await adminLogin(email, password)
+      setBusy(false)
+      if (result === 'ok') { navigate('/admin/dashboard'); return }
       setPassword('')
+      setMessage({
+        kind: 'error',
+        text: result === 'not_admin'
+          ? "Questo account non ha ancora l'accesso all'area riservata."
+          : 'Email o password non corrette.',
+      })
+      return
+    }
+    if (password.length < 8) {
+      setBusy(false)
+      setMessage({ kind: 'error', text: 'La password deve avere almeno 8 caratteri.' })
+      return
+    }
+    const result = await adminSignUp(email, password)
+    setBusy(false)
+    setPassword('')
+    if (result === 'ok') {
+      setMode('login')
+      setMessage({ kind: 'info', text: "Password creata. Quando l'accesso all'area riservata è attivo, entra da qui con email e password." })
+    } else if (result === 'email_taken') {
+      setMode('login')
+      setMessage({ kind: 'info', text: 'Hai già una password per questa email: accedi.' })
+    } else {
+      setMessage({ kind: 'error', text: 'Non è stato possibile creare la password. Controlla email e password e riprova.' })
     }
   }
 
@@ -25,21 +59,39 @@ export default function AdminLogin() {
     <div className="login-page">
       <div className="login-card">
         <img src={logoFull} alt="Laura Pagnossin" className="login-logo-img" />
-        <p className="login-subtitle">Area Riservata</p>
+        <p className="login-subtitle">{mode === 'login' ? 'Area Riservata' : 'Primo accesso: crea la password'}</p>
         <form onSubmit={handleSubmit} className="login-form">
           <input
-            type="password"
-            value={password}
-            onChange={e => { setPassword(e.target.value); setError(false) }}
-            placeholder="Password"
+            id="admin-email"
+            type="email"
+            autoComplete="username"
+            value={email}
+            onChange={e => { setEmail(e.target.value); setMessage(null) }}
+            placeholder="Email"
             className="login-input"
             autoFocus
           />
-          {error && (
-            <p className="login-error">Password non corretta</p>
+          <input
+            id="admin-password"
+            type="password"
+            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            value={password}
+            onChange={e => { setPassword(e.target.value); setMessage(null) }}
+            placeholder={mode === 'login' ? 'Password' : 'Nuova password (almeno 8 caratteri)'}
+            className="login-input"
+          />
+          {message && (
+            <p className={message.kind === 'error' ? 'login-error' : 'login-info'}>{message.text}</p>
           )}
-          <button type="submit" className="btn-primary login-btn">
-            Accedi
+          <button type="submit" className="btn-primary login-btn" disabled={busy}>
+            {busy ? 'Attendi…' : mode === 'login' ? 'Accedi' : 'Crea password'}
+          </button>
+          <button
+            type="button"
+            className="login-switch"
+            onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setMessage(null) }}
+          >
+            {mode === 'login' ? 'Primo accesso? Crea la password' : 'Hai già la password? Accedi'}
           </button>
         </form>
       </div>

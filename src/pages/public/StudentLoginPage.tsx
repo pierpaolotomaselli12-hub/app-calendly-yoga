@@ -12,17 +12,27 @@ export default function StudentLoginPage() {
   const returnTo = useReturnTo()
 
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    if (!email.trim() || !password) {
+      setError('Inserisci email e password.')
+      return
+    }
     setSubmitting(true)
-    const result = await studentLogin(email.trim())
-    if (!result) {
-      setError('Email non trovata. Sei già registrato/a?')
-      setSubmitting(false)
+    const result = await studentLogin(email.trim(), password)
+    setSubmitting(false)
+    if (result === 'invalid') {
+      setPassword('')
+      setError('Email o password non corrette. Se non hai ancora creato la password, registrati con la stessa email: ritrovi i tuoi crediti.')
+      return
+    }
+    if (result === 'no_profile') {
+      navigate('/registrati', { state: location.state, replace: true })
       return
     }
     navigate(returnTo, { replace: true })
@@ -51,6 +61,19 @@ export default function StudentLoginPage() {
                 value={email}
                 onChange={e => { setEmail(e.target.value); setError(null) }}
                 placeholder="mario.rossi@email.com"
+                autoComplete="username"
+                required
+              />
+            </div>
+
+            <div className="form-field">
+              <label className="form-label" htmlFor="login-password">Password</label>
+              <input
+                id="login-password"
+                type="password"
+                value={password}
+                onChange={e => { setPassword(e.target.value); setError(null) }}
+                autoComplete="current-password"
                 required
               />
             </div>

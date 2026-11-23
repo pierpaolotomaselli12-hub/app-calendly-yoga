@@ -14,6 +14,16 @@ interface EmailPayload {
   slotDuration?: number
 }
 
+function esc(value: unknown): string {
+  return String(value ?? '')
+    .slice(0, 200)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 async function sendEmail(to: string, subject: string, html: string) {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -40,8 +50,35 @@ serve(async (req) => {
   }
 
   try {
+    // Solo utenti loggati: la chiave pubblica (anon) da sola non basta più
+    const authHeader = req.headers.get('Authorization') ?? ''
+    const userRes = await fetch(`${Deno.env.get('SUPABASE_URL')}/auth/v1/user`, {
+      headers: { Authorization: authHeader, apikey: Deno.env.get('SUPABASE_ANON_KEY') ?? '' },
+    })
+    if (!userRes.ok) {
+      return new Response(JSON.stringify({ error: 'unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      })
+    }
+    const user = await userRes.json() as { email?: string }
+
     const payload: EmailPayload = await req.json()
-    const { type, studentEmail, studentName, slotTitle, slotDate, slotTime, slotDuration } = payload
+    if (!['booking', 'waitlist', 'cancellation', 'welcome'].includes(payload.type)) {
+      return new Response(JSON.stringify({ error: 'bad_request' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      })
+    }
+    // Tutti i testi finiscono in HTML: escape obbligatorio. L'email dello studente,
+    // per le azioni dello studente, è quella dell'account loggato (non quella dichiarata).
+    const type = payload.type
+    const studentEmail = esc(type === 'welcome' ? payload.studentEmail : (user.email ?? payload.studentEmail))
+    const studentName = esc(payload.studentName)
+    const slotTitle = esc(payload.slotTitle)
+    const slotDate = esc(payload.slotDate)
+    const slotTime = esc(payload.slotTime)
+    const slotDuration = Number(payload.slotDuration) || 0
 
     if (type === 'welcome') {
       await sendEmail(

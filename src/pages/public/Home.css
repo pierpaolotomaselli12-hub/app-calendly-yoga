@@ -1310,3 +1310,25 @@
     margin-top: 4px;
   }
 }
+
+.home-error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1100px;
+  margin: 16px auto 0;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: #f6e3e1;
+  color: #7a2e27;
+  font-size: 14px;
+}
+.home-error-banner button {
+  background: none;
+  border: 0;
+  font-size: 20px;
+  line-height: 1;
+  color: inherit;
+  cursor: pointer;
+}

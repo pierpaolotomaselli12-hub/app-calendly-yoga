@@ -10,18 +10,20 @@ interface FormErrors {
   lastName?: string
   email?: string
   phone?: string
+  password?: string
   general?: string
 }
 
 export default function RegisterPage() {
-  const { studentRegister, studentLogin } = useApp()
+  const { studentRegister, sessionEmail } = useApp()
   const navigate = useNavigate()
   const location = useLocation()
   const returnTo = useReturnTo()
 
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(sessionEmail ?? '')
+  const [password, setPassword] = useState('')
   const [phone, setPhone] = useState('')
   const [errors, setErrors] = useState<FormErrors>({})
   const [submitting, setSubmitting] = useState(false)
@@ -40,6 +42,7 @@ export default function RegisterPage() {
     } else if (!/^[\d\s+\-().]+$/.test(phone.trim())) {
       errs.phone = 'Inserisci un numero di telefono valido.'
     }
+    if (password.length < 8) errs.password = 'La password deve avere almeno 8 caratteri.'
     return errs
   }
 
@@ -56,14 +59,21 @@ export default function RegisterPage() {
       lastName: lastName.trim(),
       email: email.trim(),
       phone: phone.trim(),
+      password,
     })
-    if (result === 'email_taken') {
-      setErrors({ general: 'Questa email è già registrata. Prova ad accedere.' })
-      setSubmitting(false)
+    setSubmitting(false)
+    if (result === 'ok') {
+      navigate(returnTo, { replace: true })
       return
     }
-    await studentLogin(email.trim())
-    navigate(returnTo, { replace: true })
+    setPassword('')
+    const messages: Record<string, string> = {
+      email_taken: 'Questa email ha già un account. Prova ad accedere con la tua password.',
+      weak_password: 'Scegli una password più sicura (almeno 8 caratteri).',
+      invalid_email: "Controlla l'indirizzo email.",
+      error: 'Registrazione non riuscita. Riprova tra poco.',
+    }
+    setErrors({ general: messages[result] })
   }
 
   return (
@@ -129,6 +139,19 @@ export default function RegisterPage() {
                 placeholder="+39 333 123 4567"
               />
               {errors.phone && <span className="form-error">{errors.phone}</span>}
+            </div>
+
+            <div className="form-field">
+              <label className="form-label" htmlFor="reg-password">Password</label>
+              <input
+                id="reg-password"
+                type="password"
+                value={password}
+                onChange={e => { setPassword(e.target.value); setErrors(prev => ({ ...prev, password: undefined })) }}
+                autoComplete="new-password"
+                placeholder="Almeno 8 caratteri"
+              />
+              {errors.password && <span className="form-error">{errors.password}</span>}
             </div>
 
             <button type="submit" className="btn-primary register-submit" disabled={submitting}>

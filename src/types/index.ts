@@ -6,6 +6,8 @@ export interface Student {
   phone: string
   lessonCredits: number
   createdAt: string
+  /** utente Supabase Auth collegato (null se non si è ancora registrato) */
+  userId?: string | null
 }
 
 export interface Booking {

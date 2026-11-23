@@ -107,8 +107,15 @@ function BookingForm({ slot, currentStudent, decrementStudentCredits }: { slot: 
     if (duplicate) { setErrors({ general: 'Hai già una prenotazione per questa lezione.' }); return }
 
     setSubmitting(true)
-    await addBooking({ slotId: slot.id, firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), phone: phone.trim() })
-    await decrementStudentCredits(currentStudent.id)
+    try {
+      // per lo studente la prenotazione e il credito li gestisce il database (book_slot)
+      await addBooking({ slotId: slot.id, firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), phone: phone.trim() })
+      await decrementStudentCredits(currentStudent.id)
+    } catch (err) {
+      setErrors({ general: err instanceof Error ? err.message : 'Prenotazione non riuscita. Riprova.' })
+      setSubmitting(false)
+      return
+    }
 
     supabase.functions.invoke('send-email', {
       body: { type: 'booking', studentEmail: email.trim(), studentName: firstName.trim(), slotTitle: slot.title, slotDate: formatDateLong(slot.date), slotTime: slot.time, slotDuration: slot.duration },
@@ -257,7 +264,13 @@ function WaitlistForm({ slot }: { slot: Slot }) {
     if (duplicate) { setErrors({ general: "Sei già in lista d'attesa per questa lezione." }); return }
 
     setSubmitting(true)
-    await addToWaitlist({ slotId: slot.id, firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), phone: phone.trim() })
+    try {
+      await addToWaitlist({ slotId: slot.id, firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), phone: phone.trim() })
+    } catch (err) {
+      setErrors({ general: err instanceof Error ? err.message : "Iscrizione alla lista d'attesa non riuscita. Riprova." })
+      setSubmitting(false)
+      return
+    }
 
     supabase.functions.invoke('send-email', {
       body: { type: 'waitlist', studentEmail: email.trim(), studentName: firstName.trim(), slotTitle: slot.title, slotDate: formatDateLong(slot.date), slotTime: slot.time, slotDuration: slot.duration },
@@ -353,11 +366,11 @@ export default function BookingPage() {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
-  if (!currentStudent) return <Navigate to="/accedi" replace state={{ from: location.pathname }} />
-
   if (loading) {
     return <div className="booking-unavailable"><p>Caricamento...</p></div>
   }
+
+  if (!currentStudent) return <Navigate to="/accedi" replace state={{ from: location.pathname }} />
 
   const slot = slots.find(s => s.id === slotId)
   if (!slot) {

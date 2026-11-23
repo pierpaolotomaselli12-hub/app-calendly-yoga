@@ -7,6 +7,7 @@ export default function AdminLayout() {
   const { isAdminLoggedIn, adminLogout, loading, slots, waitlist, students, events } = useApp()
   const navigate = useNavigate()
 
+  if (loading) return <div className="admin-auth-loading" style={{ padding: 48, textAlign: 'center' }}>Caricamento…</div>
   if (!isAdminLoggedIn) return <Navigate to="/admin/login" replace />
 
   function handleLogout() {

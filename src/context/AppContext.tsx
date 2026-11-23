@@ -1,12 +1,17 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo, useRef, type ReactNode } from 'react'
+import type { Session } from '@supabase/supabase-js'
 import type { Slot, Booking, WaitlistEntry, Student, YogaEvent, EventBooking, EventWaitlistEntry, EventFormData } from '../types'
 import { supabase } from '../lib/supabase'
+
+export type LoginResult = 'ok' | 'invalid' | 'no_profile' | 'not_admin'
+export type RegisterResult = 'ok' | 'email_taken' | 'weak_password' | 'invalid_email' | 'error'
 
 interface AppContextType {
   slots: Slot[]
   waitlist: WaitlistEntry[]
   students: Student[]
   events: YogaEvent[]
+  /** true finché non si conoscono sessione, ruolo e primi dati */
   loading: boolean
   addSlot: (data: Omit<Slot, 'id' | 'bookings'>) => Promise<void>
   updateSlot: (id: string, data: Omit<Slot, 'id' | 'bookings'>) => Promise<void>
@@ -17,12 +22,15 @@ interface AppContextType {
   addToWaitlist: (data: Omit<WaitlistEntry, 'id' | 'createdAt'>) => Promise<void>
   removeFromWaitlist: (slotId: string, entryId: string) => Promise<void>
   isAdminLoggedIn: boolean
-  adminLogin: (password: string) => boolean
-  adminLogout: () => void
+  adminLogin: (email: string, password: string) => Promise<LoginResult>
+  adminSignUp: (email: string, password: string) => Promise<RegisterResult>
+  adminLogout: () => Promise<void>
   currentStudent: Student | null
-  studentRegister: (data: { firstName: string; lastName: string; email: string; phone: string }) => Promise<'ok' | 'email_taken'>
-  studentLogin: (email: string) => Promise<Student | null>
-  studentLogout: () => void
+  /** utente Auth loggato (anche senza profilo studente) */
+  sessionEmail: string | null
+  studentRegister: (data: { firstName: string; lastName: string; email: string; phone: string; password: string }) => Promise<RegisterResult>
+  studentLogin: (email: string, password: string) => Promise<LoginResult>
+  studentLogout: () => Promise<void>
   createStudent: (data: { firstName: string; lastName: string; email: string; phone: string }) => Promise<'ok' | 'email_taken'>
   updateStudent: (id: string, data: { firstName: string; lastName: string; email: string; phone: string }) => Promise<void>
   updateStudentCredits: (studentId: string, credits: number) => Promise<void>
@@ -35,6 +43,44 @@ interface AppContextType {
   deleteEventBooking: (eventId: string, bookingId: string) => Promise<void>
   addToEventWaitlist: (data: Omit<EventWaitlistEntry, 'id' | 'createdAt'>) => Promise<void>
   removeFromEventWaitlist: (eventId: string, entryId: string) => Promise<void>
+}
+
+/** Messaggi in italiano per gli errori delle funzioni del database. */
+const ERROR_MESSAGES: Record<string, string> = {
+  not_registered: 'Accedi o registrati per continuare.',
+  not_found: 'Questa prenotazione non è più disponibile.',
+  past: 'Questa lezione è già passata.',
+  already_booked: 'Hai già una prenotazione per questa lezione.',
+  already_waitlisted: "Sei già in lista d'attesa.",
+  full: 'I posti sono finiti: puoi metterti in lista d\'attesa.',
+  no_credits: 'Non hai crediti disponibili: chiedi a Laura di ricaricare il pacchetto.',
+  too_late: 'La disdetta non è più possibile: scadeva alle 10:00 del giorno della lezione.',
+}
+
+/** Errore con messaggio già pronto da mostrare all'utente. */
+// eslint-disable-next-line react-refresh/only-export-components
+export class AppActionError extends Error {}
+
+async function callRpc(name: string, args: Record<string, unknown>): Promise<void> {
+  const { error } = await supabase.rpc(name, args)
+  if (error) {
+    const code = Object.keys(ERROR_MESSAGES).find(k => error.message.includes(k))
+    throw new AppActionError(code ? ERROR_MESSAGES[code] : 'Qualcosa non ha funzionato. Riprova tra poco.')
+  }
+}
+
+function mapRegisterError(message: string): RegisterResult {
+  const m = message.toLowerCase()
+  if (m.includes('already') || m.includes('registered') || m.includes('email_taken')) return 'email_taken'
+  if (m.includes('password')) return 'weak_password'
+  if (m.includes('email')) return 'invalid_email'
+  return 'error'
+}
+
+/** Aggiunge voci anonime fino al totale, così .length conta tutti i posti occupati senza esporre dati altrui. */
+function padTo<T>(own: T[], total: number, make: (i: number) => T): T[] {
+  const extra = Math.max(0, total - own.length)
+  return extra === 0 ? own : [...own, ...Array.from({ length: extra }, (_, i) => make(i))]
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -87,6 +133,7 @@ function mapStudent(raw: Record<string, unknown>): Student {
     phone: raw.phone as string,
     lessonCredits: raw.lesson_credits as number,
     createdAt: raw.created_at as string,
+    userId: (raw.user_id as string | null) ?? null,
   }
 }
 
@@ -132,89 +179,128 @@ function mapEvent(raw: Record<string, unknown>): YogaEvent {
   }
 }
 
-function loadAdminStatus(): boolean {
-  return localStorage.getItem('yoga_admin') === 'true'
-}
-
-function loadCurrentStudent(): Student | null {
-  try {
-    const raw = localStorage.getItem('yoga_student_session')
-    if (!raw) return null
-    return JSON.parse(raw) as Student
-  } catch {
-    return null
-  }
-}
-
 export function AppProvider({ children }: { children: ReactNode }) {
   const [slots, setSlots] = useState<Slot[]>([])
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([])
   const [students, setStudents] = useState<Student[]>([])
   const [events, setEvents] = useState<YogaEvent[]>([])
   const [loading, setLoading] = useState<boolean>(true)
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(loadAdminStatus)
-  const [currentStudent, setCurrentStudent] = useState<Student | null>(loadCurrentStudent)
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(false)
+  /** undefined = sessione non ancora letta */
+  const [session, setSession] = useState<Session | null | undefined>(undefined)
+  const isAdminRef = useRef(false)
 
+  // Pulizia delle vecchie "sessioni" salvate nel browser prima di Supabase Auth
   useEffect(() => {
-    localStorage.setItem('yoga_admin', String(isAdminLoggedIn))
-  }, [isAdminLoggedIn])
+    try {
+      localStorage.removeItem('yoga_admin')
+      localStorage.removeItem('yoga_student_session')
+    } catch { /* storage non disponibile */ }
+  }, [])
 
-  async function fetchAll(isInitial = false): Promise<Student[]> {
-    if (isInitial) setLoading(true)
-
+  async function fetchAll(): Promise<void> {
     const [
       { data: slotsData },
       { data: waitlistData },
       { data: studentsData },
       { data: eventsData },
+      { data: slotCounts },
+      { data: eventCounts },
     ] = await Promise.all([
       supabase.from('slots').select('*, bookings(*)').order('date', { ascending: true }),
       supabase.from('waitlist').select('*').order('created_at', { ascending: true }),
       supabase.from('students').select('*').order('created_at', { ascending: true }),
       supabase.from('events').select('*, event_bookings(*), event_waitlist(*)').order('date', { ascending: true }),
+      supabase.rpc('slot_counts'),
+      supabase.rpc('event_counts'),
     ])
 
-    setSlots((slotsData ?? []).map(s => mapSlot(s as Record<string, unknown>)))
+    const slotTotals = new Map<string, number>(
+      ((slotCounts ?? []) as { slot_id: string; booked: number }[]).map(c => [c.slot_id, c.booked]),
+    )
+    const eventTotals = new Map<string, { booked: number; waiting: number }>(
+      ((eventCounts ?? []) as { event_id: string; booked: number; waiting: number }[]).map(c => [c.event_id, c]),
+    )
+
+    // Chi non è admin vede solo le proprie prenotazioni: completiamo con voci anonime fino al totale
+    setSlots((slotsData ?? []).map(raw => {
+      const s = mapSlot(raw as Record<string, unknown>)
+      const total = slotTotals.get(s.id) ?? s.bookings.length
+      return {
+        ...s,
+        bookings: padTo(s.bookings, total, i => ({
+          id: `anon-${s.id}-${i}`, slotId: s.id, firstName: '', lastName: '', email: '', phone: '', createdAt: '',
+        })),
+      }
+    }))
     setWaitlist((waitlistData ?? []).map(w => mapWaitlistEntry(w as Record<string, unknown>)))
-    const freshStudents = (studentsData ?? []).map(s => mapStudent(s as Record<string, unknown>))
-    setStudents(freshStudents)
-    setEvents((eventsData ?? []).map(e => mapEvent(e as Record<string, unknown>)))
-    setLoading(false)
-    return freshStudents
+    setStudents((studentsData ?? []).map(s => mapStudent(s as Record<string, unknown>)))
+    setEvents((eventsData ?? []).map(raw => {
+      const e = mapEvent(raw as Record<string, unknown>)
+      const t = eventTotals.get(e.id)
+      return {
+        ...e,
+        bookings: padTo(e.bookings, t?.booked ?? e.bookings.length, i => ({
+          id: `anon-${e.id}-b${i}`, eventId: e.id, firstName: '', lastName: '', email: '', phone: '', createdAt: '',
+        })),
+        waitlist: padTo(e.waitlist, t?.waiting ?? e.waitlist.length, i => ({
+          id: `anon-${e.id}-w${i}`, eventId: e.id, firstName: '', lastName: '', email: '', phone: '', createdAt: '',
+        })),
+      }
+    }))
   }
 
-  function applySyncCurrentStudent(freshStudents: Student[], prev: Student | null): Student | null {
-    if (!prev) return null
-    const updated = freshStudents.find(s => s.id === prev.id)
-    if (!updated) return prev
-    localStorage.setItem('yoga_student_session', JSON.stringify(updated))
-    return updated
-  }
-
+  // Sessione Supabase Auth
   useEffect(() => {
-    void fetchAll(true).then(fresh => {
-      setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
-    })
+    void supabase.auth.getSession().then(({ data }) => setSession(data.session))
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => setSession(s))
+    return () => sub.subscription.unsubscribe()
   }, [])
 
+  // A ogni cambio di utente: ruolo admin verificato dal server + dati ricaricati
+  const userId = session?.user.id ?? null
+  useEffect(() => {
+    if (session === undefined) return
+    let cancelled = false
+    void (async () => {
+      let admin = false
+      if (userId) {
+        const { data } = await supabase.rpc('is_admin')
+        admin = data === true
+      }
+      await fetchAll()
+      if (cancelled) return
+      isAdminRef.current = admin
+      setIsAdminLoggedIn(admin)
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, session === undefined])
+
+  // Aggiornamenti in tempo reale
   useEffect(() => {
     const channel = supabase
       .channel('db-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'slots' }, () => { void fetchAll() })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => { void fetchAll() })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'waitlist' }, () => { void fetchAll() })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, () => {
-        void fetchAll().then(fresh => {
-          setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
-        })
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, () => { void fetchAll() })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => { void fetchAll() })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'event_bookings' }, () => { void fetchAll() })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'event_waitlist' }, () => { void fetchAll() })
       .subscribe()
-
     return () => { void supabase.removeChannel(channel) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const currentStudent = useMemo<Student | null>(
+    () => (userId ? students.find(s => s.userId === userId) ?? null : null),
+    [students, userId],
+  )
+  const sessionEmail = session?.user.email ?? null
+
+  // ── Lezioni (solo admin, protette dalle policy) ──
 
   async function addSlot(data: Omit<Slot, 'id' | 'bookings'>) {
     await supabase.from('slots').insert({
@@ -250,90 +336,145 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await fetchAll()
   }
 
+  // ── Prenotazioni: l'admin scrive direttamente, lo studente passa dalle funzioni del database ──
+
   async function addBooking(data: Omit<Booking, 'id' | 'createdAt'>) {
-    await supabase.from('bookings').insert({
-      slot_id: data.slotId, first_name: data.firstName, last_name: data.lastName,
-      email: data.email, phone: data.phone,
-    })
+    if (isAdminRef.current) {
+      await supabase.from('bookings').insert({
+        slot_id: data.slotId, first_name: data.firstName, last_name: data.lastName,
+        email: data.email, phone: data.phone,
+      })
+    } else {
+      await callRpc('book_slot', { p_slot_id: data.slotId }) // scala anche il credito
+    }
     await fetchAll()
   }
 
   async function deleteBooking(_slotId: string, bookingId: string) {
-    await supabase.from('bookings').delete().eq('id', bookingId)
+    if (isAdminRef.current) {
+      await supabase.from('bookings').delete().eq('id', bookingId)
+    } else {
+      await callRpc('cancel_booking', { p_booking_id: bookingId }) // restituisce anche il credito
+    }
     await fetchAll()
   }
 
   async function addToWaitlist(data: Omit<WaitlistEntry, 'id' | 'createdAt'>) {
-    await supabase.from('waitlist').insert({
-      slot_id: data.slotId, first_name: data.firstName, last_name: data.lastName,
-      email: data.email, phone: data.phone,
-    })
+    if (isAdminRef.current) {
+      await supabase.from('waitlist').insert({
+        slot_id: data.slotId, first_name: data.firstName, last_name: data.lastName,
+        email: data.email, phone: data.phone,
+      })
+    } else {
+      await callRpc('join_waitlist', { p_slot_id: data.slotId })
+    }
     await fetchAll()
   }
 
   async function removeFromWaitlist(_slotId: string, entryId: string) {
-    await supabase.from('waitlist').delete().eq('id', entryId)
+    if (isAdminRef.current) {
+      await supabase.from('waitlist').delete().eq('id', entryId)
+    } else {
+      await callRpc('leave_waitlist', { p_entry_id: entryId })
+    }
     await fetchAll()
   }
 
-  function adminLogin(password: string): boolean {
-    if (password === 'yoga2024') { setIsAdminLoggedIn(true); return true }
-    return false
+  // ── Accesso ──
+
+  async function adminLogin(email: string, password: string): Promise<LoginResult> {
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+    if (error) return 'invalid'
+    const { data } = await supabase.rpc('is_admin')
+    if (data !== true) {
+      await supabase.auth.signOut()
+      return 'not_admin'
+    }
+    isAdminRef.current = true
+    setIsAdminLoggedIn(true)
+    return 'ok'
   }
 
-  function adminLogout() { setIsAdminLoggedIn(false) }
+  async function adminSignUp(email: string, password: string): Promise<RegisterResult> {
+    const { error } = await supabase.auth.signUp({ email: email.trim(), password })
+    if (error) return mapRegisterError(error.message)
+    await supabase.auth.signOut() // l'accesso admin va abilitato prima di poter entrare
+    return 'ok'
+  }
 
-  async function studentRegister(data: { firstName: string; lastName: string; email: string; phone: string }): Promise<'ok' | 'email_taken'> {
-    const existing = students.find(s => s.email.toLowerCase() === data.email.toLowerCase())
-    if (existing) return 'email_taken'
-    await supabase.from('students').insert({
-      first_name: data.firstName, last_name: data.lastName, email: data.email, phone: data.phone,
+  async function adminLogout() {
+    await supabase.auth.signOut()
+    isAdminRef.current = false
+    setIsAdminLoggedIn(false)
+  }
+
+  async function studentRegister(data: { firstName: string; lastName: string; email: string; phone: string; password: string }): Promise<RegisterResult> {
+    const email = data.email.trim()
+    let { error } = await supabase.auth.signUp({ email, password: data.password })
+    if (error && mapRegisterError(error.message) === 'email_taken') {
+      // L'account esiste già (es. registrazione interrotta): proviamo ad accedere con la stessa password
+      const res = await supabase.auth.signInWithPassword({ email, password: data.password })
+      if (res.error) return 'email_taken'
+      error = null
+    }
+    if (error) return mapRegisterError(error.message)
+    const { data: sess } = await supabase.auth.getSession()
+    if (!sess.session) return 'error' // conferma email attiva sul progetto: non dovrebbe succedere
+    const { error: regError } = await supabase.rpc('register_student', {
+      p_first_name: data.firstName.trim(), p_last_name: data.lastName.trim(), p_phone: data.phone.trim(),
     })
+    if (regError) {
+      await supabase.auth.signOut()
+      return regError.message.includes('email_taken') ? 'email_taken' : 'error'
+    }
     await fetchAll()
     return 'ok'
   }
 
-  async function studentLogin(email: string): Promise<Student | null> {
-    const { data } = await supabase.from('students').select('*').ilike('email', email).maybeSingle()
-    if (!data) return null
-    const student = mapStudent(data as Record<string, unknown>)
-    setCurrentStudent(student)
-    localStorage.setItem('yoga_student_session', JSON.stringify(student))
-    return student
+  async function studentLogin(email: string, password: string): Promise<LoginResult> {
+    const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+    if (error || !data.user) return 'invalid'
+    const { data: row } = await supabase.from('students').select('id').eq('user_id', data.user.id).maybeSingle()
+    await fetchAll()
+    return row ? 'ok' : 'no_profile'
   }
 
-  function studentLogout() {
-    localStorage.removeItem('yoga_student_session')
-    setCurrentStudent(null)
+  async function studentLogout() {
+    await supabase.auth.signOut()
   }
+
+  // ── Crediti: modificabili solo dall'admin; per lo studente li gestiscono le funzioni del database ──
 
   async function updateStudentCredits(studentId: string, credits: number) {
     await supabase.from('students').update({ lesson_credits: credits }).eq('id', studentId)
-    const fresh = await fetchAll()
-    setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
+    await fetchAll()
   }
 
   async function decrementStudentCredits(studentId: string) {
-    const target = students.find(s => s.id === studentId)
-    if (!target || target.lessonCredits <= 0) return
-    await supabase.from('students').update({ lesson_credits: target.lessonCredits - 1 }).eq('id', studentId)
-    const fresh = await fetchAll()
-    setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
+    if (isAdminRef.current) {
+      const target = students.find(s => s.id === studentId)
+      if (target && target.lessonCredits > 0) {
+        await supabase.from('students').update({ lesson_credits: target.lessonCredits - 1 }).eq('id', studentId)
+      }
+    }
+    await fetchAll()
   }
 
   async function incrementStudentCredits(studentId: string) {
-    const target = students.find(s => s.id === studentId)
-    if (!target) return
-    await supabase.from('students').update({ lesson_credits: target.lessonCredits + 1 }).eq('id', studentId)
-    const fresh = await fetchAll()
-    setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
+    if (isAdminRef.current) {
+      const target = students.find(s => s.id === studentId)
+      if (target) {
+        await supabase.from('students').update({ lesson_credits: target.lessonCredits + 1 }).eq('id', studentId)
+      }
+    }
+    await fetchAll()
   }
 
   async function createStudent(data: { firstName: string; lastName: string; email: string; phone: string }): Promise<'ok' | 'email_taken'> {
     const existing = students.find(s => s.email.toLowerCase() === data.email.toLowerCase())
     if (existing) return 'email_taken'
     await supabase.from('students').insert({
-      first_name: data.firstName, last_name: data.lastName, email: data.email, phone: data.phone,
+      first_name: data.firstName, last_name: data.lastName, email: data.email.trim().toLowerCase(), phone: data.phone,
     })
     await fetchAll()
     return 'ok'
@@ -343,9 +484,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from('students').update({
       first_name: data.firstName, last_name: data.lastName, email: data.email, phone: data.phone,
     }).eq('id', id)
-    const fresh = await fetchAll()
-    setCurrentStudent(prev => applySyncCurrentStudent(fresh, prev))
+    await fetchAll()
   }
+
+  // ── Eventi ──
 
   async function addEvent(data: EventFormData) {
     await supabase.from('events').insert({
@@ -371,28 +513,44 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   async function addEventBooking(data: Omit<EventBooking, 'id' | 'createdAt'>) {
-    await supabase.from('event_bookings').insert({
-      event_id: data.eventId, first_name: data.firstName, last_name: data.lastName,
-      email: data.email, phone: data.phone,
-    })
+    if (isAdminRef.current) {
+      await supabase.from('event_bookings').insert({
+        event_id: data.eventId, first_name: data.firstName, last_name: data.lastName,
+        email: data.email, phone: data.phone,
+      })
+    } else {
+      await callRpc('book_event', { p_event_id: data.eventId })
+    }
     await fetchAll()
   }
 
   async function deleteEventBooking(_eventId: string, bookingId: string) {
-    await supabase.from('event_bookings').delete().eq('id', bookingId)
+    if (isAdminRef.current) {
+      await supabase.from('event_bookings').delete().eq('id', bookingId)
+    } else {
+      await callRpc('cancel_event_booking', { p_booking_id: bookingId })
+    }
     await fetchAll()
   }
 
   async function addToEventWaitlist(data: Omit<EventWaitlistEntry, 'id' | 'createdAt'>) {
-    await supabase.from('event_waitlist').insert({
-      event_id: data.eventId, first_name: data.firstName, last_name: data.lastName,
-      email: data.email, phone: data.phone,
-    })
+    if (isAdminRef.current) {
+      await supabase.from('event_waitlist').insert({
+        event_id: data.eventId, first_name: data.firstName, last_name: data.lastName,
+        email: data.email, phone: data.phone,
+      })
+    } else {
+      await callRpc('join_event_waitlist', { p_event_id: data.eventId })
+    }
     await fetchAll()
   }
 
   async function removeFromEventWaitlist(_eventId: string, entryId: string) {
-    await supabase.from('event_waitlist').delete().eq('id', entryId)
+    if (isAdminRef.current) {
+      await supabase.from('event_waitlist').delete().eq('id', entryId)
+    } else {
+      await callRpc('leave_event_waitlist', { p_entry_id: entryId })
+    }
     await fetchAll()
   }
 
@@ -401,8 +559,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       slots, waitlist, students, events, loading,
       addSlot, updateSlot, deleteSlot, duplicateSlot,
       addBooking, deleteBooking, addToWaitlist, removeFromWaitlist,
-      isAdminLoggedIn, adminLogin, adminLogout,
-      currentStudent, studentRegister, studentLogin, studentLogout,
+      isAdminLoggedIn, adminLogin, adminSignUp, adminLogout,
+      currentStudent, sessionEmail, studentRegister, studentLogin, studentLogout,
       createStudent, updateStudent,
       updateStudentCredits, decrementStudentCredits, incrementStudentCredits,
       addEvent, updateEvent, deleteEvent,
@@ -413,6 +571,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useApp(): AppContextType {
   const ctx = useContext(AppContext)
   if (!ctx) throw new Error('useApp must be used within AppProvider')

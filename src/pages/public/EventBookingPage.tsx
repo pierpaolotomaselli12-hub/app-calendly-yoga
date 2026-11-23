@@ -59,7 +59,12 @@ function BookingForm({ event }: { event: YogaEvent }) {
     const duplicate = event.bookings.find(b => b.email.toLowerCase() === email.toLowerCase())
     if (duplicate) { setErrors({ general: 'Hai già una prenotazione per questo evento.' }); return }
 
-    await addEventBooking({ eventId: event.id, firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), phone: phone.trim() })
+    try {
+      await addEventBooking({ eventId: event.id, firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), phone: phone.trim() })
+    } catch (err) {
+      setErrors({ general: err instanceof Error ? err.message : 'Prenotazione non riuscita. Riprova.' })
+      return
+    }
 
     void supabase.functions.invoke('send-email', {
       body: {
@@ -162,7 +167,12 @@ function WaitlistForm({ event }: { event: YogaEvent }) {
     const dup = event.waitlist.find(w => w.email.toLowerCase() === email.trim().toLowerCase())
     if (dup) { setErrors({ general: "Sei già in lista d'attesa per questo evento." }); return }
 
-    await addToEventWaitlist({ eventId: event.id, firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), phone: phone.trim() })
+    try {
+      await addToEventWaitlist({ eventId: event.id, firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), phone: phone.trim() })
+    } catch (err) {
+      setErrors({ general: err instanceof Error ? err.message : "Iscrizione alla lista d'attesa non riuscita. Riprova." })
+      return
+    }
 
     void supabase.functions.invoke('send-email', {
       body: {
@@ -232,8 +242,8 @@ export default function EventBookingPage() {
   const location = useLocation()
   const { events, loading, currentStudent } = useApp()
 
-  if (!currentStudent) return <Navigate to="/accedi" replace state={{ from: location.pathname }} />
   if (loading) return <div className="booking-unavailable"><p>Caricamento...</p></div>
+  if (!currentStudent) return <Navigate to="/accedi" replace state={{ from: location.pathname }} />
 
   const event = events.find(e => e.id === eventId)
   if (!event) return (
