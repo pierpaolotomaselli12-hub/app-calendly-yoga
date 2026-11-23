@@ -587,7 +587,7 @@ export default function Landing() {
         <div className="lp-wrap">
           <span>© 2026 Laura Pagnossin · Yoga a Porcia</span>
           <span>
-            <Link to={LESSONS_PATH}>Area lezioni</Link> · <Link to="/accedi">Accedi</Link> · <Link to="/registrati">Registrati</Link> · <a href="#">Privacy</a> · <a href="#">Cookie</a>
+            <Link to={LESSONS_PATH}>Area lezioni</Link> · <Link to="/accedi">Accedi</Link> · <Link to="/registrati">Registrati</Link>
           </span>
         </div>
       </footer>
